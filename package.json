@@ -1,0 +1,32 @@
+{
+  "name": "smart-dossier-backend",
+  "version": "0.1.0",
+  "description": "Backend API for Smart Dossier AI: case memory and delay prediction.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "build": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.77.0",
+    "pdf-parse": "^1.1.1",
+    "prisma": "^5.22.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
+}

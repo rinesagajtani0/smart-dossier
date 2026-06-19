@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Dossier {
+  id               Int           @id @default(autoincrement())
+  title            String
+  processType      String
+  applicantName    String?
+  ownerName        String?
+  propertyLocation String?
+  propertyNumber   String?
+  cadastralZone    String?
+  propertyType     String?
+  phase            String
+  institution      String
+  status           String        @default("open")
+  deadline         DateTime?
+  missingFieldsJson String       @default("[]")
+  riskLevel        String        @default("medium")
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  documents        Document[]
+  aiOutputs        AiOutput[]
+  caseHistory      CaseHistory?
+  letters          Letter[]
+}
+
+model Document {
+  id                Int      @id @default(autoincrement())
+  dossierId         Int
+  fileName          String
+  documentType      String?
+  extractedText     String
+  extractedDataJson String   @default("{}")
+  uploadedAt        DateTime @default(now())
+  dossier           Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+}
+
+model AiOutput {
+  id        Int      @id @default(autoincrement())
+  dossierId Int
+  type      String
+  content   String
+  createdAt DateTime @default(now())
+  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+}
+
+model CaseHistory {
+  id                Int      @id @default(autoincrement())
+  dossierId         Int      @unique
+  outcome           String
+  delayDays         Int      @default(0)
+  delayReason       String?
+  totalDurationDays Int
+  similarityTagsJson String  @default("[]")
+  dossier           Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+}
+
+model ProcessStep {
+  id                    Int     @id @default(autoincrement())
+  processType           String
+  phase                 String
+  institution           String
+  requiredDocumentsJson String  @default("[]")
+  criticalPoint         Boolean @default(false)
+  expectedDays          Int
+  nextPhase             String?
+}
+
+model Letter {
+  id        Int      @id @default(autoincrement())
+  dossierId Int
+  type      String
+  content   String
+  createdAt DateTime @default(now())
+  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+}
