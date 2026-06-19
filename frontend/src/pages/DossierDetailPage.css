@@ -1,0 +1,132 @@
+.dossier-detail {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dossier-detail__back {
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.dossier-detail__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+
+.dossier-detail__header h1 {
+  margin: 0 0 4px;
+  text-align: left;
+}
+
+.dossier-detail__category {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.dossier-detail__badges {
+  display: flex;
+  gap: 8px;
+}
+
+.dossier-detail__section h2 {
+  text-align: left;
+}
+
+.dossier-detail__section p {
+  font-size: 15px;
+  line-height: 150%;
+}
+
+.dossier-detail__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dossier-detail__tag {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--code-bg);
+  color: var(--text-h);
+}
+
+.dossier-detail__timeline,
+.dossier-detail__sources {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dossier-detail__timeline li {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.dossier-detail__timeline-date {
+  flex-shrink: 0;
+  width: 100px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.dossier-detail__sources li {
+  font-size: 14px;
+}
+
+.dossier-detail__sources a {
+  color: var(--accent);
+}
+
+.dossier-detail__empty {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.dossier-detail__meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.dossier-detail__status {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text);
+}
+
+.dossier-detail__status--error {
+  color: #b91c1c;
+}
+
+@media (max-width: 600px) {
+  .dossier-detail__timeline li {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .dossier-detail__timeline-date {
+    width: auto;
+  }
+}
