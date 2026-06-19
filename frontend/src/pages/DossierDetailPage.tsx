@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useDossier } from '../hooks/useDossier';
-import { RiskBadge, StatusBadge } from '../components/StatusBadge';
+import { PhaseBadge, RiskBadge } from '../components/PhaseBadge';
+import { isDelayed } from '../utils/dossierStats';
 import './DossierDetailPage.css';
 
 export function DossierDetailPage() {
@@ -36,7 +37,7 @@ export function DossierDetailPage() {
           <p className="dossier-detail__category">{dossier.category}</p>
         </div>
         <div className="dossier-detail__badges">
-          <StatusBadge status={dossier.status} />
+          <PhaseBadge phase={dossier.phase} />
           <RiskBadge riskLevel={dossier.riskLevel} />
         </div>
       </header>
@@ -95,6 +96,9 @@ export function DossierDetailPage() {
       <footer className="dossier-detail__meta">
         <span>Created {dossier.createdAt}</span>
         <span>Updated {dossier.updatedAt}</span>
+        <span className={isDelayed(dossier) ? 'dossier-detail__deadline--delayed' : undefined}>
+          {isDelayed(dossier) ? 'Overdue' : 'Deadline'} {dossier.deadline}
+        </span>
       </footer>
     </div>
   );

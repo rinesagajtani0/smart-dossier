@@ -110,6 +110,11 @@
   padding-top: 16px;
 }
 
+.dossier-detail__deadline--delayed {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
 .dossier-detail__status {
   text-align: center;
   padding: 40px 0;

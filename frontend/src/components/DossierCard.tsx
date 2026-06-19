@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Dossier } from '../types/dossier';
-import { RiskBadge, StatusBadge } from './StatusBadge';
+import { RiskBadge } from './PhaseBadge';
+import { isDelayed } from '../utils/dossierStats';
 import './DossierCard.css';
 
 interface DossierCardProps {
@@ -8,17 +9,20 @@ interface DossierCardProps {
 }
 
 export function DossierCard({ dossier }: DossierCardProps) {
+  const delayed = isDelayed(dossier);
+
   return (
     <Link to={`/dossiers/${dossier.id}`} className="dossier-card">
       <div className="dossier-card__header">
-        <h3>{dossier.subject}</h3>
-        <StatusBadge status={dossier.status} />
+        <h4>{dossier.subject}</h4>
+        <RiskBadge riskLevel={dossier.riskLevel} />
       </div>
       <p className="dossier-card__category">{dossier.category}</p>
       <p className="dossier-card__summary">{dossier.summary}</p>
       <div className="dossier-card__footer">
-        <RiskBadge riskLevel={dossier.riskLevel} />
-        <span className="dossier-card__updated">Updated {dossier.updatedAt}</span>
+        <span className={delayed ? 'dossier-card__deadline dossier-card__deadline--delayed' : 'dossier-card__deadline'}>
+          {delayed ? 'Overdue' : 'Due'} {dossier.deadline}
+        </span>
       </div>
     </Link>
   );

@@ -1,10 +1,10 @@
 .dossier-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 20px;
+  gap: 6px;
+  padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--surface);
   text-decoration: none;
   color: inherit;
@@ -21,18 +21,19 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
 
-.dossier-card__header h3 {
+.dossier-card__header h4 {
   margin: 0;
-  font-size: 18px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-h);
 }
 
 .dossier-card__category {
   margin: 0;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -41,20 +42,28 @@
 
 .dossier-card__summary {
   margin: 0;
-  flex: 1;
-  font-size: 14px;
-  line-height: 145%;
+  font-size: 13px;
+  line-height: 140%;
   color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .dossier-card__footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
+  justify-content: flex-start;
+  margin-top: 4px;
 }
 
-.dossier-card__updated {
-  font-size: 12px;
+.dossier-card__deadline {
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text);
+}
+
+.dossier-card__deadline--delayed {
+  color: #b91c1c;
 }

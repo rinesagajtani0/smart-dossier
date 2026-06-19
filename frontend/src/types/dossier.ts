@@ -1,4 +1,4 @@
-export type DossierStatus = 'draft' | 'active' | 'archived';
+export type Phase = 'submitted' | 'verification' | 'valuation' | 'approval' | 'completed';
 
 export type RiskLevel = 'low' | 'medium' | 'high';
 
@@ -18,12 +18,13 @@ export interface Dossier {
   id: string;
   subject: string;
   category: string;
-  status: DossierStatus;
+  phase: Phase;
   riskLevel: RiskLevel;
   summary: string;
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  deadline: string;
   events: DossierEvent[];
   sources: DossierSource[];
 }

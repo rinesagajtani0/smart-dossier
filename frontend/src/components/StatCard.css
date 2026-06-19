@@ -1,0 +1,34 @@
+.stat-card {
+  --stat-accent: #1d4ed8;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 22px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--stat-accent);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.stat-card__value {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-h);
+}
+
+.stat-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.stat-card--danger {
+  --stat-accent: #b91c1c;
+}
+
+.stat-card--warning {
+  --stat-accent: #b45309;
+}

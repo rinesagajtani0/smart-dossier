@@ -1,16 +1,16 @@
 .dashboard-page__header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   text-align: left;
 }
 
 .dashboard-page__header h1 {
-  font-size: 32px;
-  margin: 0 0 8px;
+  font-size: 30px;
+  margin: 0 0 6px;
 }
 
 .dashboard-page__header p {
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .dashboard-page__status {
@@ -22,20 +22,27 @@
   color: #b91c1c;
 }
 
-.dashboard-page__grid {
+.dashboard-page__stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  margin-bottom: 32px;
+}
+
+.dashboard-page__board h2 {
+  text-align: left;
+  font-size: 18px;
+  margin-bottom: 14px;
 }
 
 @media (max-width: 900px) {
-  .dashboard-page__grid {
+  .dashboard-page__stats {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 600px) {
-  .dashboard-page__grid {
+@media (max-width: 480px) {
+  .dashboard-page__stats {
     grid-template-columns: 1fr;
   }
 }

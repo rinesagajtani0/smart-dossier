@@ -1,0 +1,72 @@
+.kanban-column {
+  --column-accent: #1d4ed8;
+  flex: 1 1 240px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: var(--code-bg);
+  border-radius: 12px;
+}
+
+.kanban-column__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--column-accent);
+}
+
+.kanban-column__header h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-h);
+}
+
+.kanban-column__count {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--column-accent);
+}
+
+.kanban-column__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 40px;
+}
+
+.kanban-column__empty {
+  margin: 0;
+  padding: 16px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.kanban-column--submitted {
+  --column-accent: #475569;
+}
+
+.kanban-column--verification {
+  --column-accent: #4338ca;
+}
+
+.kanban-column--valuation {
+  --column-accent: #b45309;
+}
+
+.kanban-column--approval {
+  --column-accent: #7e22ce;
+}
+
+.kanban-column--completed {
+  --column-accent: #15803d;
+}
