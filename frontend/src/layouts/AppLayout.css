@@ -1,6 +1,6 @@
 .app-layout {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   min-height: 100vh;
 }
 
@@ -11,6 +11,12 @@
   margin: 0 auto;
   padding: 32px 24px;
   box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .app-layout {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 600px) {

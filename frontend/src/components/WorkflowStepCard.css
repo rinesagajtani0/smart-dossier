@@ -1,0 +1,56 @@
+.workflow-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--step-accent);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.workflow-step-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.workflow-step-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.workflow-step-card__number {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--step-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.workflow-step-card__header h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.workflow-step-card__header p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 145%;
+  color: var(--text);
+}
+
+.workflow-step-card__preview {
+  flex: 1;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--code-bg);
+  font-size: 13px;
+}
