@@ -41,6 +41,31 @@ export function DelayPredictionPanel({ prediction }: DelayPredictionPanelProps) 
       <ProcedureResultSection label="Recommended Action">
         <p className="delay-prediction-panel__action">{prediction.recommendedAction}</p>
       </ProcedureResultSection>
+
+      {prediction.legalChangeImpact && (
+        <div className="delay-prediction-panel__legal" role="alert">
+          <h3 className="delay-prediction-panel__legal-title">
+            <span aria-hidden="true">⚖</span> Legal Change Impact
+          </h3>
+          <p className="delay-prediction-panel__legal-summary">{prediction.legalChangeImpact.summary}</p>
+
+          <div className="delay-prediction-panel__legal-grid">
+            <div>
+              <span className="delay-prediction-panel__legal-label">Compliance Risk</span>
+              <p>{prediction.legalChangeImpact.complianceRisk}</p>
+            </div>
+            <div>
+              <span className="delay-prediction-panel__legal-label">Additional Delay Risk</span>
+              <p>{prediction.legalChangeImpact.additionalDelayRisk}</p>
+            </div>
+          </div>
+
+          <div className="delay-prediction-panel__legal-action">
+            <span className="delay-prediction-panel__legal-label">Required Action</span>
+            <p>{prediction.legalChangeImpact.requiredAction}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

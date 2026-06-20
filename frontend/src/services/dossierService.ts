@@ -283,12 +283,20 @@ export async function getCaseMemory(id: string): Promise<SimilarCase[]> {
   }));
 }
 
+export interface DelayLegalChangeImpact {
+  summary: string;
+  complianceRisk: string;
+  additionalDelayRisk: string;
+  requiredAction: string;
+}
+
 export interface DelayPrediction {
   risk: RiskLevel;
   predictedDelay: string;
   likelyBlockage: string;
   reason: string;
   recommendedAction: string;
+  legalChangeImpact?: DelayLegalChangeImpact | null;
 }
 
 export async function predictDossierDelay(id: string): Promise<DelayPrediction> {
