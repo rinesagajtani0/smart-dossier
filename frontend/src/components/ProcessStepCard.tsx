@@ -41,7 +41,10 @@ export function ProcessStepCard({ step }: ProcessStepCardProps) {
           {step.legalUpdates.length > 0 && (
             <ul className="process-step-card__legal-list">
               {step.legalUpdates.map((update) => (
-                <li key={update}>{update}</li>
+                <li key={update.id}>
+                  {update.title}
+                  {update.effectiveDate ? ` (effective ${update.effectiveDate})` : ''}
+                </li>
               ))}
             </ul>
           )}

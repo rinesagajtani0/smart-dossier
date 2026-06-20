@@ -1,5 +1,15 @@
 import { request } from './apiClient';
 
+export interface LegalUpdate {
+  id: string;
+  title: string;
+  effectiveDate: string;
+  reason: string;
+  source: string;
+  newRequiredDocuments: string[];
+  changedFields: string[];
+}
+
 export interface ProcessStep {
   id: number;
   processType: string;
@@ -10,7 +20,7 @@ export interface ProcessStep {
   nextPhase: string | null;
   requiredDocuments: string[];
   legalChangeApplies: boolean;
-  legalUpdates: string[];
+  legalUpdates: LegalUpdate[];
   changedFields: string[];
   addedRequiredDocuments: string[];
 }
@@ -26,7 +36,7 @@ interface ApiProcessStep {
   requiredDocuments: string[];
   requiredDocumentsJson?: string;
   legalChangeApplies?: boolean;
-  legalUpdates?: string[];
+  legalUpdates?: LegalUpdate[];
   changedFields?: string[];
   addedRequiredDocuments?: string[];
 }
