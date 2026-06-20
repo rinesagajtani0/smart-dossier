@@ -46,6 +46,8 @@ interface ApiDossier {
   } | null;
   alerts?: {
     userAlerts?: ApiUserAlert[];
+    requestedDocuments?: string[];
+    changedFields?: string[];
   } | null;
 }
 
@@ -133,6 +135,8 @@ function mapDossier(dossier: ApiDossier): Dossier {
     events: mapEvents(dossier),
     sources: mapSources(dossier),
     userAlerts: mapUserAlerts(dossier),
+    requestedDocuments: dossier.alerts?.requestedDocuments ?? [],
+    changedFields: dossier.alerts?.changedFields ?? [],
   };
 }
 

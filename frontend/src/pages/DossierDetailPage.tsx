@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useDossier } from '../hooks/useDossier';
 import { PhaseBadge, RiskBadge } from '../components/PhaseBadge';
 import { AlertsSection } from '../components/AlertsSection';
+import { LegalChangePanel } from '../components/LegalChangePanel';
 import { formatShortDate, isOverdue } from '../utils/date';
 import './DossierDetailPage.css';
 
@@ -44,6 +45,12 @@ export function DossierDetailPage() {
       </header>
 
       <AlertsSection alerts={dossier.userAlerts} />
+
+      <LegalChangePanel
+        alerts={dossier.userAlerts}
+        requestedDocuments={dossier.requestedDocuments}
+        changedFields={dossier.changedFields}
+      />
 
       <section className="dossier-detail__section">
         <h2>Summary</h2>

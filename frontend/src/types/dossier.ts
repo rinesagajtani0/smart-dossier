@@ -41,6 +41,8 @@ export interface Dossier {
   events: DossierEvent[];
   sources: DossierSource[];
   userAlerts: UserAlert[];
+  requestedDocuments: string[];
+  changedFields: string[];
 }
 
 export interface KanbanCardSummary {
