@@ -159,7 +159,9 @@ export async function generateProcedure(input: ProcedureGeneratorInput): Promise
     throw new Error(`No procedure is defined yet for "${intent.label}".`);
   }
 
-  const requiredDocuments = toCitizenFacingDocuments(dedupe(steps.flatMap((step) => step.requiredDocuments)));
+  // toCitizenFacingDocuments already dedupes by canonical label, so the raw
+  // per-step documents don't need a separate dedupe pass first.
+  const requiredDocuments = toCitizenFacingDocuments(steps.flatMap((step) => step.requiredDocuments));
   const institutions = dedupe(steps.map((step) => step.institution));
   const totalDays = steps.reduce((sum, step) => sum + step.expectedDays, 0);
   const criticalSteps = steps.filter((step) => step.criticalPoint);
@@ -214,7 +216,6 @@ const PROCEDURE_SESSION_KEY = 'smart-dossier:procedure-session';
 export interface ProcedureSession {
   dossierId: string;
   procedure: GeneratedProcedure;
-  requiredDocuments: string[];
 }
 
 export function saveProcedureSession(session: ProcedureSession): void {

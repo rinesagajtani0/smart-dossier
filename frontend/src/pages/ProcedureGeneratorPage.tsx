@@ -20,7 +20,7 @@ export function ProcedureGeneratorPage() {
 
     try {
       const dossierId = await prepareDossierForProcedure(result);
-      saveProcedureSession({ dossierId, procedure: result, requiredDocuments: result.requiredDocuments });
+      saveProcedureSession({ dossierId, procedure: result });
       navigate(`/document-upload?dossierId=${dossierId}`);
     } catch (err) {
       setPrepareError(err instanceof Error ? err.message : 'Could not prepare the dossier for upload.');

@@ -21,7 +21,8 @@ export function DocumentUploadPage() {
   // if the user types in a different dossier id, fall back to the original
   // single generic upload below instead of showing a stale document list.
   const [session] = useState(() => getProcedureSession());
-  const requiredDocuments = session && session.dossierId === dossierId ? session.requiredDocuments : null;
+  const requiredDocuments =
+    session && session.dossierId === dossierId ? session.procedure.requiredDocuments : null;
 
   const [fileName, setFileName] = useState<string | null>(null);
   const { status, progress, result, error, upload, reset } = useDocumentUpload();
