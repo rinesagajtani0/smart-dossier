@@ -4,7 +4,25 @@ import { INTENT_MAPPINGS } from '../services/processService';
 import type { ProcedureGeneratorInput } from '../services/processService';
 import './ProcedureGeneratorForm.css';
 
-const PROPERTY_TYPES = ['Apartment', 'House', 'Land', 'Commercial'];
+// Albanian property type terminology (Tokë Bujqësore = agricultural land,
+// Truall = building plot, Vilë = villa) — these are domain terms, not UI
+// chrome, so they stay in Albanian per the localization requirements.
+const PROPERTY_TYPES = ['Apartament', 'Shtëpi', 'Truall', 'Tokë Bujqësore', 'Vilë', 'Lokal Komercial'];
+
+const MUNICIPALITIES = [
+  'Tiranë',
+  'Durrës',
+  'Vlorë',
+  'Shkodër',
+  'Elbasan',
+  'Fier',
+  'Korçë',
+  'Berat',
+  'Lezhë',
+  'Kukës',
+  'Dibër',
+  'Gjirokastër',
+];
 
 interface ProcedureGeneratorFormProps {
   onGenerate: (input: ProcedureGeneratorInput) => void;
@@ -13,7 +31,7 @@ interface ProcedureGeneratorFormProps {
 
 export function ProcedureGeneratorForm({ onGenerate, loading }: ProcedureGeneratorFormProps) {
   const [userIntent, setUserIntent] = useState(INTENT_MAPPINGS[0].id);
-  const [municipality, setMunicipality] = useState('');
+  const [municipality, setMunicipality] = useState(MUNICIPALITIES[0]);
   const [propertyType, setPropertyType] = useState(PROPERTY_TYPES[0]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -36,12 +54,13 @@ export function ProcedureGeneratorForm({ onGenerate, loading }: ProcedureGenerat
 
       <label className="procedure-form__field">
         <span>Municipality</span>
-        <input
-          type="text"
-          placeholder="e.g. Prishtina"
-          value={municipality}
-          onChange={(event) => setMunicipality(event.target.value)}
-        />
+        <select value={municipality} onChange={(event) => setMunicipality(event.target.value)}>
+          {MUNICIPALITIES.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label className="procedure-form__field">

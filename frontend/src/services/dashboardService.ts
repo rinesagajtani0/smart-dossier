@@ -1,6 +1,7 @@
 import type { DashboardStats, KanbanCardSummary, KanbanColumns } from '../types/dossier';
 import { PHASES } from '../data/phases';
 import { mapCaseStatus } from '../utils/phase';
+import { localizeText, mapLocationToAlbania } from '../utils/albania';
 import { request } from './apiClient';
 
 interface ApiKanbanCard {
@@ -22,9 +23,9 @@ interface ApiKanbanResponse {
 function mapKanbanCard(card: ApiKanbanCard): KanbanCardSummary {
   return {
     id: String(card.id),
-    title: card.title,
+    title: localizeText(card.title),
     applicantName: card.applicantName ?? null,
-    propertyLocation: card.propertyLocation ?? null,
+    propertyLocation: mapLocationToAlbania(card.propertyLocation ?? null),
     propertyType: card.propertyType ?? null,
     status: mapCaseStatus(card.status),
     riskLevel: card.riskLevel,

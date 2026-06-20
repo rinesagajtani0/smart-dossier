@@ -1,5 +1,7 @@
 import type { CaseStatus, Dossier, DossierEvent, DossierSource, Phase, RiskLevel } from '../types/dossier';
 import { mapCaseStatus, mapPhase } from '../utils/phase';
+import { formatAlbanianDate } from '../utils/date';
+import { localizeText, mapLocationToAlbania } from '../utils/albania';
 import { patchJson, postJson, postMultipartWithProgress, request } from './apiClient';
 import type { ExtractedDocumentData } from './nlpService';
 
@@ -39,12 +41,7 @@ interface ApiDossier {
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return 'not set';
-
-  return new Intl.DateTimeFormat('en', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-  }).format(new Date(value));
+  return formatAlbanianDate(value);
 }
 
 function mapEvents(dossier: ApiDossier): DossierEvent[] {
@@ -87,24 +84,25 @@ function mapSources(dossier: ApiDossier): DossierSource[] {
 
 function mapDossier(dossier: ApiDossier): Dossier {
   const missingFields = dossier.missingFields ?? [];
+  const propertyLocation = mapLocationToAlbania(dossier.propertyLocation);
   const tags = [
     dossier.phase,
     dossier.institution,
-    dossier.propertyLocation,
+    propertyLocation,
     dossier.propertyType,
     ...missingFields,
   ].filter(Boolean) as string[];
 
   return {
     id: String(dossier.id),
-    subject: dossier.title,
+    subject: localizeText(dossier.title),
     category: `${dossier.processType} / ${dossier.phase}`,
     phase: mapPhase(dossier.phase),
     status: mapCaseStatus(dossier.status),
     riskLevel: dossier.riskLevel,
     summary:
-      `${dossier.applicantName ?? 'Unknown applicant'} - ${dossier.propertyLocation ?? 'unknown location'}. ` +
-      `Property ${dossier.propertyNumber ?? 'number missing'}, cadastral zone ${dossier.cadastralZone ?? 'missing'}. ` +
+      `${dossier.applicantName ?? 'Unknown applicant'} - ${propertyLocation ?? 'unknown location'}. ` +
+      `Property ${dossier.propertyNumber ?? 'number missing'}, cadastral zone ${dossier.cadastralZone ? localizeText(dossier.cadastralZone) : 'missing'}. ` +
       (missingFields.length
         ? `Missing: ${missingFields.join(', ')}.`
         : 'No missing fields detected.'),
@@ -174,7 +172,19 @@ export async function uploadDossierDocument(
 ): Promise<UploadedDocumentResult> {
   const formData = new FormData();
   formData.append('file', file);
-  return postMultipartWithProgress<UploadedDocumentResult>(`/dossiers/${id}/documents`, formData, onProgress);
+  const result = await postMultipartWithProgress<UploadedDocumentResult>(
+    `/dossiers/${id}/documents`,
+    formData,
+    onProgress,
+  );
+  return {
+    ...result,
+    extractedData: {
+      ...result.extractedData,
+      propertyLocation: mapLocationToAlbania(result.extractedData.propertyLocation),
+      cadastralZone: localizeText(result.extractedData.cadastralZone),
+    },
+  };
 }
 
 interface ApiSimilarDossier extends ApiDossier {
@@ -248,7 +258,8 @@ export interface GeneratedLetter {
 }
 
 export async function generateDossierLetter(id: string, type?: string): Promise<GeneratedLetter> {
-  return postJson<GeneratedLetter>(`/dossiers/${id}/generate-letter`, { type });
+  const letter = await postJson<GeneratedLetter>(`/dossiers/${id}/generate-letter`, { type });
+  return { ...letter, content: localizeText(letter.content) };
 }
 
 // --- Prevent Delay -----------------------------------------------------------

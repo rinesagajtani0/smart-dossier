@@ -11,7 +11,7 @@ export function WorkflowPage() {
     <div className="workflow-page">
       <header className="workflow-page__hero">
         <h1>Smart Dossier AI</h1>
-        <p>An intelligent operations platform that takes a property dossier from intake to decision.</p>
+        <p>An intelligent operations platform for property procedures across Albania — from intake to decision.</p>
       </header>
 
       <div className="workflow-page__grid">
@@ -31,11 +31,11 @@ export function WorkflowPage() {
         <WorkflowStepCard {...documentUpload}>
           <div className="workflow-preview__files">
             <span className="workflow-preview__file">
-              ownership-certificate.pdf
+              certifikate-pronesie.pdf
               <em>Uploaded</em>
             </span>
             <span className="workflow-preview__file">
-              valuation-report.pdf
+              raport-vleresimi.pdf
               <em>Uploaded</em>
             </span>
           </div>
@@ -48,11 +48,11 @@ export function WorkflowPage() {
           <dl className="workflow-preview__kv">
             <div>
               <dt>Applicant</dt>
-              <dd>Arta Gashi</dd>
+              <dd>Elona Hoxha</dd>
             </div>
             <div>
               <dt>Property Number</dt>
-              <dd>P-102/44</dd>
+              <dd>Nr. 145/22, ZK Tiranë</dd>
             </div>
             <div>
               <dt>Confidence</dt>
@@ -67,10 +67,22 @@ export function WorkflowPage() {
         <WorkflowStepCard {...caseMemory}>
           <div className="workflow-preview__matches">
             <span className="workflow-preview__match">
-              EXP-013 <strong>87% match</strong>
+              <span>
+                EXP-AL-044 <strong>86% match</strong>
+              </span>
+              <small>Delayed — Mungesë raporti vlerësimi</small>
             </span>
             <span className="workflow-preview__match">
-              EXP-007 <strong>74% match</strong>
+              <span>
+                EXP-AL-067 <strong>78% match</strong>
+              </span>
+              <small>Approved</small>
+            </span>
+            <span className="workflow-preview__match">
+              <span>
+                EXP-AL-081 <strong>71% match</strong>
+              </span>
+              <small>Rejected — Konflikt pronësie</small>
             </span>
           </div>
           <Link to="/case-memory" className="workflow-preview__try-it">
@@ -86,11 +98,11 @@ export function WorkflowPage() {
             </div>
             <div>
               <dt>Predicted delay</dt>
-              <dd>8–15 days</dd>
+              <dd>8–14 days</dd>
             </div>
             <div>
               <dt>Likely blockage</dt>
-              <dd>Property Valuation</dd>
+              <dd>ASHK Check</dd>
             </div>
           </dl>
           <Link to="/delay-prediction" className="workflow-preview__try-it">
@@ -100,8 +112,8 @@ export function WorkflowPage() {
 
         <WorkflowStepCard {...preventDelay}>
           <p className="workflow-preview__letter">
-            "...the dossier requires the following item(s): valuation report. Please submit the requested
-            documentation as soon as possible..."
+            "...the dossier requires the following item(s): certifikatë pronësie (ownership certificate). Please
+            submit the requested documentation to ASHK as soon as possible..."
           </p>
           <Link to="/prevent-delay" className="workflow-preview__try-it">
             Try it →

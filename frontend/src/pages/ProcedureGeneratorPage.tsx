@@ -15,7 +15,7 @@ export function ProcedureGeneratorPage() {
 
       <header className="procedure-generator-page__header">
         <h1>Procedure Generator</h1>
-        <p>Describe what you're trying to do and generate the procedure that applies to it.</p>
+        <p>Describe what you're trying to do and generate the property procedure that applies to it in Albania.</p>
       </header>
 
       <ProcedureGeneratorForm onGenerate={generate} loading={loading} />

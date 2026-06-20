@@ -11,6 +11,7 @@ import {
   type StaffWorkbench,
 } from '../services/roleService';
 import { ApiError } from '../services/apiClient';
+import { formatAlbanianDate } from '../utils/date';
 import './RolesPage.css';
 
 type RoleTab = 'staff' | 'manager' | 'citizen';
@@ -24,12 +25,7 @@ function citizenTrackingErrorMessage(err: unknown): string {
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return 'not set';
-
-  return new Intl.DateTimeFormat('en', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-  }).format(new Date(value));
+  return formatAlbanianDate(value);
 }
 
 function riskClass(riskLevel: string): string {

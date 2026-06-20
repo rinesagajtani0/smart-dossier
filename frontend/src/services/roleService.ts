@@ -1,4 +1,5 @@
 import type { RiskLevel } from '../types/dossier';
+import { localizeText, mapLocationToAlbania } from '../utils/albania';
 import { request } from './apiClient';
 
 export interface RoleCatalogEntry {
@@ -82,6 +83,16 @@ export async function getRoleCatalog(): Promise<RoleCatalogEntry[]> {
   return response.roles;
 }
 
+// Backend data uses Kosovo place names — remapped to Albanian municipalities
+// for display only (see utils/albania.ts), without touching the API response.
+function localizeStaffDossier<T extends StaffDossier>(dossier: T): T {
+  return {
+    ...dossier,
+    title: localizeText(dossier.title),
+    propertyLocation: mapLocationToAlbania(dossier.propertyLocation ?? null),
+  };
+}
+
 export interface StaffDossierFilters {
   phase?: string;
   riskLevel?: RiskLevel;
@@ -96,18 +107,32 @@ export async function getStaffDossiers(filters: StaffDossierFilters = {}): Promi
   const response = await request<{ dossiers: StaffDossier[] }>(
     `/roles/staff/dossiers${query ? `?${query}` : ''}`,
   );
-  return response.dossiers;
+  return response.dossiers.map(localizeStaffDossier);
 }
 
 export async function getStaffWorkbench(id: number): Promise<StaffWorkbench> {
-  return request<StaffWorkbench>(`/roles/staff/dossiers/${id}/workbench`);
+  const workbench = await request<StaffWorkbench>(`/roles/staff/dossiers/${id}/workbench`);
+  return { ...workbench, dossier: localizeStaffDossier(workbench.dossier) };
 }
 
 export async function getManagerDashboard(): Promise<ManagerDashboard> {
-  return request<ManagerDashboard>('/roles/manager/dashboard');
+  const dashboard = await request<ManagerDashboard>('/roles/manager/dashboard');
+  return {
+    ...dashboard,
+    highRiskDossiers: dashboard.highRiskDossiers.map(localizeStaffDossier),
+    recommendedFocus: dashboard.recommendedFocus ? localizeStaffDossier(dashboard.recommendedFocus) : null,
+  };
 }
 
 export async function getCitizenTracking(trackingCode: string, accessCode: string): Promise<CitizenTracking> {
   const params = new URLSearchParams({ accessCode });
-  return request<CitizenTracking>(`/roles/citizen/track/${trackingCode}?${params.toString()}`);
+  const tracking = await request<CitizenTracking>(`/roles/citizen/track/${trackingCode}?${params.toString()}`);
+  return {
+    ...tracking,
+    dossier: {
+      ...tracking.dossier,
+      title: localizeText(tracking.dossier.title),
+      propertyLocation: mapLocationToAlbania(tracking.dossier.propertyLocation ?? null),
+    },
+  };
 }
