@@ -1,6 +1,6 @@
 import type { CaseStatus, Dossier, DossierEvent, DossierSource, Phase, RiskLevel } from '../types/dossier';
 import { mapCaseStatus, mapPhase } from '../utils/phase';
-import { patchJson, postJson, postMultipart, request } from './apiClient';
+import { patchJson, postJson, postMultipartWithProgress, request } from './apiClient';
 import type { ExtractedDocumentData } from './nlpService';
 
 interface ApiDocument {
@@ -167,10 +167,14 @@ export interface UploadedDocumentResult {
   extractedData: ExtractedDocumentData;
 }
 
-export async function uploadDossierDocument(id: string, file: File): Promise<UploadedDocumentResult> {
+export async function uploadDossierDocument(
+  id: string,
+  file: File,
+  onProgress?: (percent: number) => void,
+): Promise<UploadedDocumentResult> {
   const formData = new FormData();
   formData.append('file', file);
-  return postMultipart<UploadedDocumentResult>(`/dossiers/${id}/documents`, formData);
+  return postMultipartWithProgress<UploadedDocumentResult>(`/dossiers/${id}/documents`, formData, onProgress);
 }
 
 interface ApiSimilarDossier extends ApiDossier {

@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './layouts/AppLayout';
 import { WorkflowPage } from './pages/WorkflowPage';
 import { ProcedureGeneratorPage } from './pages/ProcedureGeneratorPage';
+import { DocumentUploadPage } from './pages/DocumentUploadPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { DossierDetailPage } from './pages/DossierDetailPage';
 import { RolesPage } from './pages/RolesPage';
@@ -13,6 +14,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route index element={<WorkflowPage />} />
           <Route path="procedure-generator" element={<ProcedureGeneratorPage />} />
+          <Route path="document-upload" element={<DocumentUploadPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="roles" element={<RolesPage />} />
           <Route path="dossiers/:id" element={<DossierDetailPage />} />

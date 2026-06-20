@@ -1,0 +1,36 @@
+.upload-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upload-progress__track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+.upload-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.upload-progress__fill--uploading {
+  background: var(--accent);
+}
+
+.upload-progress__fill--success {
+  background: #15803d;
+}
+
+.upload-progress__fill--error {
+  background: #b91c1c;
+}
+
+.upload-progress__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}

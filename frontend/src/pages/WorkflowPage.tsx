@@ -39,6 +39,9 @@ export function WorkflowPage() {
               <em>Uploaded</em>
             </span>
           </div>
+          <Link to="/document-upload" className="workflow-preview__try-it">
+            Try it →
+          </Link>
         </WorkflowStepCard>
 
         <WorkflowStepCard {...nlpExtraction}>
@@ -56,6 +59,9 @@ export function WorkflowPage() {
               <dd>92%</dd>
             </div>
           </dl>
+          <Link to="/document-upload" className="workflow-preview__try-it">
+            Try it →
+          </Link>
         </WorkflowStepCard>
 
         <WorkflowStepCard {...caseMemory}>

@@ -59,9 +59,8 @@ Extract this exact JSON shape:
   "missingFields": [],
   "confidence": 0.0
 }
-Reference Albanian property laws: Law No. 111/2018, Law No. 33/2012, Law No. 9482/2006, Civil Code (1994).
-
-Document:
+Reference Albanian property laws: Law No. 111/2018, Law No. 33/2012, Law No. 9482/2006, Civil Code (1994).`,
+    `Document:
 ${text.slice(0, 12000)}`,
     () => heuristicExtract(text)
   );
