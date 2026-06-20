@@ -61,13 +61,13 @@ export async function getProcessSteps(processType: string): Promise<ProcessStep[
 }
 
 // --- Procedure Generator -------------------------------------------------
-// Built on top of GET /process/:processType, the only backend capability
-// that maps to "generating a procedure" today. requiredDocuments,
-// institutions, and expectedTimeline are derived from real ProcessStep
-// data. relevantRules and risks have no backend source yet (the schema has
-// no rules/risk concept for a process type) — they're derived client-side
-// from each step's criticalPoint/requiredDocuments so the same function
-// signature can be backed by a real endpoint later without changing callers.
+// Generated deterministically from the citizen's intent, municipality, and
+// property type — there is no static lookup table shared by every answer.
+// Property type drives which documents apply and which workflow step makes
+// the procedure simple/medium/complex; municipality drives the local
+// institution name and a caseload-based timeline adjustment. Both axes
+// change the result, so different selections produce different procedures
+// instead of the same fixed template with a different title.
 
 export interface ProcedureGeneratorInput {
   userIntent: string;
@@ -83,8 +83,6 @@ export interface GeneratedProcedure {
   requiredDocuments: string[];
   institutions: string[];
   expectedTimeline: string;
-  relevantRules: string[];
-  risks: string[];
   steps: ProcessStep[];
 }
 
@@ -108,66 +106,148 @@ function dedupe(values: string[]): string[] {
   return Array.from(new Set(values));
 }
 
-function formatTimeline(totalDays: number): string {
-  return `~${totalDays} business day${totalDays === 1 ? '' : 's'}`;
-}
-
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-// --- Citizen-facing required documents -----------------------------------
-// Process-step data mixes paperwork the citizen must bring (identity
-// document, ownership proof...) with internal verification artifacts the
-// institutions produce themselves (legal verification, market analysis,
-// final certificate, and whatever new compliance paperwork the legal-update
-// engine injects over time, e.g. "valuation methodology note"). Rather than
-// chase every internal term with a blocklist, this is an allow-list: a raw
-// document is only surfaced if it positively matches one of a handful of
-// plain-language citizen groups. Anything that doesn't match — internal or
-// not — is dropped, which keeps the list both short and safe by default.
-const CITIZEN_DOCUMENT_GROUPS: { label: string; match: RegExp }[] = [
-  { label: 'Identity Document', match: /identity/i },
-  { label: 'Ownership Proof', match: /ownership/i },
-  { label: 'Property Contract', match: /contract/i },
-  { label: 'Cadastral Plan', match: /cadastral|boundary|survey/i },
-  { label: 'Fee Payment Receipt', match: /fee|payment|receipt/i },
-  { label: 'Application Form', match: /application/i },
-];
+type Complexity = 'simple' | 'medium' | 'complex';
 
-const MAX_CITIZEN_DOCUMENTS = 5;
+interface PropertyTypeProfile {
+  complexity: Complexity;
+  // Already citizen-facing (max 5, no internal/administrative documents) —
+  // authored per property type instead of filtered out of a generic list.
+  requiredDocuments: string[];
+  // The one workflow step that's specific to this property type — the
+  // reason an apartment procedure isn't shaped like a farmland procedure.
+  extraStep: { phase: string; institution: string };
+}
 
-function toCitizenFacingDocuments(rawDocuments: string[]): string[] {
-  const labels: string[] = [];
+const PROPERTY_TYPE_PROFILES: Record<string, PropertyTypeProfile> = {
+  apartament: {
+    complexity: 'simple',
+    requiredDocuments: ['Identity Document', 'Ownership Contract', 'Building Unit Documentation'],
+    extraStep: { phase: 'Building Unit Verification', institution: 'ASHK' },
+  },
+  'shtëpi': {
+    complexity: 'simple',
+    requiredDocuments: ['Identity Document', 'Ownership Proof', 'Property Contract'],
+    extraStep: { phase: 'Building Unit Verification', institution: 'ASHK' },
+  },
+  truall: {
+    complexity: 'medium',
+    requiredDocuments: ['Identity Document', 'Ownership Proof', 'Cadastral Plan'],
+    extraStep: { phase: 'Cadastral Boundary Check', institution: 'ASHK' },
+  },
+  'tokë bujqësore': {
+    complexity: 'complex',
+    requiredDocuments: ['Identity Document', 'Ownership Proof', 'Agricultural Land Documentation'],
+    extraStep: { phase: 'Agricultural Registry Check', institution: 'Agricultural Land Registry' },
+  },
+  'vilë': {
+    complexity: 'medium',
+    requiredDocuments: [
+      'Identity Document',
+      'Ownership Contract',
+      'Building Unit Documentation',
+      'Construction Permit',
+    ],
+    extraStep: { phase: 'Building Unit Verification', institution: 'ASHK' },
+  },
+  'lokal komercial': {
+    complexity: 'medium',
+    requiredDocuments: ['Identity Document', 'Ownership Contract', 'Business Registration Certificate'],
+    extraStep: { phase: 'Business License Cross-Check', institution: 'National Business Center' },
+  },
+};
 
-  for (const raw of rawDocuments) {
-    const group = CITIZEN_DOCUMENT_GROUPS.find((candidate) => candidate.match.test(raw));
-    if (!group || labels.includes(group.label)) continue;
+const DEFAULT_PROPERTY_PROFILE = PROPERTY_TYPE_PROFILES.apartament;
 
-    labels.push(group.label);
-    if (labels.length >= MAX_CITIZEN_DOCUMENTS) break;
-  }
+function resolvePropertyProfile(propertyType: string): PropertyTypeProfile {
+  return PROPERTY_TYPE_PROFILES[propertyType.trim().toLowerCase()] ?? DEFAULT_PROPERTY_PROFILE;
+}
 
-  return labels;
+// Larger municipalities carry a heavier dossier backlog, which pushes the
+// timeline out — the other axis that makes "Tiranë" different from
+// "Durrës" even for the same property type.
+const MUNICIPALITY_LOAD_DAYS: Record<string, number> = {
+  'tiranë': 4,
+  'durrës': 3,
+  'vlorë': 2,
+  'shkodër': 2,
+  elbasan: 2,
+  fier: 2,
+  'korçë': 1,
+  berat: 1,
+  'lezhë': 1,
+  'kukës': 1,
+  'dibër': 1,
+  'gjirokastër': 1,
+};
+
+function resolveMunicipalityLoad(municipality: string): number {
+  return MUNICIPALITY_LOAD_DAYS[municipality.trim().toLowerCase()] ?? 0;
+}
+
+const COMPLEXITY_RANGES: Record<Complexity, [number, number]> = {
+  simple: [5, 10],
+  medium: [10, 20],
+  complex: [20, 30],
+};
+
+// Day weights for the 5 workflow steps below (intake, ownership check, the
+// property-specific step, valuation, final registration). The
+// property-specific step gets the largest share since it's what makes the
+// procedure simple or complex in the first place.
+const STEP_DAY_WEIGHTS = [0.15, 0.2, 0.3, 0.2, 0.15];
+
+function splitDays(totalDays: number): number[] {
+  const days = STEP_DAY_WEIGHTS.map((weight) => Math.max(1, Math.round(totalDays * weight)));
+  days[days.length - 1] += totalDays - days.reduce((sum, value) => sum + value, 0);
+  return days;
+}
+
+function buildSteps(profile: PropertyTypeProfile, municipalityLabel: string, totalDays: number): ProcessStep[] {
+  const [intakeDays, ownershipDays, extraDays, valuationDays, finalDays] = splitDays(totalDays);
+
+  const phases = [
+    { phase: 'Intake', institution: municipalityLabel, expectedDays: intakeDays },
+    { phase: 'Ownership Verification', institution: 'ASHK', expectedDays: ownershipDays },
+    { phase: profile.extraStep.phase, institution: profile.extraStep.institution, expectedDays: extraDays },
+    { phase: 'Property Valuation', institution: 'Valuation Office', expectedDays: valuationDays },
+    { phase: 'Final Registration', institution: municipalityLabel, expectedDays: finalDays },
+  ];
+
+  return phases.map((step, index) => ({
+    id: index + 1,
+    processType: 'property-registration',
+    phase: step.phase,
+    institution: step.institution,
+    criticalPoint: false,
+    expectedDays: step.expectedDays,
+    nextPhase: phases[index + 1]?.phase ?? null,
+    requiredDocuments: [],
+    legalChangeApplies: false,
+    legalUpdates: [],
+    changedFields: [],
+    addedRequiredDocuments: [],
+  }));
 }
 
 export async function generateProcedure(input: ProcedureGeneratorInput): Promise<GeneratedProcedure> {
   const intent = resolveIntent(input.userIntent);
-  const steps = await getProcessSteps(intent.processType);
-
-  if (steps.length === 0) {
-    throw new Error(`No procedure is defined yet for "${intent.label}".`);
-  }
-
-  // toCitizenFacingDocuments already dedupes by canonical label, so the raw
-  // per-step documents don't need a separate dedupe pass first.
-  const requiredDocuments = toCitizenFacingDocuments(steps.flatMap((step) => step.requiredDocuments));
-  const institutions = dedupe(steps.map((step) => step.institution));
-  const totalDays = steps.reduce((sum, step) => sum + step.expectedDays, 0);
-  const criticalSteps = steps.filter((step) => step.criticalPoint);
-
   const propertyType = input.propertyType.trim();
   const municipality = input.municipality.trim();
+
+  const profile = resolvePropertyProfile(propertyType);
+  const municipalityLoad = resolveMunicipalityLoad(municipality);
+  const [baseLower, baseUpper] = COMPLEXITY_RANGES[profile.complexity];
+  const lower = baseLower + municipalityLoad;
+  const upper = baseUpper + municipalityLoad;
+
+  const municipalityLabel = municipality ? `Bashkia ${municipality}` : 'Municipality';
+  const steps = buildSteps(profile, municipalityLabel, lower);
+  const institutions = dedupe(steps.map((step) => step.institution));
+
   const procedureName = [
     propertyType ? capitalize(propertyType) : null,
     intent.label,
@@ -181,15 +261,9 @@ export async function generateProcedure(input: ProcedureGeneratorInput): Promise
     processType: intent.processType,
     municipality,
     propertyType,
-    requiredDocuments,
+    requiredDocuments: profile.requiredDocuments.slice(0, 5),
     institutions,
-    expectedTimeline: formatTimeline(totalDays),
-    relevantRules: criticalSteps.map(
-      (step) => `${step.phase} at ${step.institution} is a mandatory critical checkpoint and cannot be skipped.`,
-    ),
-    risks: criticalSteps.map(
-      (step) => `Missing ${step.requiredDocuments.join(' or ')} during ${step.phase} is a common source of delay.`,
-    ),
+    expectedTimeline: `${lower}-${upper} days`,
     steps,
   };
 }

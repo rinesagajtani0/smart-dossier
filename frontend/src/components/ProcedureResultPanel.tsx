@@ -28,14 +28,6 @@ export function ProcedureResultPanel({ procedure, onUploadDocuments, uploadPendi
         <ProcedureResultList items={procedure.institutions} />
       </ProcedureResultSection>
 
-      <ProcedureResultSection label="Relevant Rules">
-        <ProcedureResultList items={procedure.relevantRules} emptyLabel="No special rules for this procedure." />
-      </ProcedureResultSection>
-
-      <ProcedureResultSection label="Risks">
-        <ProcedureResultList items={procedure.risks} emptyLabel="No notable risks identified." />
-      </ProcedureResultSection>
-
       <div className="procedure-result-panel__full">
         <ProcedureResultSection label="Process Workflow">
           <div className="procedure-result-panel__steps">
