@@ -1,0 +1,23 @@
+.staff-role-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.staff-role-section__title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.staff-role-section__toolkit-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.staff-role-section__toolkit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}

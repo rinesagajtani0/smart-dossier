@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { WorkflowStepCard } from '../components/WorkflowStepCard';
+import { Can } from '../auth/Can';
 import { WORKFLOW_STEPS } from '../data/workflowSteps';
 import {
   DEMO_DELAY_PREDICTION,
@@ -68,24 +69,28 @@ export function WorkflowPage() {
           </Link>
         </WorkflowStepCard>
 
-        <WorkflowStepCard {...caseMemory}>
-          <div className="workflow-preview__matches">
-            {DEMO_SIMILAR_CASES.map((item) => (
-              <span key={item.caseId} className="workflow-preview__match">
-                <span>
-                  {item.caseId} <strong>{item.matchPercent}% match</strong>
+        {/* Preview shows internal case IDs/similarity scores — staff/manager
+            only, same as the /case-memory route itself. */}
+        <Can permission="view-case-memory">
+          <WorkflowStepCard {...caseMemory}>
+            <div className="workflow-preview__matches">
+              {DEMO_SIMILAR_CASES.map((item) => (
+                <span key={item.caseId} className="workflow-preview__match">
+                  <span>
+                    {item.caseId} <strong>{item.matchPercent}% match</strong>
+                  </span>
+                  <small>
+                    {item.outcome}
+                    {item.reason ? ` — ${item.reason}` : ''}
+                  </small>
                 </span>
-                <small>
-                  {item.outcome}
-                  {item.reason ? ` — ${item.reason}` : ''}
-                </small>
-              </span>
-            ))}
-          </div>
-          <Link to="/case-memory" className="workflow-preview__try-it">
-            Try it →
-          </Link>
-        </WorkflowStepCard>
+              ))}
+            </div>
+            <Link to="/case-memory" className="workflow-preview__try-it">
+              Try it →
+            </Link>
+          </WorkflowStepCard>
+        </Can>
 
         <WorkflowStepCard {...delayPrediction}>
           <dl className="workflow-preview__kv">

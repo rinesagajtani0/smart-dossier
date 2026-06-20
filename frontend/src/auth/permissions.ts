@@ -12,7 +12,6 @@ export type Permission =
   | 'view-own-alerts'
   | 'use-procedure-generator'
   | 'track-dossier'
-  | 'view-own-case-memory'
   | 'view-own-delay-prediction'
   | 'view-own-prevent-delay'
   // Staff
@@ -33,7 +32,6 @@ const CITIZEN_PERMISSIONS: Permission[] = [
   'view-own-alerts',
   'use-procedure-generator',
   'track-dossier',
-  'view-own-case-memory',
   'view-own-delay-prediction',
   'view-own-prevent-delay',
 ];
@@ -108,9 +106,9 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   '/procedure-generator': ['use-procedure-generator'],
   '/document-upload': ['upload-documents'],
   '/nlp-extraction': ['view-nlp-extraction'],
-  // Citizens see a simplified, anonymized "Case Progress Insights" view of
-  // the same page (no case IDs/scores/admin history) — see CaseMemoryPage.
-  '/case-memory': ['view-case-memory', 'view-own-case-memory'],
+  // Staff/manager only — full internal case-matching detail (case IDs,
+  // similarity scores, delay reasons). Citizens have no access at all.
+  '/case-memory': ['view-case-memory'],
   // Citizens see a simplified view (risk level, estimated delay, missing
   // requirements, recommended actions) with no internal legal/compliance
   // analytics — see DelayPredictionPage / CitizenDelayPredictionPanel.

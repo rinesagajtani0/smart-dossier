@@ -74,9 +74,18 @@
 }
 
 .roles-page__panel h2,
-.roles-page__panel-header h2 {
+.roles-page__panel-header h2,
+.roles-page__panel-header h3 {
   margin: 0;
   font-size: 18px;
+}
+
+.roles-page__panel-label {
+  margin: 14px 0 10px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text);
 }
 
 .roles-page__panel-header span {
@@ -154,7 +163,7 @@
   gap: 16px;
 }
 
-.roles-page__workbench h3,
+.roles-page__workbench-action,
 .roles-page__citizen-card h3 {
   margin: 4px 0;
   color: var(--text-h);
@@ -186,21 +195,6 @@
   font-size: 14px;
 }
 
-.roles-page__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.roles-page__chips code {
-  border-radius: 6px;
-  background: var(--code-bg);
-  color: var(--text-h);
-  font-size: 12px;
-  padding: 6px 8px;
-}
-
 .roles-page__metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -228,14 +222,148 @@
 .roles-page__manager {
   display: flex;
   flex-direction: column;
+  gap: 28px;
+}
+
+.roles-page__section-title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.roles-page__manager-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.roles-page__bottleneck-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roles-page__bottleneck-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 32px;
+  align-items: center;
+  gap: 12px;
+}
+
+.roles-page__bottleneck-label {
+  font-size: 13px;
+  color: var(--text-h);
+}
+
+.roles-page__bottleneck-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+.roles-page__bottleneck-fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+.roles-page__bottleneck-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-h);
+  text-align: right;
+}
+
+.roles-page__workload-track {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--code-bg);
+}
+
+.roles-page__workload-segment--low {
+  background: #15803d;
+}
+
+.roles-page__workload-segment--medium {
+  background: #b45309;
+}
+
+.roles-page__workload-segment--high {
+  background: #b91c1c;
+}
+
+.roles-page__workload-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.roles-page__focus-link {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.roles-page__citizen {
+  display: flex;
+  flex-direction: column;
   gap: 18px;
+}
+
+.roles-page__citizen-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.roles-page__citizen-section p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.roles-page__citizen-section > span {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.roles-page__citizen-list {
+  margin: 0;
+  padding: 0 0 0 18px;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.roles-page__citizen-link {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
 }
 
 .roles-page__row {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   border-bottom: 1px solid var(--border);
   padding: 12px 0;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.roles-page__row strong {
+  color: var(--text-h);
 }
 
 .roles-page__row:last-child {
@@ -284,6 +412,10 @@
 
   .roles-page__header {
     flex-direction: column;
+  }
+
+  .roles-page__bottleneck-row {
+    grid-template-columns: 110px 1fr 28px;
   }
 
   .roles-page__metrics {
