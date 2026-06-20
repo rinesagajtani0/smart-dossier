@@ -13,6 +13,17 @@ import { mapCaseStatus, mapPhase } from '../utils/phase';
 import { formatAlbanianDate } from '../utils/date';
 import { patchJson, postJson, postMultipartWithProgress, request } from './apiClient';
 import type { ExtractedDocumentData } from './nlpService';
+import { showToast } from './toastService';
+
+export interface ApiLegalAdaptation {
+  adapted?: boolean;
+}
+
+function notifyLegalAdaptation(legalAdaptation?: ApiLegalAdaptation | null): void {
+  if (legalAdaptation?.adapted === true) {
+    showToast('The dossier was automatically adapted to comply with the latest legal requirements.', 'success');
+  }
+}
 
 interface ApiDocument {
   id: number;
@@ -67,6 +78,7 @@ interface ApiDossier {
     changedFields?: string[];
   } | null;
   legalChangeImpact?: ApiLegalChangeImpact | null;
+  legalAdaptation?: ApiLegalAdaptation | null;
 }
 
 function formatDate(value: string | null | undefined): string {
@@ -205,11 +217,13 @@ export type UpdateDossierInput = Partial<CreateDossierInput>;
 
 export async function createDossier(input: CreateDossierInput): Promise<Dossier> {
   const dossier = await postJson<ApiDossier>('/dossiers', input);
+  notifyLegalAdaptation(dossier.legalAdaptation);
   return mapDossier(dossier);
 }
 
 export async function updateDossier(id: string, patch: UpdateDossierInput): Promise<Dossier> {
   const dossier = await patchJson<ApiDossier>(`/dossiers/${id}`, patch);
+  notifyLegalAdaptation(dossier.legalAdaptation);
   return mapDossier(dossier);
 }
 
@@ -222,6 +236,7 @@ export interface UploadedDocumentResult {
   extractedDataJson: string;
   uploadedAt: string;
   extractedData: ExtractedDocumentData;
+  legalAdaptation?: ApiLegalAdaptation | null;
 }
 
 export async function uploadDossierDocument(
@@ -231,7 +246,13 @@ export async function uploadDossierDocument(
 ): Promise<UploadedDocumentResult> {
   const formData = new FormData();
   formData.append('file', file);
-  return postMultipartWithProgress<UploadedDocumentResult>(`/dossiers/${id}/documents`, formData, onProgress);
+  const result = await postMultipartWithProgress<UploadedDocumentResult>(
+    `/dossiers/${id}/documents`,
+    formData,
+    onProgress,
+  );
+  notifyLegalAdaptation(result.legalAdaptation);
+  return result;
 }
 
 interface ApiSimilarDossier extends ApiDossier {
