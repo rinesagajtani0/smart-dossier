@@ -6,9 +6,9 @@ export interface PhaseConfig {
 }
 
 export const PHASES: PhaseConfig[] = [
-  { id: 'submitted', label: 'Submitted' },
-  { id: 'verification', label: 'Verification' },
-  { id: 'valuation', label: 'Valuation' },
-  { id: 'approval', label: 'Approval' },
-  { id: 'completed', label: 'Completed' },
+  { id: 'Intake', label: 'Intake' },
+  { id: 'ASHK Check', label: 'ASHK Check' },
+  { id: 'Property Valuation', label: 'Property Valuation' },
+  { id: 'Legal Review', label: 'Legal Review' },
+  { id: 'Final Approval', label: 'Final Approval' },
 ];

@@ -51,22 +51,22 @@
   color: var(--text);
 }
 
-.kanban-column--submitted {
+.kanban-column--intake {
   --column-accent: #475569;
 }
 
-.kanban-column--verification {
+.kanban-column--ashk-check {
   --column-accent: #4338ca;
 }
 
-.kanban-column--valuation {
+.kanban-column--property-valuation {
   --column-accent: #b45309;
 }
 
-.kanban-column--approval {
+.kanban-column--legal-review {
   --column-accent: #7e22ce;
 }
 
-.kanban-column--completed {
+.kanban-column--final-approval {
   --column-accent: #15803d;
 }

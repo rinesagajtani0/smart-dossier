@@ -1,4 +1,4 @@
-.dossier-card {
+.kanban-card {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -11,59 +11,52 @@
   transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.dossier-card:hover {
+.kanban-card:hover {
   border-color: var(--accent-border);
   box-shadow: var(--shadow);
   transform: translateY(-2px);
 }
 
-.dossier-card__header {
+.kanban-card__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
 }
 
-.dossier-card__header h4 {
+.kanban-card__header h4 {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--text-h);
 }
 
-.dossier-card__category {
+.kanban-card__meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.kanban-card__missing {
   margin: 0;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--accent);
+  color: #b45309;
 }
 
-.dossier-card__summary {
-  margin: 0;
-  font-size: 13px;
-  line-height: 140%;
-  color: var(--text);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.dossier-card__footer {
+.kanban-card__footer {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   margin-top: 4px;
 }
 
-.dossier-card__deadline {
+.kanban-card__deadline {
   font-size: 11px;
   font-weight: 600;
   color: var(--text);
 }
 
-.dossier-card__deadline--delayed {
+.kanban-card__deadline--overdue {
   color: #b91c1c;
 }

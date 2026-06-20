@@ -1,6 +1,8 @@
-export type Phase = 'submitted' | 'verification' | 'valuation' | 'approval' | 'completed';
+export type Phase = 'Intake' | 'ASHK Check' | 'Property Valuation' | 'Legal Review' | 'Final Approval';
 
 export type RiskLevel = 'low' | 'medium' | 'high';
+
+export type CaseStatus = 'open' | 'closed';
 
 export interface DossierEvent {
   id: string;
@@ -19,6 +21,7 @@ export interface Dossier {
   subject: string;
   category: string;
   phase: Phase;
+  status: CaseStatus;
   riskLevel: RiskLevel;
   summary: string;
   tags: string[];
@@ -27,4 +30,29 @@ export interface Dossier {
   deadline: string;
   events: DossierEvent[];
   sources: DossierSource[];
+}
+
+export interface KanbanCardSummary {
+  id: string;
+  title: string;
+  applicantName: string | null;
+  propertyLocation: string | null;
+  propertyType: string | null;
+  status: CaseStatus;
+  riskLevel: RiskLevel;
+  deadline: string | null;
+  missingFields: string[];
+}
+
+export type KanbanColumns = Record<Phase, KanbanCardSummary[]>;
+
+export interface DashboardStats {
+  totalDossiers: number;
+  highRisk: number;
+  delayed: number;
+  rejected: number;
+  deadlinesThisWeek: number;
+  mainBottleneck: string | null;
+  byPhase: Record<string, number>;
+  byRisk: Record<string, number>;
 }

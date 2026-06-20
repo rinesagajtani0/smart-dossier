@@ -1,6 +1,6 @@
-import type { Dossier, DossierEvent, DossierSource, DossierStatus } from '../types/dossier';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
+import type { Dossier, DossierEvent, DossierSource } from '../types/dossier';
+import { mapCaseStatus, mapPhase } from '../utils/phase';
+import { request } from './apiClient';
 
 interface ApiDocument {
   id: number;
@@ -36,12 +36,6 @@ interface ApiDossier {
   } | null;
 }
 
-function mapStatus(status: string): DossierStatus {
-  if (status === 'open') return 'active';
-  if (status === 'closed') return 'archived';
-  return 'draft';
-}
-
 function formatDate(value: string | null | undefined): string {
   if (!value) return 'not set';
 
@@ -50,14 +44,6 @@ function formatDate(value: string | null | undefined): string {
     month: 'short',
     day: '2-digit',
   }).format(new Date(value));
-}
-
-async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`);
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
-  }
-  return response.json() as Promise<T>;
 }
 
 function mapEvents(dossier: ApiDossier): DossierEvent[] {
@@ -112,7 +98,8 @@ function mapDossier(dossier: ApiDossier): Dossier {
     id: String(dossier.id),
     subject: dossier.title,
     category: `${dossier.processType} / ${dossier.phase}`,
-    status: mapStatus(dossier.status),
+    phase: mapPhase(dossier.phase),
+    status: mapCaseStatus(dossier.status),
     riskLevel: dossier.riskLevel,
     summary:
       `${dossier.applicantName ?? 'Unknown applicant'} - ${dossier.propertyLocation ?? 'unknown location'}. ` +
@@ -123,14 +110,10 @@ function mapDossier(dossier: ApiDossier): Dossier {
     tags,
     createdAt: formatDate(dossier.createdAt),
     updatedAt: formatDate(dossier.updatedAt),
+    deadline: dossier.deadline ?? '',
     events: mapEvents(dossier),
     sources: mapSources(dossier),
   };
-}
-
-export async function getDossiers(): Promise<Dossier[]> {
-  const dossiers = await request<ApiDossier[]>('/dossiers');
-  return dossiers.map(mapDossier);
 }
 
 export async function getDossierById(id: string): Promise<Dossier | undefined> {
