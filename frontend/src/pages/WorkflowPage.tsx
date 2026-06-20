@@ -1,6 +1,14 @@
 import { Link } from 'react-router-dom';
 import { WorkflowStepCard } from '../components/WorkflowStepCard';
 import { WORKFLOW_STEPS } from '../data/workflowSteps';
+import {
+  DEMO_DELAY_PREDICTION,
+  DEMO_EXTRACTED_FIELDS,
+  DEMO_LETTER_PREVIEW,
+  DEMO_PROCEDURE_PHASES,
+  DEMO_SIMILAR_CASES,
+  DEMO_UPLOADED_FILES,
+} from '../data/albaniaDemoData';
 import './WorkflowPage.css';
 
 export function WorkflowPage() {
@@ -17,11 +25,9 @@ export function WorkflowPage() {
       <div className="workflow-page__grid">
         <WorkflowStepCard {...procedureGenerator}>
           <ol className="workflow-preview__chip-list">
-            <li>Intake</li>
-            <li>ASHK Check</li>
-            <li>Property Valuation</li>
-            <li>Legal Review</li>
-            <li>Final Approval</li>
+            {DEMO_PROCEDURE_PHASES.map((phase) => (
+              <li key={phase}>{phase}</li>
+            ))}
           </ol>
           <Link to="/procedure-generator" className="workflow-preview__try-it">
             Try it →
@@ -30,14 +36,12 @@ export function WorkflowPage() {
 
         <WorkflowStepCard {...documentUpload}>
           <div className="workflow-preview__files">
-            <span className="workflow-preview__file">
-              certifikate-pronesie.pdf
-              <em>Uploaded</em>
-            </span>
-            <span className="workflow-preview__file">
-              raport-vleresimi.pdf
-              <em>Uploaded</em>
-            </span>
+            {DEMO_UPLOADED_FILES.map((file) => (
+              <span key={file.fileName} className="workflow-preview__file">
+                {file.fileName}
+                <em>{file.status}</em>
+              </span>
+            ))}
           </div>
           <Link to="/document-upload" className="workflow-preview__try-it">
             Try it →
@@ -48,42 +52,35 @@ export function WorkflowPage() {
           <dl className="workflow-preview__kv">
             <div>
               <dt>Applicant</dt>
-              <dd>Elona Hoxha</dd>
+              <dd>{DEMO_EXTRACTED_FIELDS.applicant}</dd>
             </div>
             <div>
               <dt>Property Number</dt>
-              <dd>Nr. 145/22, ZK Tiranë</dd>
+              <dd>{DEMO_EXTRACTED_FIELDS.propertyNumber}</dd>
             </div>
             <div>
               <dt>Confidence</dt>
-              <dd>92%</dd>
+              <dd>{DEMO_EXTRACTED_FIELDS.confidence}</dd>
             </div>
           </dl>
-          <Link to="/document-upload" className="workflow-preview__try-it">
+          <Link to="/nlp-extraction" className="workflow-preview__try-it">
             Try it →
           </Link>
         </WorkflowStepCard>
 
         <WorkflowStepCard {...caseMemory}>
           <div className="workflow-preview__matches">
-            <span className="workflow-preview__match">
-              <span>
-                EXP-AL-044 <strong>86% match</strong>
+            {DEMO_SIMILAR_CASES.map((item) => (
+              <span key={item.caseId} className="workflow-preview__match">
+                <span>
+                  {item.caseId} <strong>{item.matchPercent}% match</strong>
+                </span>
+                <small>
+                  {item.outcome}
+                  {item.reason ? ` — ${item.reason}` : ''}
+                </small>
               </span>
-              <small>Delayed — Mungesë raporti vlerësimi</small>
-            </span>
-            <span className="workflow-preview__match">
-              <span>
-                EXP-AL-067 <strong>78% match</strong>
-              </span>
-              <small>Approved</small>
-            </span>
-            <span className="workflow-preview__match">
-              <span>
-                EXP-AL-081 <strong>71% match</strong>
-              </span>
-              <small>Rejected — Konflikt pronësie</small>
-            </span>
+            ))}
           </div>
           <Link to="/case-memory" className="workflow-preview__try-it">
             Try it →
@@ -94,15 +91,15 @@ export function WorkflowPage() {
           <dl className="workflow-preview__kv">
             <div>
               <dt>Risk</dt>
-              <dd>High</dd>
+              <dd>{DEMO_DELAY_PREDICTION.risk}</dd>
             </div>
             <div>
               <dt>Predicted delay</dt>
-              <dd>8–14 days</dd>
+              <dd>{DEMO_DELAY_PREDICTION.predictedDelay}</dd>
             </div>
             <div>
               <dt>Likely blockage</dt>
-              <dd>ASHK Check</dd>
+              <dd>{DEMO_DELAY_PREDICTION.likelyBlockage}</dd>
             </div>
           </dl>
           <Link to="/delay-prediction" className="workflow-preview__try-it">
@@ -111,10 +108,7 @@ export function WorkflowPage() {
         </WorkflowStepCard>
 
         <WorkflowStepCard {...preventDelay}>
-          <p className="workflow-preview__letter">
-            "...the dossier requires the following item(s): certifikatë pronësie (ownership certificate). Please
-            submit the requested documentation to ASHK as soon as possible..."
-          </p>
+          <p className="workflow-preview__letter">{DEMO_LETTER_PREVIEW}</p>
           <Link to="/prevent-delay" className="workflow-preview__try-it">
             Try it →
           </Link>
