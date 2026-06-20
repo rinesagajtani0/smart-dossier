@@ -9,10 +9,30 @@ export class ApiError extends Error {
   }
 }
 
-export async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, init);
   if (!response.ok) {
     throw new ApiError(response.status);
   }
   return response.json() as Promise<T>;
+}
+
+export async function postJson<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function patchJson<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function postMultipart<T>(path: string, formData: FormData): Promise<T> {
+  return request<T>(path, { method: 'POST', body: formData });
 }

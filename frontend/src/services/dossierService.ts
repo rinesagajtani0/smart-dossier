@@ -1,6 +1,7 @@
-import type { Dossier, DossierEvent, DossierSource } from '../types/dossier';
+import type { CaseStatus, Dossier, DossierEvent, DossierSource, Phase, RiskLevel } from '../types/dossier';
 import { mapCaseStatus, mapPhase } from '../utils/phase';
-import { request } from './apiClient';
+import { patchJson, postJson, postMultipart, request } from './apiClient';
+import type { ExtractedDocumentData } from './nlpService';
 
 interface ApiDocument {
   id: number;
@@ -119,4 +120,101 @@ function mapDossier(dossier: ApiDossier): Dossier {
 export async function getDossierById(id: string): Promise<Dossier | undefined> {
   const dossier = await request<ApiDossier>(`/dossiers/${id}`);
   return mapDossier(dossier);
+}
+
+export async function getDossiers(): Promise<Dossier[]> {
+  const dossiers = await request<ApiDossier[]>('/dossiers');
+  return dossiers.map(mapDossier);
+}
+
+export interface CreateDossierInput {
+  title: string;
+  processType?: string;
+  applicantName?: string;
+  ownerName?: string;
+  propertyLocation?: string;
+  propertyNumber?: string;
+  cadastralZone?: string;
+  propertyType?: string;
+  phase?: Phase;
+  institution?: string;
+  status?: CaseStatus;
+  deadline?: string;
+  missingFields?: string[];
+  riskLevel?: RiskLevel;
+}
+
+export type UpdateDossierInput = Partial<CreateDossierInput>;
+
+export async function createDossier(input: CreateDossierInput): Promise<Dossier> {
+  const dossier = await postJson<ApiDossier>('/dossiers', input);
+  return mapDossier(dossier);
+}
+
+export async function updateDossier(id: string, patch: UpdateDossierInput): Promise<Dossier> {
+  const dossier = await patchJson<ApiDossier>(`/dossiers/${id}`, patch);
+  return mapDossier(dossier);
+}
+
+export interface UploadedDocumentResult {
+  id: number;
+  dossierId: number;
+  fileName: string;
+  documentType: string;
+  extractedText: string;
+  extractedDataJson: string;
+  uploadedAt: string;
+  extractedData: ExtractedDocumentData;
+}
+
+export async function uploadDossierDocument(id: string, file: File): Promise<UploadedDocumentResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return postMultipart<UploadedDocumentResult>(`/dossiers/${id}/documents`, formData);
+}
+
+interface ApiSimilarDossier extends ApiDossier {
+  similarity: {
+    score: number;
+    reasons: string[];
+  };
+}
+
+export interface SimilarDossierMatch {
+  dossier: Dossier;
+  score: number;
+  reasons: string[];
+}
+
+export async function getSimilarDossiers(id: string): Promise<SimilarDossierMatch[]> {
+  const matches = await request<ApiSimilarDossier[]>(`/dossiers/${id}/similar`);
+  return matches.map((match) => ({
+    dossier: mapDossier(match),
+    score: match.similarity.score,
+    reasons: match.similarity.reasons,
+  }));
+}
+
+export interface DelayPrediction {
+  risk: RiskLevel;
+  predictedDelay: string;
+  likelyBlockage: string;
+  reason: string;
+  recommendedAction: string;
+}
+
+export async function predictDossierDelay(id: string): Promise<DelayPrediction> {
+  return request<DelayPrediction>(`/dossiers/${id}/predict-delay`);
+}
+
+export interface GeneratedLetter {
+  id: number;
+  dossierId: number;
+  type: string;
+  content: string;
+  createdAt: string;
+}
+
+export async function generateDossierLetter(id: string, type?: string): Promise<GeneratedLetter> {
+  return postJson<GeneratedLetter>(`/dossiers/${id}/generate-letter`, { type });
 }

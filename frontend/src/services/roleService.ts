@@ -1,4 +1,12 @@
+import type { RiskLevel } from '../types/dossier';
 import { request } from './apiClient';
+
+export interface RoleCatalogEntry {
+  id: 'staff' | 'manager' | 'citizen';
+  label: string;
+  description: string;
+  entryPoint: string;
+}
 
 export interface StaffDossier {
   id: number;
@@ -69,8 +77,25 @@ export interface CitizenTracking {
   };
 }
 
-export async function getStaffDossiers(): Promise<StaffDossier[]> {
-  const response = await request<{ dossiers: StaffDossier[] }>('/roles/staff/dossiers');
+export async function getRoleCatalog(): Promise<RoleCatalogEntry[]> {
+  const response = await request<{ roles: RoleCatalogEntry[] }>('/roles');
+  return response.roles;
+}
+
+export interface StaffDossierFilters {
+  phase?: string;
+  riskLevel?: RiskLevel;
+}
+
+export async function getStaffDossiers(filters: StaffDossierFilters = {}): Promise<StaffDossier[]> {
+  const params = new URLSearchParams();
+  if (filters.phase) params.set('phase', filters.phase);
+  if (filters.riskLevel) params.set('riskLevel', filters.riskLevel);
+  const query = params.toString();
+
+  const response = await request<{ dossiers: StaffDossier[] }>(
+    `/roles/staff/dossiers${query ? `?${query}` : ''}`,
+  );
   return response.dossiers;
 }
 
