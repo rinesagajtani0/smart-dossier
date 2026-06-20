@@ -170,6 +170,7 @@ function mapDossier(dossier: ApiDossier): Dossier {
     requestedDocuments: dossier.alerts?.requestedDocuments ?? [],
     changedFields: dossier.alerts?.changedFields ?? [],
     legalChangeImpact: mapLegalChangeImpact(dossier.legalChangeImpact),
+    propertyNumber: dossier.propertyNumber ?? null,
   };
 }
 

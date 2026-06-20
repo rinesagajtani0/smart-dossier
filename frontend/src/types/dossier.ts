@@ -53,6 +53,7 @@ export interface Dossier {
   requestedDocuments: string[];
   changedFields: string[];
   legalChangeImpact: LegalChangeImpact | null;
+  propertyNumber: string | null;
 }
 
 export interface KanbanCardSummary {

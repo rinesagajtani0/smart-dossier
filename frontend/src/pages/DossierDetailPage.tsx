@@ -5,6 +5,7 @@ import { AlertsSection } from '../components/AlertsSection';
 import { LegalChangePanel } from '../components/LegalChangePanel';
 import { PhaseHoldModal } from '../components/PhaseHoldModal';
 import { DeadlineReviewNotice } from '../components/DeadlineReviewNotice';
+import { PropertyAlertsSection } from '../components/PropertyAlertsSection';
 import { formatShortDate, isOverdue } from '../utils/date';
 import './DossierDetailPage.css';
 
@@ -57,6 +58,8 @@ export function DossierDetailPage() {
       />
 
       <DeadlineReviewNotice legalChangeImpact={dossier.legalChangeImpact} />
+
+      <PropertyAlertsSection propertyNumber={dossier.propertyNumber} />
 
       <section className="dossier-detail__section">
         <h2>Summary</h2>
