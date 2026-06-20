@@ -16,6 +16,12 @@ export function Navbar() {
           >
             Dashboard
           </NavLink>
+          <NavLink
+            to="/roles"
+            className={({ isActive }) => (isActive ? 'navbar__link navbar__link--active' : 'navbar__link')}
+          >
+            Roles
+          </NavLink>
         </nav>
       </div>
     </header>

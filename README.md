@@ -39,6 +39,19 @@ The API runs on `http://localhost:4000` by default.
 - `GET /dossiers/:id/predict-delay`
 - `POST /dossiers/:id/generate-letter`
 - `GET /process/:processType`
+- `GET /roles`
+- `GET /roles/staff/dossiers`
+- `GET /roles/staff/dossiers/:id/workbench`
+- `GET /roles/manager/dashboard`
+- `GET /roles/citizen/track/:trackingCode`
+
+## Demo roles
+
+The platform uses demo role views without authentication, matching the hackathon constraint.
+
+- Civil servant: `GET /roles/staff/dossiers`
+- Manager: `GET /roles/manager/dashboard`
+- Citizen tracking: `GET /roles/citizen/track/EXP-001`
 
 ## Demo flow
 

@@ -5,6 +5,7 @@ import dashboardRouter from "./routes/dashboard.js";
 import dossiersRouter from "./routes/dossiers.js";
 import nlpRouter from "./routes/nlp.js";
 import processRouter from "./routes/process.js";
+import rolesRouter from "./routes/roles.js";
 
 dotenv.config();
 
@@ -33,7 +34,12 @@ app.get("/", (_req, res) => {
       "POST /dossiers/:id/generate-letter",
       "GET /nlp/summary/:dossierId",
       "POST /nlp/ask/:dossierId",
-      "GET /process/:processType"
+      "GET /process/:processType",
+      "GET /roles",
+      "GET /roles/staff/dossiers",
+      "GET /roles/staff/dossiers/:id/workbench",
+      "GET /roles/manager/dashboard",
+      "GET /roles/citizen/track/:trackingCode"
     ]
   });
 });
@@ -42,6 +48,7 @@ app.use("/dashboard", dashboardRouter);
 app.use("/dossiers", dossiersRouter);
 app.use("/nlp", nlpRouter);
 app.use("/process", processRouter);
+app.use("/roles", rolesRouter);
 
 app.use((error, _req, res, _next) => {
   console.error(error);

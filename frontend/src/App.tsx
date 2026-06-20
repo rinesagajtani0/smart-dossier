@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './layouts/AppLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { DossierDetailPage } from './pages/DossierDetailPage';
+import { RolesPage } from './pages/RolesPage';
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
+          <Route path="roles" element={<RolesPage />} />
           <Route path="dossiers/:id" element={<DossierDetailPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

@@ -4,6 +4,7 @@ import { Router } from "express";
 import multer from "multer";
 import pdf from "pdf-parse";
 import { z } from "zod";
+import { presentDossier } from "../lib/dossierPresenter.js";
 import { extractDocumentFields, summarizeDossier } from "../lib/extraction.js";
 import { parseJson, toJson } from "../lib/json.js";
 import { predictDelay } from "../lib/prediction.js";
@@ -32,23 +33,6 @@ const dossierSchema = z.object({
   missingFields: z.array(z.string()).default([]),
   riskLevel: z.string().default("medium")
 });
-
-function presentDossier(dossier) {
-  return {
-    ...dossier,
-    missingFields: parseJson(dossier.missingFieldsJson, []),
-    documents: dossier.documents?.map((doc) => ({
-      ...doc,
-      extractedData: parseJson(doc.extractedDataJson, {})
-    })),
-    caseHistory: dossier.caseHistory
-      ? {
-          ...dossier.caseHistory,
-          similarityTags: parseJson(dossier.caseHistory.similarityTagsJson, [])
-        }
-      : null
-  };
-}
 
 async function readUploadedText(file) {
   const buffer = fs.readFileSync(file.path);
