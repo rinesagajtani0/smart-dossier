@@ -26,6 +26,15 @@ export interface UserAlert {
   type: string;
 }
 
+export interface SystemAdaptation {
+  processAction: string;
+  deadlineAction: string;
+}
+
+export interface LegalChangeImpact {
+  systemAdaptation: SystemAdaptation;
+}
+
 export interface Dossier {
   id: string;
   subject: string;
@@ -43,6 +52,7 @@ export interface Dossier {
   userAlerts: UserAlert[];
   requestedDocuments: string[];
   changedFields: string[];
+  legalChangeImpact: LegalChangeImpact | null;
 }
 
 export interface KanbanCardSummary {

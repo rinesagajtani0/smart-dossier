@@ -1,4 +1,14 @@
-import type { AlertSeverity, CaseStatus, Dossier, DossierEvent, DossierSource, Phase, RiskLevel, UserAlert } from '../types/dossier';
+import type {
+  AlertSeverity,
+  CaseStatus,
+  Dossier,
+  DossierEvent,
+  DossierSource,
+  LegalChangeImpact,
+  Phase,
+  RiskLevel,
+  UserAlert,
+} from '../types/dossier';
 import { mapCaseStatus, mapPhase } from '../utils/phase';
 import { formatAlbanianDate } from '../utils/date';
 import { patchJson, postJson, postMultipartWithProgress, request } from './apiClient';
@@ -48,6 +58,12 @@ interface ApiDossier {
     userAlerts?: ApiUserAlert[];
     requestedDocuments?: string[];
     changedFields?: string[];
+  } | null;
+  legalChangeImpact?: {
+    systemAdaptation?: {
+      processAction?: string;
+      deadlineAction?: string;
+    };
   } | null;
 }
 
@@ -105,6 +121,20 @@ function mapUserAlerts(dossier: ApiDossier): UserAlert[] {
   }));
 }
 
+function mapLegalChangeImpact(dossier: ApiDossier): LegalChangeImpact | null {
+  const systemAdaptation = dossier.legalChangeImpact?.systemAdaptation;
+  if (!systemAdaptation) {
+    return null;
+  }
+
+  return {
+    systemAdaptation: {
+      processAction: systemAdaptation.processAction ?? '',
+      deadlineAction: systemAdaptation.deadlineAction ?? '',
+    },
+  };
+}
+
 function mapDossier(dossier: ApiDossier): Dossier {
   const missingFields = dossier.missingFields ?? [];
   const tags = [
@@ -137,6 +167,7 @@ function mapDossier(dossier: ApiDossier): Dossier {
     userAlerts: mapUserAlerts(dossier),
     requestedDocuments: dossier.alerts?.requestedDocuments ?? [],
     changedFields: dossier.alerts?.changedFields ?? [],
+    legalChangeImpact: mapLegalChangeImpact(dossier),
   };
 }
 

@@ -3,6 +3,8 @@ import { useDossier } from '../hooks/useDossier';
 import { PhaseBadge, RiskBadge } from '../components/PhaseBadge';
 import { AlertsSection } from '../components/AlertsSection';
 import { LegalChangePanel } from '../components/LegalChangePanel';
+import { PhaseHoldModal } from '../components/PhaseHoldModal';
+import { DeadlineReviewNotice } from '../components/DeadlineReviewNotice';
 import { formatShortDate, isOverdue } from '../utils/date';
 import './DossierDetailPage.css';
 
@@ -29,6 +31,8 @@ export function DossierDetailPage() {
 
   return (
     <div className="dossier-detail">
+      <PhaseHoldModal legalChangeImpact={dossier.legalChangeImpact} />
+
       <Link to="/" className="dossier-detail__back">
         ← Back to dashboard
       </Link>
@@ -51,6 +55,8 @@ export function DossierDetailPage() {
         requestedDocuments={dossier.requestedDocuments}
         changedFields={dossier.changedFields}
       />
+
+      <DeadlineReviewNotice legalChangeImpact={dossier.legalChangeImpact} />
 
       <section className="dossier-detail__section">
         <h2>Summary</h2>
