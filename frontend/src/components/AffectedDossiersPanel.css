@@ -1,0 +1,60 @@
+.affected-dossiers-panel {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.affected-dossiers-panel__empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.affected-dossiers-panel__row {
+  display: grid;
+  grid-template-columns: 90px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.affected-dossiers-panel__row:last-child {
+  border-bottom: none;
+}
+
+.affected-dossiers-panel__code {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.affected-dossiers-panel__phase {
+  color: var(--text);
+}
+
+.affected-dossiers-panel__status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.affected-dossiers-panel__status--legal {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.affected-dossiers-panel__status--high {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+}
+
+.affected-dossiers-panel__status--review {
+  background: var(--border);
+  color: var(--text-h);
+}

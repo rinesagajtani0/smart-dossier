@@ -1,19 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { LegalImpactPanel } from '../components/LegalImpactPanel';
 import { useLegalImpactGraph } from '../hooks/useLegalImpactGraph';
+import { getLegalChanges } from '../services/legalImpactService';
+import type { LegalChangeSummary } from '../services/legalImpactService';
 import './LegalImpactDashboardPage.css';
 
-const DEFAULT_DOSSIER_ID = '1';
-
 export function LegalImpactDashboardPage() {
-  const [dossierId, setDossierId] = useState(DEFAULT_DOSSIER_ID);
-  const { impact, loading, error, search } = useLegalImpactGraph(DEFAULT_DOSSIER_ID);
+  const [legalChanges, setLegalChanges] = useState<LegalChangeSummary[]>([]);
+  const [legalChangeId, setLegalChangeId] = useState('');
+  const [listError, setListError] = useState<string | null>(null);
+  const { impact, loading, error, search } = useLegalImpactGraph();
+
+  useEffect(() => {
+    getLegalChanges()
+      .then((changes) => {
+        setLegalChanges(changes);
+        if (changes.length > 0) {
+          setLegalChangeId(changes[0].id);
+          search(changes[0].id);
+        }
+      })
+      .catch((err) => setListError(err instanceof Error ? err.message : 'Could not load legal changes.'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    search(dossierId);
+    if (legalChangeId) search(legalChangeId);
   }
 
   return (
@@ -24,25 +39,32 @@ export function LegalImpactDashboardPage() {
 
       <header className="legal-impact-dashboard-page__header">
         <h1>Legal Impact Dashboard</h1>
-        <p>See how a legal or regulatory change propagates through the workflow, and how many dossiers need review.</p>
+        <p>Pick a legal or regulatory change to see how it propagates through the workflow, and how many dossiers need review.</p>
       </header>
 
       <form className="legal-impact-dashboard-page__form" onSubmit={handleSearch}>
         <label>
-          <span>Dossier ID</span>
-          <input
-            type="text"
-            value={dossierId}
-            onChange={(event) => setDossierId(event.target.value)}
-            disabled={loading}
-          />
+          <span>Legal Change</span>
+          <select
+            value={legalChangeId}
+            onChange={(event) => setLegalChangeId(event.target.value)}
+            disabled={loading || legalChanges.length === 0}
+          >
+            {legalChanges.map((change) => (
+              <option key={change.id} value={change.id}>
+                {change.title}
+              </option>
+            ))}
+          </select>
         </label>
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading || !legalChangeId}>
           {loading ? 'Checking…' : 'Check Legal Impact'}
         </button>
-        <small>Try any dossier ID from 1–24.</small>
       </form>
 
+      {listError && (
+        <p className="legal-impact-dashboard-page__status legal-impact-dashboard-page__status--error">{listError}</p>
+      )}
       {error && (
         <p className="legal-impact-dashboard-page__status legal-impact-dashboard-page__status--error">{error}</p>
       )}

@@ -1,0 +1,30 @@
+.administrative-impact-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.administrative-impact-card h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.administrative-impact-card__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.administrative-impact-card__list strong {
+  color: var(--accent);
+}
