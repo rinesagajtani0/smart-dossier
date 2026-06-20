@@ -3,6 +3,7 @@ import './Sidebar.css';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Workflow', end: true },
+  { to: '/procedure-generator', label: 'Procedure Generator', end: false },
   { to: '/dashboard', label: 'Dashboard', end: false },
   { to: '/roles', label: 'Roles', end: false },
 ];

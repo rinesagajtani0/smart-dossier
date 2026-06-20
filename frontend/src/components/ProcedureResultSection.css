@@ -1,0 +1,35 @@
+.procedure-result-section h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.procedure-result-section__content {
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.procedure-result-section__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.procedure-result-section__list li {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--code-bg);
+  font-size: 13px;
+}
+
+.procedure-result-section__empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}

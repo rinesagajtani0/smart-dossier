@@ -23,6 +23,9 @@ export function WorkflowPage() {
             <li>Legal Review</li>
             <li>Final Approval</li>
           </ol>
+          <Link to="/procedure-generator" className="workflow-preview__try-it">
+            Try it →
+          </Link>
         </WorkflowStepCard>
 
         <WorkflowStepCard {...documentUpload}>
