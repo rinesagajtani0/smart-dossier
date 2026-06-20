@@ -15,6 +15,11 @@ export function useDelayPrediction(initialId: string): UseDelayPredictionResult 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!initialId) {
+      setLoading(false);
+      return;
+    }
+
     let isMounted = true;
 
     predictDossierDelay(initialId)
@@ -31,8 +36,7 @@ export function useDelayPrediction(initialId: string): UseDelayPredictionResult 
     return () => {
       isMounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialId]);
 
   const search = useCallback((id: string) => {
     setLoading(true);

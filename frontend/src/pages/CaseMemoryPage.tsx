@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { SimilarCasesPanel } from '../components/SimilarCasesPanel';
 import { useCaseMemory } from '../hooks/useCaseMemory';
+import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
 import './CaseMemoryPage.css';
 
-const DEFAULT_DOSSIER_ID = '4';
-
 export function CaseMemoryPage() {
-  const [dossierId, setDossierId] = useState(DEFAULT_DOSSIER_ID);
-  const { cases, loading, error, search } = useCaseMemory(DEFAULT_DOSSIER_ID);
+  const { dossierId, setDossierId, hint } = useDefaultDossierId();
+  const { cases, loading, error, search } = useCaseMemory(dossierId);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,7 +38,7 @@ export function CaseMemoryPage() {
         <button type="submit" disabled={loading}>
           {loading ? 'Searching…' : 'Find Similar Cases'}
         </button>
-        <small>Try any dossier ID from 1–24.</small>
+        <small>{hint}</small>
       </form>
 
       {error && <p className="case-memory-page__status case-memory-page__status--error">{error}</p>}

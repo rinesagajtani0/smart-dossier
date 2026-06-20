@@ -1,0 +1,26 @@
+.required-document-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.required-document-field__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.required-document-field__status {
+  margin: 0;
+  font-size: 13px;
+}
+
+.required-document-field__status--error {
+  color: #b91c1c;
+}
+
+.required-document-field__status--success {
+  color: var(--text-h);
+}

@@ -1,4 +1,5 @@
 import { request } from './apiClient';
+import { createDossier } from './dossierService';
 
 export interface LegalUpdate {
   id: string;
@@ -76,6 +77,9 @@ export interface ProcedureGeneratorInput {
 
 export interface GeneratedProcedure {
   procedureName: string;
+  processType: string;
+  municipality: string;
+  propertyType: string;
   requiredDocuments: string[];
   institutions: string[];
   expectedTimeline: string;
@@ -112,6 +116,41 @@ function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+// --- Citizen-facing required documents -----------------------------------
+// Process-step data mixes paperwork the citizen must bring (identity
+// document, ownership proof...) with internal verification artifacts the
+// institutions produce themselves (legal verification, market analysis,
+// final certificate, and whatever new compliance paperwork the legal-update
+// engine injects over time, e.g. "valuation methodology note"). Rather than
+// chase every internal term with a blocklist, this is an allow-list: a raw
+// document is only surfaced if it positively matches one of a handful of
+// plain-language citizen groups. Anything that doesn't match — internal or
+// not — is dropped, which keeps the list both short and safe by default.
+const CITIZEN_DOCUMENT_GROUPS: { label: string; match: RegExp }[] = [
+  { label: 'Identity Document', match: /identity/i },
+  { label: 'Ownership Proof', match: /ownership/i },
+  { label: 'Property Contract', match: /contract/i },
+  { label: 'Cadastral Plan', match: /cadastral|boundary|survey/i },
+  { label: 'Fee Payment Receipt', match: /fee|payment|receipt/i },
+  { label: 'Application Form', match: /application/i },
+];
+
+const MAX_CITIZEN_DOCUMENTS = 5;
+
+function toCitizenFacingDocuments(rawDocuments: string[]): string[] {
+  const labels: string[] = [];
+
+  for (const raw of rawDocuments) {
+    const group = CITIZEN_DOCUMENT_GROUPS.find((candidate) => candidate.match.test(raw));
+    if (!group || labels.includes(group.label)) continue;
+
+    labels.push(group.label);
+    if (labels.length >= MAX_CITIZEN_DOCUMENTS) break;
+  }
+
+  return labels;
+}
+
 export async function generateProcedure(input: ProcedureGeneratorInput): Promise<GeneratedProcedure> {
   const intent = resolveIntent(input.userIntent);
   const steps = await getProcessSteps(intent.processType);
@@ -120,7 +159,7 @@ export async function generateProcedure(input: ProcedureGeneratorInput): Promise
     throw new Error(`No procedure is defined yet for "${intent.label}".`);
   }
 
-  const requiredDocuments = dedupe(steps.flatMap((step) => step.requiredDocuments));
+  const requiredDocuments = toCitizenFacingDocuments(dedupe(steps.flatMap((step) => step.requiredDocuments)));
   const institutions = dedupe(steps.map((step) => step.institution));
   const totalDays = steps.reduce((sum, step) => sum + step.expectedDays, 0);
   const criticalSteps = steps.filter((step) => step.criticalPoint);
@@ -137,6 +176,9 @@ export async function generateProcedure(input: ProcedureGeneratorInput): Promise
 
   return {
     procedureName,
+    processType: intent.processType,
+    municipality,
+    propertyType,
     requiredDocuments,
     institutions,
     expectedTimeline: formatTimeline(totalDays),
@@ -148,4 +190,44 @@ export async function generateProcedure(input: ProcedureGeneratorInput): Promise
     ),
     steps,
   };
+}
+
+// --- Hand off to Document Upload ------------------------------------------
+// "Upload Required Documents" on the result panel needs a real dossier to
+// attach files to. This creates one from the generated procedure (so the
+// dossier already knows its process type, location, property type, and
+// which documents are outstanding) and returns the auto-generated id the
+// Document Upload page should use.
+export async function prepareDossierForProcedure(procedure: GeneratedProcedure): Promise<string> {
+  const dossier = await createDossier({
+    title: procedure.procedureName,
+    processType: procedure.processType,
+    propertyLocation: procedure.municipality || undefined,
+    propertyType: procedure.propertyType || undefined,
+    missingFields: procedure.requiredDocuments,
+  });
+  return dossier.id;
+}
+
+const PROCEDURE_SESSION_KEY = 'smart-dossier:procedure-session';
+
+export interface ProcedureSession {
+  dossierId: string;
+  procedure: GeneratedProcedure;
+  requiredDocuments: string[];
+}
+
+export function saveProcedureSession(session: ProcedureSession): void {
+  window.sessionStorage.setItem(PROCEDURE_SESSION_KEY, JSON.stringify(session));
+}
+
+export function getProcedureSession(): ProcedureSession | null {
+  const raw = window.sessionStorage.getItem(PROCEDURE_SESSION_KEY);
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as ProcedureSession;
+  } catch {
+    return null;
+  }
 }

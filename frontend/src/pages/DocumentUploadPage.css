@@ -56,6 +56,12 @@
   color: var(--text);
 }
 
+.document-upload-page__required-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .document-upload-page__status {
   font-size: 14px;
 }

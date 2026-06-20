@@ -46,6 +46,13 @@ async function readUploadedText(file) {
   return buffer.toString("utf8");
 }
 
+function removeUploadedFile(file) {
+  if (!file?.path) return;
+  fs.unlink(file.path, (error) => {
+    if (error) console.warn(`Could not remove uploaded file ${file.path}:`, error.message);
+  });
+}
+
 async function getDossierAlerts(dossier) {
   const legalChangeImpact = evaluateLegalChangeImpact(dossier);
   const propertyAlerts = dossier.propertyNumber
@@ -115,11 +122,12 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const input = dossierSchema.parse(req.body);
+  const { missingFields, ...rest } = input;
   const dossier = await prisma.dossier.create({
     data: {
-      ...input,
+      ...rest,
       deadline: input.deadline ? new Date(input.deadline) : undefined,
-      missingFieldsJson: toJson(input.missingFields)
+      missingFieldsJson: toJson(missingFields)
     }
   });
   const adapted = await autoAdaptDossier(dossier.id);
@@ -153,11 +161,23 @@ router.patch("/:id", async (req, res) => {
 router.post("/:id/documents", upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Upload a file using multipart field name 'file'." });
 
+  const dossierId = Number(req.params.id);
+  if (!Number.isInteger(dossierId)) {
+    removeUploadedFile(req.file);
+    return res.status(400).json({ error: "Dossier id must be a number." });
+  }
+
+  const existingDossier = await prisma.dossier.findUnique({ where: { id: dossierId } });
+  if (!existingDossier) {
+    removeUploadedFile(req.file);
+    return res.status(404).json({ error: "Dossier not found" });
+  }
+
   const text = await readUploadedText(req.file);
   const extracted = await extractDocumentFields(text);
   const document = await prisma.document.create({
     data: {
-      dossierId: Number(req.params.id),
+      dossierId,
       fileName: req.file.originalname,
       documentType: extracted.documentType || "unknown",
       extractedText: text,
@@ -167,7 +187,7 @@ router.post("/:id/documents", upload.single("file"), async (req, res) => {
 
   const missingFields = extracted.missingFields || [];
   const dossier = await prisma.dossier.update({
-    where: { id: Number(req.params.id) },
+    where: { id: dossierId },
     data: {
       applicantName: extracted.applicantName || undefined,
       ownerName: extracted.ownerName || undefined,

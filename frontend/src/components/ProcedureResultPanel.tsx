@@ -5,9 +5,11 @@ import './ProcedureResultPanel.css';
 
 interface ProcedureResultPanelProps {
   procedure: GeneratedProcedure;
+  onUploadDocuments: () => void;
+  uploadPending?: boolean;
 }
 
-export function ProcedureResultPanel({ procedure }: ProcedureResultPanelProps) {
+export function ProcedureResultPanel({ procedure, onUploadDocuments, uploadPending = false }: ProcedureResultPanelProps) {
   return (
     <div className="procedure-result-panel">
       <ProcedureResultSection label="Procedure Name">
@@ -42,6 +44,17 @@ export function ProcedureResultPanel({ procedure }: ProcedureResultPanelProps) {
             ))}
           </div>
         </ProcedureResultSection>
+      </div>
+
+      <div className="procedure-result-panel__full procedure-result-panel__cta">
+        <button
+          type="button"
+          className="procedure-result-panel__upload-button"
+          onClick={onUploadDocuments}
+          disabled={uploadPending}
+        >
+          {uploadPending ? 'Preparing dossier…' : 'Upload Required Documents'}
+        </button>
       </div>
     </div>
   );

@@ -32,6 +32,29 @@
   gap: 12px;
 }
 
+.procedure-result-panel__cta {
+  display: flex;
+  justify-content: center;
+}
+
+.procedure-result-panel__upload-button {
+  width: 100%;
+  max-width: 420px;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.procedure-result-panel__upload-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 @media (max-width: 700px) {
   .procedure-result-panel {
     grid-template-columns: 1fr;

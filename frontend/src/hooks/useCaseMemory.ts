@@ -15,6 +15,11 @@ export function useCaseMemory(initialId: string): UseCaseMemoryResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!initialId) {
+      setLoading(false);
+      return;
+    }
+
     let isMounted = true;
 
     getCaseMemory(initialId)
@@ -31,8 +36,7 @@ export function useCaseMemory(initialId: string): UseCaseMemoryResult {
     return () => {
       isMounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialId]);
 
   const search = useCallback((id: string) => {
     setLoading(true);

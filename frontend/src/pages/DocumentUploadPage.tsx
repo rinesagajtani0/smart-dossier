@@ -1,15 +1,31 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FileDropzone } from '../components/FileDropzone';
 import { UploadProgressBar } from '../components/UploadProgressBar';
+import { RequiredDocumentUploadField } from '../components/RequiredDocumentUploadField';
 import { useDocumentUpload } from '../hooks/useDocumentUpload';
+import { useMultiDocumentUpload } from '../hooks/useMultiDocumentUpload';
+import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
+import { getProcedureSession } from '../services/processService';
 import { Can } from '../auth/Can';
 import './DocumentUploadPage.css';
 
 export function DocumentUploadPage() {
-  const [dossierId, setDossierId] = useState('1');
+  const [searchParams] = useSearchParams();
+  const preparedDossierId = searchParams.get('dossierId') ?? undefined;
+  const { dossierId, setDossierId, hint } = useDefaultDossierId(preparedDossierId);
+
+  // The Procedure Generator hands off its generated procedure + required
+  // documents through sessionStorage (see processService.saveProcedureSession).
+  // Only trust it while it still points at the dossier currently loaded —
+  // if the user types in a different dossier id, fall back to the original
+  // single generic upload below instead of showing a stale document list.
+  const [session] = useState(() => getProcedureSession());
+  const requiredDocuments = session && session.dossierId === dossierId ? session.requiredDocuments : null;
+
   const [fileName, setFileName] = useState<string | null>(null);
   const { status, progress, result, error, upload, reset } = useDocumentUpload();
+  const { getState, upload: uploadRequiredDocument } = useMultiDocumentUpload();
 
   function handleFileSelected(file: File) {
     setFileName(file.name);
@@ -41,40 +57,55 @@ export function DocumentUploadPage() {
           onChange={(event) => handleDossierIdChange(event.target.value)}
           disabled={status === 'uploading'}
         />
-        <small>Try any dossier ID from 1–24.</small>
+        <small>{hint}</small>
       </label>
 
-      <FileDropzone
-        onFileSelected={handleFileSelected}
-        disabled={status === 'uploading'}
-        selectedFileName={fileName}
-      />
-
-      <UploadProgressBar status={status} progress={progress} />
-
-      {error && (
-        <p className="document-upload-page__status document-upload-page__status--error">{error}</p>
-      )}
-
-      {result && (
-        <div className="document-upload-page__success">
-          <Can
-            permission="view-nlp-extraction"
-            fallback={
-              <>
-                <h2 className="document-upload-page__success-title">Application Submitted</h2>
-                <p>Your documents have been received and are being processed.</p>
-              </>
-            }
-          >
-            <p>
-              Document <strong>#{result.id}</strong> uploaded to dossier {result.dossierId}.
-            </p>
-            <Link to={`/nlp-extraction?documentId=${result.id}`} className="document-upload-page__success-link">
-              View NLP Extraction results →
-            </Link>
-          </Can>
+      {requiredDocuments ? (
+        <div className="document-upload-page__required-fields">
+          {requiredDocuments.map((documentName) => (
+            <RequiredDocumentUploadField
+              key={documentName}
+              documentName={documentName}
+              state={getState(documentName)}
+              onFileSelected={(file) => uploadRequiredDocument(documentName, dossierId, file)}
+            />
+          ))}
         </div>
+      ) : (
+        <>
+          <FileDropzone
+            onFileSelected={handleFileSelected}
+            disabled={status === 'uploading'}
+            selectedFileName={fileName}
+          />
+
+          <UploadProgressBar status={status} progress={progress} />
+
+          {error && (
+            <p className="document-upload-page__status document-upload-page__status--error">{error}</p>
+          )}
+
+          {result && (
+            <div className="document-upload-page__success">
+              <Can
+                permission="view-nlp-extraction"
+                fallback={
+                  <>
+                    <h2 className="document-upload-page__success-title">Application Submitted</h2>
+                    <p>Your documents have been received and are being processed.</p>
+                  </>
+                }
+              >
+                <p>
+                  Document <strong>#{result.id}</strong> uploaded to dossier {result.dossierId}.
+                </p>
+                <Link to={`/nlp-extraction?documentId=${result.id}`} className="document-upload-page__success-link">
+                  View NLP Extraction results →
+                </Link>
+              </Can>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

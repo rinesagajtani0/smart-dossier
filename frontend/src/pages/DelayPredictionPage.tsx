@@ -1,17 +1,15 @@
-import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { DelayPredictionPanel } from '../components/DelayPredictionPanel';
 import { CitizenDelayPredictionPanel } from '../components/CitizenDelayPredictionPanel';
 import { Can } from '../auth/Can';
 import { useDelayPrediction } from '../hooks/useDelayPrediction';
+import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
 import './DelayPredictionPage.css';
 
-const DEFAULT_DOSSIER_ID = '2';
-
 export function DelayPredictionPage() {
-  const [dossierId, setDossierId] = useState(DEFAULT_DOSSIER_ID);
-  const { prediction, loading, error, search } = useDelayPrediction(DEFAULT_DOSSIER_ID);
+  const { dossierId, setDossierId, hint } = useDefaultDossierId();
+  const { prediction, loading, error, search } = useDelayPrediction(dossierId);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,7 +40,7 @@ export function DelayPredictionPage() {
         <button type="submit" disabled={loading}>
           {loading ? 'Predicting…' : 'Predict Delay'}
         </button>
-        <small>Try any dossier ID from 1–24.</small>
+        <small>{hint}</small>
       </form>
 
       {error && <p className="delay-prediction-page__status delay-prediction-page__status--error">{error}</p>}

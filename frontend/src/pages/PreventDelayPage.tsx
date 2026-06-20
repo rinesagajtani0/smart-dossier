@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PreventDelayPanel } from '../components/PreventDelayPanel';
 import { CitizenPreventDelayPanel } from '../components/CitizenPreventDelayPanel';
 import { Can } from '../auth/Can';
 import { usePreventDelay } from '../hooks/usePreventDelay';
+import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
 import './PreventDelayPage.css';
 
-const DEFAULT_DOSSIER_ID = '2';
-
 export function PreventDelayPage() {
-  const [dossierId, setDossierId] = useState(DEFAULT_DOSSIER_ID);
+  const { dossierId, setDossierId, hint } = useDefaultDossierId();
   const { plan, loading, error, preventDelay } = usePreventDelay();
 
   return (
@@ -41,7 +39,7 @@ export function PreventDelayPage() {
         >
           {loading ? 'Generating…' : 'Prevent Delay'}
         </button>
-        <small>Try any dossier ID from 1–24.</small>
+        <small>{hint}</small>
       </div>
 
       {error && <p className="prevent-delay-page__status prevent-delay-page__status--error">{error}</p>}
