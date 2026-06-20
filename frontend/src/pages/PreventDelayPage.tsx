@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PreventDelayPanel } from '../components/PreventDelayPanel';
+import { CitizenPreventDelayPanel } from '../components/CitizenPreventDelayPanel';
+import { Can } from '../auth/Can';
 import { usePreventDelay } from '../hooks/usePreventDelay';
 import './PreventDelayPage.css';
 
@@ -44,7 +46,11 @@ export function PreventDelayPage() {
 
       {error && <p className="prevent-delay-page__status prevent-delay-page__status--error">{error}</p>}
 
-      {plan && <PreventDelayPanel plan={plan} />}
+      {plan && (
+        <Can permission="use-prevent-delay" fallback={<CitizenPreventDelayPanel plan={plan} />}>
+          <PreventDelayPanel plan={plan} />
+        </Can>
+      )}
     </div>
   );
 }

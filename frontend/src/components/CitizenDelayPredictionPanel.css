@@ -1,0 +1,78 @@
+.citizen-delay-prediction-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.citizen-delay-prediction-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.citizen-delay-prediction-panel__header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.citizen-delay-prediction-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.citizen-delay-prediction-panel__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.citizen-delay-prediction-panel__section p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.citizen-delay-prediction-panel__status {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.citizen-delay-prediction-panel__status--error {
+  color: #b91c1c;
+}
+
+.citizen-delay-prediction-panel__empty {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.citizen-delay-prediction-panel__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.citizen-delay-prediction-panel__list li {
+  padding-left: 18px;
+  position: relative;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.citizen-delay-prediction-panel__list li::before {
+  content: '•';
+  position: absolute;
+  left: 4px;
+  color: #b45309;
+}

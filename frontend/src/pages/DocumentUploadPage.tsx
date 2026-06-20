@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FileDropzone } from '../components/FileDropzone';
 import { UploadProgressBar } from '../components/UploadProgressBar';
 import { useDocumentUpload } from '../hooks/useDocumentUpload';
+import { Can } from '../auth/Can';
 import './DocumentUploadPage.css';
 
 export function DocumentUploadPage() {
@@ -57,12 +58,22 @@ export function DocumentUploadPage() {
 
       {result && (
         <div className="document-upload-page__success">
-          <p>
-            Document <strong>#{result.id}</strong> uploaded to dossier {result.dossierId}.
-          </p>
-          <Link to={`/nlp-extraction?documentId=${result.id}`} className="document-upload-page__success-link">
-            View NLP Extraction results →
-          </Link>
+          <Can
+            permission="view-nlp-extraction"
+            fallback={
+              <>
+                <h2 className="document-upload-page__success-title">Application Submitted</h2>
+                <p>Your documents have been received and are being processed.</p>
+              </>
+            }
+          >
+            <p>
+              Document <strong>#{result.id}</strong> uploaded to dossier {result.dossierId}.
+            </p>
+            <Link to={`/nlp-extraction?documentId=${result.id}`} className="document-upload-page__success-link">
+              View NLP Extraction results →
+            </Link>
+          </Can>
         </div>
       )}
     </div>

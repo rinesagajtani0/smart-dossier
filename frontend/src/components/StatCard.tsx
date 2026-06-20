@@ -3,6 +3,7 @@ import './StatCard.css';
 interface StatCardProps {
   label: string;
   value: number;
+  suffix?: string;
   tone?: 'default' | 'danger' | 'warning' | 'legal';
   icon?: string;
   trend?: 'up' | 'down' | 'neutral';
@@ -14,7 +15,7 @@ const TREND_ARROW: Record<'up' | 'down' | 'neutral', string> = {
   neutral: '–',
 };
 
-export function StatCard({ label, value, tone = 'default', icon, trend }: StatCardProps) {
+export function StatCard({ label, value, suffix = '', tone = 'default', icon, trend }: StatCardProps) {
   return (
     <div className={`stat-card stat-card--${tone}`}>
       {(icon || trend) && (
@@ -29,7 +30,10 @@ export function StatCard({ label, value, tone = 'default', icon, trend }: StatCa
           )}
         </div>
       )}
-      <span className="stat-card__value">{value}</span>
+      <span className="stat-card__value">
+        {value}
+        {suffix}
+      </span>
       <span className="stat-card__label">{label}</span>
     </div>
   );

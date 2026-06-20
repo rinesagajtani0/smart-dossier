@@ -12,6 +12,9 @@ export type Permission =
   | 'view-own-alerts'
   | 'use-procedure-generator'
   | 'track-dossier'
+  | 'view-own-case-memory'
+  | 'view-own-delay-prediction'
+  | 'view-own-prevent-delay'
   // Staff
   | 'view-dashboard'
   | 'view-dossiers'
@@ -30,6 +33,9 @@ const CITIZEN_PERMISSIONS: Permission[] = [
   'view-own-alerts',
   'use-procedure-generator',
   'track-dossier',
+  'view-own-case-memory',
+  'view-own-delay-prediction',
+  'view-own-prevent-delay',
 ];
 
 const STAFF_PERMISSIONS: Permission[] = [
@@ -102,9 +108,17 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   '/procedure-generator': ['use-procedure-generator'],
   '/document-upload': ['upload-documents'],
   '/nlp-extraction': ['view-nlp-extraction'],
-  '/case-memory': ['view-case-memory'],
-  '/delay-prediction': ['view-delay-prediction'],
-  '/prevent-delay': ['use-prevent-delay'],
+  // Citizens see a simplified, anonymized "Case Progress Insights" view of
+  // the same page (no case IDs/scores/admin history) — see CaseMemoryPage.
+  '/case-memory': ['view-case-memory', 'view-own-case-memory'],
+  // Citizens see a simplified view (risk level, estimated delay, missing
+  // requirements, recommended actions) with no internal legal/compliance
+  // analytics — see DelayPredictionPage / CitizenDelayPredictionPanel.
+  '/delay-prediction': ['view-delay-prediction', 'view-own-delay-prediction'],
+  // Citizens see a simplified action plan (checklist, missing documents,
+  // next steps, guidance) with no generated administrative letter — see
+  // PreventDelayPage / CitizenPreventDelayPanel.
+  '/prevent-delay': ['use-prevent-delay', 'view-own-prevent-delay'],
   '/dashboard': ['view-dashboard'],
   // /roles bundles a citizen tab, a staff tab, and a manager tab in one
   // page (RolesPage.tsx) behind client-side state, not separate routes.

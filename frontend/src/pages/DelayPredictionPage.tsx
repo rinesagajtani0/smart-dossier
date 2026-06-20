@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { DelayPredictionPanel } from '../components/DelayPredictionPanel';
+import { CitizenDelayPredictionPanel } from '../components/CitizenDelayPredictionPanel';
+import { Can } from '../auth/Can';
 import { useDelayPrediction } from '../hooks/useDelayPrediction';
 import './DelayPredictionPage.css';
 
@@ -45,7 +47,14 @@ export function DelayPredictionPage() {
 
       {error && <p className="delay-prediction-page__status delay-prediction-page__status--error">{error}</p>}
 
-      {!error && prediction && <DelayPredictionPanel prediction={prediction} />}
+      {!error && prediction && (
+        <Can
+          permission="view-delay-prediction"
+          fallback={<CitizenDelayPredictionPanel dossierId={dossierId} prediction={prediction} />}
+        >
+          <DelayPredictionPanel prediction={prediction} />
+        </Can>
+      )}
     </div>
   );
 }

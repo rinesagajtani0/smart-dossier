@@ -7,6 +7,8 @@ export interface PreventDelayPlan {
   currentRisk: RiskLevel;
   updatedRisk: RiskLevel;
   checklist: string[];
+  missingDocuments: string[];
+  nextSteps: string[];
   letter: {
     content: string;
     createdAt: string;
@@ -56,6 +58,8 @@ export function usePreventDelay(): UsePreventDelayResult {
           currentRisk: snapshot.riskLevel,
           updatedRisk: RISK_DOWNGRADE[snapshot.riskLevel],
           checklist,
+          missingDocuments: snapshot.missingFields,
+          nextSteps: outstanding,
           letter: { content: letter.content, createdAt: letter.createdAt },
         });
       })
