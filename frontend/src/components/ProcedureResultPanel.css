@@ -1,29 +1,116 @@
 .procedure-result-panel {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 28px 30px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
+  border-radius: 16px;
+  background: linear-gradient(165deg, var(--surface) 0%, var(--accent-bg) 160%);
+  box-shadow: var(--shadow);
+  animation: procedure-panel-in 0.4s ease both;
+}
+
+.procedure-result-panel__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.procedure-result-panel__badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.procedure-result-panel__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.procedure-result-panel__badge--status {
+  background: rgba(21, 128, 61, 0.14);
+  color: #15803d;
+}
+
+.procedure-result-panel__badge--simple {
+  background: rgba(21, 128, 61, 0.14);
+  color: #15803d;
+}
+
+.procedure-result-panel__badge--medium {
+  background: rgba(180, 83, 9, 0.14);
+  color: #b45309;
+}
+
+.procedure-result-panel__badge--complex {
+  background: rgba(185, 28, 28, 0.14);
+  color: #b91c1c;
+}
+
+.procedure-result-panel__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.procedure-result-panel__action-button {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+
+.procedure-result-panel__action-button:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  transform: translateY(-1px);
 }
 
 .procedure-result-panel__name {
-  margin: 0;
-  font-size: 18px;
+  margin: 0 0 10px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-h);
+}
+
+.procedure-result-panel__chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.procedure-result-panel__chip {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--code-bg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.procedure-result-panel__split {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
 .procedure-result-panel__timeline {
   margin: 0;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-h);
-}
-
-.procedure-result-panel__full {
-  grid-column: 1 / -1;
 }
 
 .procedure-result-panel__steps {
@@ -32,31 +119,71 @@
   gap: 12px;
 }
 
+.procedure-result-panel__notes {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-h);
+}
+
 .procedure-result-panel__cta {
   display: flex;
   justify-content: center;
+  padding-top: 4px;
 }
 
 .procedure-result-panel__upload-button {
   width: 100%;
-  max-width: 420px;
-  padding: 14px 20px;
+  max-width: 460px;
+  padding: 15px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  box-shadow: 0 12px 22px -8px rgba(170, 59, 255, 0.45);
   cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.procedure-result-panel__upload-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px -8px rgba(170, 59, 255, 0.55);
 }
 
 .procedure-result-panel__upload-button:disabled {
   opacity: 0.6;
   cursor: default;
+  transform: none;
+}
+
+@keyframes procedure-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 700px) {
-  .procedure-result-panel {
+  .procedure-result-panel__split {
     grid-template-columns: 1fr;
+  }
+
+  .procedure-result-panel {
+    padding: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .procedure-result-panel {
+    animation: none;
   }
 }

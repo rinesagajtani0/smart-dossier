@@ -83,6 +83,7 @@ export interface GeneratedProcedure {
   requiredDocuments: string[];
   institutions: string[];
   expectedTimeline: string;
+  complexity: Complexity;
   steps: ProcessStep[];
 }
 
@@ -110,7 +111,7 @@ function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-type Complexity = 'simple' | 'medium' | 'complex';
+export type Complexity = 'simple' | 'medium' | 'complex';
 
 interface PropertyTypeProfile {
   complexity: Complexity;
@@ -264,6 +265,7 @@ export async function generateProcedure(input: ProcedureGeneratorInput): Promise
     requiredDocuments: profile.requiredDocuments.slice(0, 5),
     institutions,
     expectedTimeline: `${lower}-${upper} days`,
+    complexity: profile.complexity,
     steps,
   };
 }

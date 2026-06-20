@@ -9,6 +9,17 @@ interface UseProcedureGeneratorResult {
   generate: (input: ProcedureGeneratorInput) => void;
 }
 
+// generateProcedure resolves almost instantly (it's a deterministic, local
+// computation, not a network call) — without a small floor here, the
+// progress indicator and skeleton loader would flash and disappear before
+// they're perceptible. This is purely about giving the generation step
+// visible weight, not real work.
+const MIN_LOADING_MS = 900;
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function useProcedureGenerator(): UseProcedureGeneratorResult {
   const [result, setResult] = useState<GeneratedProcedure | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,8 +29,8 @@ export function useProcedureGenerator(): UseProcedureGeneratorResult {
     setLoading(true);
     setError(null);
 
-    generateProcedure(input)
-      .then((procedure) => setResult(procedure))
+    Promise.all([generateProcedure(input), wait(MIN_LOADING_MS)])
+      .then(([procedure]) => setResult(procedure))
       .catch((err) => {
         setResult(null);
         setError(err instanceof Error ? err.message : 'Could not generate the procedure.');

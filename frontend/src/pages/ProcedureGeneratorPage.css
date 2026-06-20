@@ -1,7 +1,7 @@
 .procedure-generator-page {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 .procedure-generator-page__back {
@@ -9,20 +9,56 @@
   color: var(--accent);
   text-decoration: none;
   align-self: flex-start;
+  transition: transform 0.15s ease;
 }
 
-.procedure-generator-page__header {
+.procedure-generator-page__back:hover {
+  transform: translateX(-2px);
+}
+
+.procedure-generator-page__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 36px 38px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 0% 0%, var(--accent-bg), transparent 60%),
+    linear-gradient(160deg, var(--surface) 0%, var(--bg) 100%);
+  box-shadow: var(--shadow);
   text-align: left;
+  animation: procedure-page-in 0.5s ease both;
 }
 
-.procedure-generator-page__header h1 {
-  font-size: 28px;
-  margin: 0 0 6px;
+.procedure-generator-page__hero-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
-.procedure-generator-page__header p {
-  font-size: 14px;
+.procedure-generator-page__hero h1 {
+  font-size: 32px;
+  margin: 4px 0 0;
+}
+
+.procedure-generator-page__hero p {
+  max-width: 640px;
+  font-size: 15px;
+  line-height: 1.6;
   color: var(--text);
+}
+
+.procedure-generator-page__features {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
 }
 
 .procedure-generator-page__status {
@@ -32,4 +68,47 @@
 
 .procedure-generator-page__status--error {
   color: #b91c1c;
+}
+
+.procedure-generator-page__loading {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@keyframes procedure-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1000px) {
+  .procedure-generator-page__features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .procedure-generator-page__hero {
+    padding: 26px 22px;
+  }
+
+  .procedure-generator-page__hero h1 {
+    font-size: 26px;
+  }
+
+  .procedure-generator-page__features {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .procedure-generator-page__hero {
+    animation: none;
+  }
 }

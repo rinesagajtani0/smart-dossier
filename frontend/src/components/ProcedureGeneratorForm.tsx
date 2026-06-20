@@ -42,7 +42,10 @@ export function ProcedureGeneratorForm({ onGenerate, loading }: ProcedureGenerat
   return (
     <form className="procedure-form" onSubmit={handleSubmit}>
       <label className="procedure-form__field">
-        <span>User Intent</span>
+        <span>
+          <span className="procedure-form__field-icon" aria-hidden="true">🎯</span>
+          User Intent
+        </span>
         <select value={userIntent} onChange={(event) => setUserIntent(event.target.value)}>
           {INTENT_MAPPINGS.map((mapping) => (
             <option key={mapping.id} value={mapping.id}>
@@ -53,7 +56,10 @@ export function ProcedureGeneratorForm({ onGenerate, loading }: ProcedureGenerat
       </label>
 
       <label className="procedure-form__field">
-        <span>Municipality</span>
+        <span>
+          <span className="procedure-form__field-icon" aria-hidden="true">📍</span>
+          Municipality
+        </span>
         <select value={municipality} onChange={(event) => setMunicipality(event.target.value)}>
           {MUNICIPALITIES.map((city) => (
             <option key={city} value={city}>
@@ -64,7 +70,10 @@ export function ProcedureGeneratorForm({ onGenerate, loading }: ProcedureGenerat
       </label>
 
       <label className="procedure-form__field">
-        <span>Property Type</span>
+        <span>
+          <span className="procedure-form__field-icon" aria-hidden="true">🏠</span>
+          Property Type
+        </span>
         <select value={propertyType} onChange={(event) => setPropertyType(event.target.value)}>
           {PROPERTY_TYPES.map((type) => (
             <option key={type} value={type}>
@@ -75,7 +84,14 @@ export function ProcedureGeneratorForm({ onGenerate, loading }: ProcedureGenerat
       </label>
 
       <button type="submit" className="procedure-form__submit" disabled={loading}>
-        {loading ? 'Generating…' : 'Generate Procedure'}
+        {loading ? (
+          <>
+            <span className="procedure-form__spinner" aria-hidden="true" />
+            Generating…
+          </>
+        ) : (
+          '✨ Generate Procedure'
+        )}
       </button>
     </form>
   );

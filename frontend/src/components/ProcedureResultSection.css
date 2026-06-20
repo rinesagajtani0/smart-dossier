@@ -1,10 +1,61 @@
-.procedure-result-section h3 {
-  margin: 0 0 8px;
+.procedure-result-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.procedure-result-section__header--clickable {
+  cursor: pointer;
+}
+
+.procedure-result-section__header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--text);
+}
+
+.procedure-result-section__icon {
+  font-size: 15px;
+}
+
+.procedure-result-section__header-end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.procedure-result-section__chevron {
+  display: inline-flex;
+  font-size: 14px;
+  color: var(--text);
+  transition: transform 0.2s ease;
+}
+
+.procedure-result-section__chevron--open {
+  transform: rotate(180deg);
+}
+
+.procedure-result-section__collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.procedure-result-section__collapse--open {
+  grid-template-rows: 1fr;
+}
+
+.procedure-result-section__collapse > .procedure-result-section__content {
+  min-height: 0;
 }
 
 .procedure-result-section__content {
@@ -18,14 +69,20 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .procedure-result-section__list li {
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
   background: var(--code-bg);
   font-size: 13px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.procedure-result-section__list li:hover {
+  background: var(--accent-bg);
+  transform: translateX(2px);
 }
 
 .procedure-result-section__empty {
