@@ -27,6 +27,13 @@ export function DashboardPage() {
           <StatCard label="High Risk" value={stats.highRisk} tone="danger" />
           <StatCard label="Delayed" value={stats.delayed} tone="danger" />
           <StatCard label="Deadlines This Week" value={stats.deadlinesThisWeek} tone="warning" />
+          <StatCard
+            label="Legally Impacted Dossiers"
+            value={stats.legalImpacted}
+            tone="legal"
+            icon="⚖"
+            trend="up"
+          />
         </div>
       )}
 

@@ -76,6 +76,7 @@ export interface DashboardStats {
   delayed: number;
   rejected: number;
   deadlinesThisWeek: number;
+  legalImpacted: number;
   mainBottleneck: string | null;
   byPhase: Record<string, number>;
   byRisk: Record<string, number>;

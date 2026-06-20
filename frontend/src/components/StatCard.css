@@ -32,3 +32,36 @@
 .stat-card--warning {
   --stat-accent: #b45309;
 }
+
+.stat-card--legal {
+  --stat-accent: #92400e;
+}
+
+.stat-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.stat-card__icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.stat-card__trend {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stat-card__trend--up {
+  color: #b91c1c;
+}
+
+.stat-card__trend--down {
+  color: #15803d;
+}
+
+.stat-card__trend--neutral {
+  color: var(--text);
+}

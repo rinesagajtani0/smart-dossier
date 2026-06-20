@@ -37,8 +37,16 @@ function mapKanbanCard(card: ApiKanbanCard): KanbanCardSummary {
   };
 }
 
+interface ApiDashboardStats extends Omit<DashboardStats, 'legalImpacted'> {
+  legalImpacted?: number;
+}
+
 export async function getDashboardStats(): Promise<DashboardStats> {
-  return request<DashboardStats>('/dashboard/stats');
+  const stats = await request<ApiDashboardStats>('/dashboard/stats');
+  return {
+    ...stats,
+    legalImpacted: stats.legalImpacted ?? 0,
+  };
 }
 
 export async function getDashboardKanban(): Promise<KanbanColumns> {
