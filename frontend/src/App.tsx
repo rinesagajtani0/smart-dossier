@@ -3,6 +3,7 @@ import { AppLayout } from './layouts/AppLayout';
 import { WorkflowPage } from './pages/WorkflowPage';
 import { ProcedureGeneratorPage } from './pages/ProcedureGeneratorPage';
 import { DocumentUploadPage } from './pages/DocumentUploadPage';
+import { NlpExtractionPage } from './pages/NlpExtractionPage';
 import { CaseMemoryPage } from './pages/CaseMemoryPage';
 import { DelayPredictionPage } from './pages/DelayPredictionPage';
 import { PreventDelayPage } from './pages/PreventDelayPage';
@@ -18,6 +19,7 @@ function App() {
           <Route index element={<WorkflowPage />} />
           <Route path="procedure-generator" element={<ProcedureGeneratorPage />} />
           <Route path="document-upload" element={<DocumentUploadPage />} />
+          <Route path="nlp-extraction" element={<NlpExtractionPage />} />
           <Route path="case-memory" element={<CaseMemoryPage />} />
           <Route path="delay-prediction" element={<DelayPredictionPage />} />
           <Route path="prevent-delay" element={<PreventDelayPage />} />

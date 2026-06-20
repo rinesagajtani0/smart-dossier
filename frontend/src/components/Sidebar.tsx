@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Workflow', end: true },
   { to: '/procedure-generator', label: 'Procedure Generator', end: false },
   { to: '/document-upload', label: 'Document Upload', end: false },
+  { to: '/nlp-extraction', label: 'NLP Extraction', end: false },
   { to: '/case-memory', label: 'Case Memory', end: false },
   { to: '/delay-prediction', label: 'Delay Prediction', end: false },
   { to: '/prevent-delay', label: 'Prevent Delay', end: false },

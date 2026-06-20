@@ -1,4 +1,3 @@
-import { localizeText, mapLocationToAlbania } from '../utils/albania';
 import { postJson, request } from './apiClient';
 
 export interface ExtractedDocumentData {
@@ -35,23 +34,13 @@ export interface DossierAskResult {
 }
 
 export async function extractDocumentFields(documentId: string): Promise<ExtractDocumentResult> {
-  const result = await request<ExtractDocumentResult>(`/nlp/extract/${documentId}`, { method: 'POST' });
-  return {
-    ...result,
-    extractedData: {
-      ...result.extractedData,
-      propertyLocation: mapLocationToAlbania(result.extractedData.propertyLocation),
-      cadastralZone: localizeText(result.extractedData.cadastralZone),
-    },
-  };
+  return request<ExtractDocumentResult>(`/nlp/extract/${documentId}`, { method: 'POST' });
 }
 
 export async function getDossierSummary(dossierId: string): Promise<DossierSummaryResult> {
-  const result = await request<DossierSummaryResult>(`/nlp/summary/${dossierId}`);
-  return { summary: localizeText(result.summary) };
+  return request<DossierSummaryResult>(`/nlp/summary/${dossierId}`);
 }
 
 export async function askDossierQuestion(dossierId: string, question?: string): Promise<DossierAskResult> {
-  const result = await postJson<DossierAskResult>(`/nlp/ask/${dossierId}`, { question });
-  return { ...result, answer: localizeText(result.answer) };
+  return postJson<DossierAskResult>(`/nlp/ask/${dossierId}`, { question });
 }

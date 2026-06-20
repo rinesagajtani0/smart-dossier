@@ -1,7 +1,6 @@
 import type { CaseStatus, Dossier, DossierEvent, DossierSource, Phase, RiskLevel } from '../types/dossier';
 import { mapCaseStatus, mapPhase } from '../utils/phase';
 import { formatAlbanianDate } from '../utils/date';
-import { localizeText, mapLocationToAlbania } from '../utils/albania';
 import { patchJson, postJson, postMultipartWithProgress, request } from './apiClient';
 import type { ExtractedDocumentData } from './nlpService';
 
@@ -84,25 +83,24 @@ function mapSources(dossier: ApiDossier): DossierSource[] {
 
 function mapDossier(dossier: ApiDossier): Dossier {
   const missingFields = dossier.missingFields ?? [];
-  const propertyLocation = mapLocationToAlbania(dossier.propertyLocation);
   const tags = [
     dossier.phase,
     dossier.institution,
-    propertyLocation,
+    dossier.propertyLocation,
     dossier.propertyType,
     ...missingFields,
   ].filter(Boolean) as string[];
 
   return {
     id: String(dossier.id),
-    subject: localizeText(dossier.title),
+    subject: dossier.title,
     category: `${dossier.processType} / ${dossier.phase}`,
     phase: mapPhase(dossier.phase),
     status: mapCaseStatus(dossier.status),
     riskLevel: dossier.riskLevel,
     summary:
-      `${dossier.applicantName ?? 'Unknown applicant'} - ${propertyLocation ?? 'unknown location'}. ` +
-      `Property ${dossier.propertyNumber ?? 'number missing'}, cadastral zone ${dossier.cadastralZone ? localizeText(dossier.cadastralZone) : 'missing'}. ` +
+      `${dossier.applicantName ?? 'Unknown applicant'} - ${dossier.propertyLocation ?? 'unknown location'}. ` +
+      `Property ${dossier.propertyNumber ?? 'number missing'}, cadastral zone ${dossier.cadastralZone ?? 'missing'}. ` +
       (missingFields.length
         ? `Missing: ${missingFields.join(', ')}.`
         : 'No missing fields detected.'),
@@ -172,19 +170,7 @@ export async function uploadDossierDocument(
 ): Promise<UploadedDocumentResult> {
   const formData = new FormData();
   formData.append('file', file);
-  const result = await postMultipartWithProgress<UploadedDocumentResult>(
-    `/dossiers/${id}/documents`,
-    formData,
-    onProgress,
-  );
-  return {
-    ...result,
-    extractedData: {
-      ...result.extractedData,
-      propertyLocation: mapLocationToAlbania(result.extractedData.propertyLocation),
-      cadastralZone: localizeText(result.extractedData.cadastralZone),
-    },
-  };
+  return postMultipartWithProgress<UploadedDocumentResult>(`/dossiers/${id}/documents`, formData, onProgress);
 }
 
 interface ApiSimilarDossier extends ApiDossier {
@@ -258,8 +244,7 @@ export interface GeneratedLetter {
 }
 
 export async function generateDossierLetter(id: string, type?: string): Promise<GeneratedLetter> {
-  const letter = await postJson<GeneratedLetter>(`/dossiers/${id}/generate-letter`, { type });
-  return { ...letter, content: localizeText(letter.content) };
+  return postJson<GeneratedLetter>(`/dossiers/${id}/generate-letter`, { type });
 }
 
 // --- Prevent Delay -----------------------------------------------------------

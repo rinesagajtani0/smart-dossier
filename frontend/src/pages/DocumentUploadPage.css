@@ -63,3 +63,27 @@
 .document-upload-page__status--error {
   color: #b91c1c;
 }
+
+.document-upload-page__success {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.document-upload-page__success p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.document-upload-page__success-link {
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+}

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FileDropzone } from '../components/FileDropzone';
 import { UploadProgressBar } from '../components/UploadProgressBar';
-import { ExtractionResultPanel } from '../components/ExtractionResultPanel';
 import { useDocumentUpload } from '../hooks/useDocumentUpload';
 import './DocumentUploadPage.css';
 
@@ -29,8 +28,8 @@ export function DocumentUploadPage() {
       </Link>
 
       <header className="document-upload-page__header">
-        <h1>Document Upload & NLP Extraction</h1>
-        <p>Attach a supporting document to a dossier and let the extraction engine pull out its fields.</p>
+        <h1>Document Upload</h1>
+        <p>Attach a supporting document to a dossier, with drag &amp; drop or a file picker.</p>
       </header>
 
       <label className="document-upload-page__dossier-field">
@@ -56,7 +55,16 @@ export function DocumentUploadPage() {
         <p className="document-upload-page__status document-upload-page__status--error">{error}</p>
       )}
 
-      {result && <ExtractionResultPanel data={result.extractedData} />}
+      {result && (
+        <div className="document-upload-page__success">
+          <p>
+            Document <strong>#{result.id}</strong> uploaded to dossier {result.dossierId}.
+          </p>
+          <Link to={`/nlp-extraction?documentId=${result.id}`} className="document-upload-page__success-link">
+            View NLP Extraction results →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
