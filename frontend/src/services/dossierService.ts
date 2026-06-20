@@ -1,4 +1,4 @@
-import type { CaseStatus, Dossier, DossierEvent, DossierSource, Phase, RiskLevel } from '../types/dossier';
+import type { AlertSeverity, CaseStatus, Dossier, DossierEvent, DossierSource, Phase, RiskLevel, UserAlert } from '../types/dossier';
 import { mapCaseStatus, mapPhase } from '../utils/phase';
 import { formatAlbanianDate } from '../utils/date';
 import { patchJson, postJson, postMultipartWithProgress, request } from './apiClient';
@@ -9,6 +9,14 @@ interface ApiDocument {
   fileName: string;
   documentType?: string | null;
   uploadedAt: string;
+}
+
+interface ApiUserAlert {
+  id?: number | string;
+  title: string;
+  message: string;
+  severity: AlertSeverity;
+  type: string;
 }
 
 interface ApiDossier {
@@ -35,6 +43,9 @@ interface ApiDossier {
     delayDays: number;
     delayReason?: string | null;
     totalDurationDays: number;
+  } | null;
+  alerts?: {
+    userAlerts?: ApiUserAlert[];
   } | null;
 }
 
@@ -81,6 +92,17 @@ function mapSources(dossier: ApiDossier): DossierSource[] {
   }));
 }
 
+function mapUserAlerts(dossier: ApiDossier): UserAlert[] {
+  const userAlerts = dossier.alerts?.userAlerts ?? [];
+  return userAlerts.map((alert, index) => ({
+    id: String(alert.id ?? `${dossier.id}-alert-${index}`),
+    title: alert.title,
+    message: alert.message,
+    severity: alert.severity,
+    type: alert.type,
+  }));
+}
+
 function mapDossier(dossier: ApiDossier): Dossier {
   const missingFields = dossier.missingFields ?? [];
   const tags = [
@@ -110,6 +132,7 @@ function mapDossier(dossier: ApiDossier): Dossier {
     deadline: dossier.deadline ?? '',
     events: mapEvents(dossier),
     sources: mapSources(dossier),
+    userAlerts: mapUserAlerts(dossier),
   };
 }
 

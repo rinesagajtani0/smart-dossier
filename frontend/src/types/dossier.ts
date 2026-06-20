@@ -16,6 +16,16 @@ export interface DossierSource {
   url?: string;
 }
 
+export type AlertSeverity = 'critical' | 'high' | 'medium' | 'low';
+
+export interface UserAlert {
+  id: string;
+  title: string;
+  message: string;
+  severity: AlertSeverity;
+  type: string;
+}
+
 export interface Dossier {
   id: string;
   subject: string;
@@ -30,6 +40,7 @@ export interface Dossier {
   deadline: string;
   events: DossierEvent[];
   sources: DossierSource[];
+  userAlerts: UserAlert[];
 }
 
 export interface KanbanCardSummary {

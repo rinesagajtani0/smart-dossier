@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useDossier } from '../hooks/useDossier';
 import { PhaseBadge, RiskBadge } from '../components/PhaseBadge';
+import { AlertsSection } from '../components/AlertsSection';
 import { formatShortDate, isOverdue } from '../utils/date';
 import './DossierDetailPage.css';
 
@@ -41,6 +42,8 @@ export function DossierDetailPage() {
           <RiskBadge riskLevel={dossier.riskLevel} />
         </div>
       </header>
+
+      <AlertsSection alerts={dossier.userAlerts} />
 
       <section className="dossier-detail__section">
         <h2>Summary</h2>
