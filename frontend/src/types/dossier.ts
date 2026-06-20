@@ -52,6 +52,14 @@ export interface Dossier {
   userAlerts: UserAlert[];
   requestedDocuments: string[];
   changedFields: string[];
+  // Surfaced as their own fields (rather than only folded into `summary`)
+  // so the dossier detail page can show them as a distinct "Extracted
+  // Information" section after NLP extraction is confirmed.
+  applicantName: string | null;
+  ownerName: string | null;
+  cadastralZone: string | null;
+  propertyLocation: string | null;
+  missingFields: string[];
   legalChangeImpact: LegalChangeImpact | null;
   propertyNumber: string | null;
 }

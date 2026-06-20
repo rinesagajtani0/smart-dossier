@@ -26,6 +26,16 @@ export function DashboardPage() {
   const riskShare = (level: 'low' | 'medium' | 'high') =>
     stats && totalByRisk > 0 ? Math.round((stats.byRisk[level] / totalByRisk) * 100) : 0;
 
+  // No single "active dossiers" field exists on /dashboard/stats — derived
+  // from the kanban data (which already includes every dossier's status)
+  // instead of asking the backend for a new one.
+  const activeDossiers = columns
+    ? Object.values(columns).reduce(
+        (count, cards) => count + cards.filter((card) => card.status === 'open').length,
+        0
+      )
+    : 0;
+
   return (
     <div className="dashboard-page">
       <header className="dashboard-page__header">
@@ -39,6 +49,7 @@ export function DashboardPage() {
       {!loading && !error && stats && (
         <div className="dashboard-page__stats">
           <StatCard label="Total Dossiers" value={stats.totalDossiers} />
+          <StatCard label="Active Dossiers" value={activeDossiers} />
           <StatCard label="High Risk Dossiers" value={stats.highRisk} tone="danger" />
           <StatCard label="Delayed Dossiers" value={stats.delayed} tone="danger" />
           <StatCard label="Deadlines This Week" value={stats.deadlinesThisWeek} tone="warning" />

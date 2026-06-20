@@ -72,6 +72,28 @@ export function DossierDetailPage() {
         <p>{dossier.summary}</p>
       </section>
 
+      {/* Reflects whatever is currently on the dossier record — once staff
+          confirm NLP extraction, the confirmed fields land here via the
+          normal dossier-update endpoint, the same as any other edit. */}
+      <section className="dossier-detail__section">
+        <h2>Extracted Information</h2>
+        <div className="dossier-detail__extracted-grid">
+          <span>Applicant Name</span>
+          <strong>{dossier.applicantName || '—'}</strong>
+          <span>Owner Name</span>
+          <strong>{dossier.ownerName || '—'}</strong>
+          <span>Property Number</span>
+          <strong>{dossier.propertyNumber || '—'}</strong>
+          <span>Cadastral Zone</span>
+          <strong>{dossier.cadastralZone || '—'}</strong>
+          <span>Location</span>
+          <strong>{dossier.propertyLocation || '—'}</strong>
+        </div>
+        {dossier.missingFields.length > 0 && (
+          <p className="dossier-detail__missing-fields">Missing fields: {dossier.missingFields.join(', ')}</p>
+        )}
+      </section>
+
       {dossier.tags.length > 0 && (
         <section className="dossier-detail__section">
           <h2>Tags</h2>

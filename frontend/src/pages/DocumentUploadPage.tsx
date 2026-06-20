@@ -3,9 +3,11 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { FileDropzone } from '../components/FileDropzone';
 import { UploadProgressBar } from '../components/UploadProgressBar';
 import { RequiredDocumentUploadField } from '../components/RequiredDocumentUploadField';
+import { CitizenApplicationSubmission } from '../components/CitizenApplicationSubmission';
 import { useDocumentUpload } from '../hooks/useDocumentUpload';
 import { useMultiDocumentUpload } from '../hooks/useMultiDocumentUpload';
 import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
+import { useApplicationSubmission } from '../hooks/useApplicationSubmission';
 import { getProcedureSession } from '../services/processService';
 import { Can } from '../auth/Can';
 import './DocumentUploadPage.css';
@@ -27,6 +29,10 @@ export function DocumentUploadPage() {
   const [fileName, setFileName] = useState<string | null>(null);
   const { status, progress, result, error, upload, reset } = useDocumentUpload();
   const { getState, upload: uploadRequiredDocument } = useMultiDocumentUpload();
+  // Whether this dossier was already submitted in an earlier visit — the
+  // upload result/progress above resets on reload, but the citizen still
+  // needs to see "Submitted - Awaiting Staff Review" when they come back.
+  const { submitted } = useApplicationSubmission(dossierId);
 
   function handleFileSelected(file: File) {
     setFileName(file.name);
@@ -62,16 +68,30 @@ export function DocumentUploadPage() {
       </label>
 
       {requiredDocuments ? (
-        <div className="document-upload-page__required-fields">
-          {requiredDocuments.map((documentName) => (
-            <RequiredDocumentUploadField
-              key={documentName}
-              documentName={documentName}
-              state={getState(documentName)}
-              onFileSelected={(file) => uploadRequiredDocument(documentName, dossierId, file)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="document-upload-page__required-fields">
+            {requiredDocuments.map((documentName) => (
+              <RequiredDocumentUploadField
+                key={documentName}
+                documentName={documentName}
+                state={getState(documentName)}
+                onFileSelected={(file) => uploadRequiredDocument(documentName, dossierId, file)}
+              />
+            ))}
+          </div>
+
+          {(submitted || requiredDocuments.some((documentName) => getState(documentName).result)) && (
+            <Can permission="view-nlp-extraction" fallback={
+              <CitizenApplicationSubmission
+                dossierId={dossierId}
+                uploadedDocuments={requiredDocuments.filter((documentName) => getState(documentName).result)}
+                readyToSubmit={requiredDocuments.every((documentName) => getState(documentName).result)}
+              />
+            }>
+              {null}
+            </Can>
+          )}
+        </>
       ) : (
         <>
           <FileDropzone
@@ -86,25 +106,28 @@ export function DocumentUploadPage() {
             <p className="document-upload-page__status document-upload-page__status--error">{error}</p>
           )}
 
-          {result && (
-            <div className="document-upload-page__success">
-              <Can
-                permission="view-nlp-extraction"
-                fallback={
-                  <>
-                    <h2 className="document-upload-page__success-title">Application Submitted</h2>
-                    <p>Your documents have been received and are being processed.</p>
-                  </>
-                }
-              >
-                <p>
-                  Document <strong>#{result.id}</strong> uploaded to dossier {result.dossierId}.
-                </p>
-                <Link to={`/nlp-extraction?documentId=${result.id}`} className="document-upload-page__success-link">
-                  View NLP Extraction results →
-                </Link>
-              </Can>
-            </div>
+          {(result || submitted) && (
+            <Can
+              permission="view-nlp-extraction"
+              fallback={
+                <CitizenApplicationSubmission
+                  dossierId={dossierId}
+                  uploadedDocuments={result ? [fileName ?? `Document #${result.id}`] : []}
+                  readyToSubmit={Boolean(result)}
+                />
+              }
+            >
+              {result && (
+                <div className="document-upload-page__success">
+                  <p>
+                    Document <strong>#{result.id}</strong> uploaded to dossier {result.dossierId}.
+                  </p>
+                  <Link to={`/nlp-extraction?documentId=${result.id}`} className="document-upload-page__success-link">
+                    View NLP Extraction results →
+                  </Link>
+                </div>
+              )}
+            </Can>
           )}
         </>
       )}
