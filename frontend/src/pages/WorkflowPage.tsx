@@ -103,6 +103,9 @@ export function WorkflowPage() {
             "...the dossier requires the following item(s): valuation report. Please submit the requested
             documentation as soon as possible..."
           </p>
+          <Link to="/prevent-delay" className="workflow-preview__try-it">
+            Try it →
+          </Link>
         </WorkflowStepCard>
       </div>
 

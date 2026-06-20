@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/document-upload', label: 'Document Upload', end: false },
   { to: '/case-memory', label: 'Case Memory', end: false },
   { to: '/delay-prediction', label: 'Delay Prediction', end: false },
+  { to: '/prevent-delay', label: 'Prevent Delay', end: false },
   { to: '/dashboard', label: 'Dashboard', end: false },
   { to: '/roles', label: 'Roles', end: false },
 ];

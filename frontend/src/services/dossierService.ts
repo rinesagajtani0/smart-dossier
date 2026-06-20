@@ -250,3 +250,25 @@ export interface GeneratedLetter {
 export async function generateDossierLetter(id: string, type?: string): Promise<GeneratedLetter> {
   return postJson<GeneratedLetter>(`/dossiers/${id}/generate-letter`, { type });
 }
+
+// --- Prevent Delay -----------------------------------------------------------
+// Lean projection of GET /dossiers/:id used to build the Prevent Delay
+// checklist (current risk + missing fields + phase, without the heavier
+// Dossier mapping which merges missingFields into a flattened tags array).
+
+export interface DossierSnapshot {
+  riskLevel: RiskLevel;
+  missingFields: string[];
+  phase: Phase;
+  processType: string;
+}
+
+export async function getDossierSnapshot(id: string): Promise<DossierSnapshot> {
+  const dossier = await request<ApiDossier>(`/dossiers/${id}`);
+  return {
+    riskLevel: dossier.riskLevel,
+    missingFields: dossier.missingFields ?? [],
+    phase: mapPhase(dossier.phase),
+    processType: dossier.processType,
+  };
+}
