@@ -249,12 +249,13 @@
 
 .roles-page__search {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 18px;
 }
 
 .roles-page__search input {
-  min-width: 0;
+  min-width: 180px;
   flex: 1;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -293,7 +294,9 @@
 @media (max-width: 520px) {
   .roles-page__tabs,
   .roles-page__tab,
-  .roles-page__search {
+  .roles-page__search,
+  .roles-page__search input,
+  .roles-page__search button {
     width: 100%;
   }
 

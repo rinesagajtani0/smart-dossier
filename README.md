@@ -21,10 +21,19 @@ npm run dev
 
 The API runs on `http://localhost:4000` by default.
 
+**Demo playground (pa frontend):** open [http://localhost:4000/demo-ui](http://localhost:4000/demo-ui) after `npm run dev`.
+
+**Për frontend developer:** shiko `docs/FRONTEND-API.md`.
+
 ## Main endpoints
 
-- `GET /health`
+- `GET /health` — includes `ai.enabled` status
 - `GET /`
+- `GET /demo/dossiers/:id/intelligence`
+- `POST /procedures/generate`
+- `POST /legal/check-document`
+- `POST /legal/rewrite-document`
+- `GET /properties/:propertyNumber/value-evolution`
 - `GET /dashboard/stats`
 - `GET /dashboard/kanban`
 - `GET /dossiers`
@@ -51,7 +60,7 @@ The platform uses demo role views without authentication, matching the hackathon
 
 - Civil servant: `GET /roles/staff/dossiers`
 - Manager: `GET /roles/manager/dashboard`
-- Citizen tracking: `GET /roles/citizen/track/EXP-001`
+- Citizen tracking: `GET /roles/citizen/track/EXP-001?accessCode=P77726`
 
 ## Demo flow
 

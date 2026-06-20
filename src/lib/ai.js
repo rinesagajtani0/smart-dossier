@@ -1,11 +1,15 @@
+import dotenv from "dotenv";
 import OpenAI from "openai";
 
-const apiKey = process.env.OPENAI_API_KEY;
-const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+dotenv.config();
+
+const apiKey = process.env.OPENAI_API_KEY?.trim();
+const model = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
 
 export const hasOpenAI = Boolean(apiKey);
+export const openAiModel = model;
 
-const client = apiKey ? new OpenAI({ apiKey }) : null;
+const client = hasOpenAI ? new OpenAI({ apiKey }) : null;
 
 export async function askJson(system, user, fallback) {
   if (!client) return fallback();

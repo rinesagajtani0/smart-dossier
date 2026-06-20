@@ -82,6 +82,7 @@ export async function getManagerDashboard(): Promise<ManagerDashboard> {
   return request<ManagerDashboard>('/roles/manager/dashboard');
 }
 
-export async function getCitizenTracking(trackingCode: string): Promise<CitizenTracking> {
-  return request<CitizenTracking>(`/roles/citizen/track/${trackingCode}`);
+export async function getCitizenTracking(trackingCode: string, accessCode: string): Promise<CitizenTracking> {
+  const params = new URLSearchParams({ accessCode });
+  return request<CitizenTracking>(`/roles/citizen/track/${trackingCode}?${params.toString()}`);
 }

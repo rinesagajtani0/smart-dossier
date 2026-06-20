@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { parseJson } from "../lib/json.js";
+import { normalizePhaseForUi } from "../lib/phaseMap.js";
 
 const router = Router();
 
@@ -19,7 +20,8 @@ router.get("/stats", async (_req, res) => {
   });
 
   const phaseCounts = dossiers.reduce((acc, dossier) => {
-    acc[dossier.phase] = (acc[dossier.phase] || 0) + 1;
+    const phase = normalizePhaseForUi(dossier.phase);
+    acc[phase] = (acc[phase] || 0) + 1;
     return acc;
   }, {});
 
@@ -49,13 +51,15 @@ router.get("/kanban", async (_req, res) => {
   });
 
   const columns = dossiers.reduce((acc, dossier) => {
-    if (!acc[dossier.phase]) acc[dossier.phase] = [];
-    acc[dossier.phase].push({
+    const phase = normalizePhaseForUi(dossier.phase);
+    if (!acc[phase]) acc[phase] = [];
+    acc[phase].push({
       id: dossier.id,
       title: dossier.title,
       applicantName: dossier.applicantName,
       propertyLocation: dossier.propertyLocation,
       propertyType: dossier.propertyType,
+      phase,
       status: dossier.status,
       riskLevel: dossier.riskLevel,
       deadline: dossier.deadline,

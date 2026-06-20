@@ -43,6 +43,7 @@ export function RolesPage() {
   const [workbench, setWorkbench] = useState<StaffWorkbench | null>(null);
   const [managerDashboard, setManagerDashboard] = useState<ManagerDashboard | null>(null);
   const [trackingCode, setTrackingCode] = useState('EXP-001');
+  const [accessCode, setAccessCode] = useState('P10244');
   const [citizenTracking, setCitizenTracking] = useState<CitizenTracking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,17 +60,15 @@ export function RolesPage() {
       setLoading(true);
       setError(null);
       try {
-        const [dossiers, manager, citizen] = await Promise.all([
+        const [dossiers, manager] = await Promise.all([
           getStaffDossiers(),
           getManagerDashboard(),
-          getCitizenTracking(trackingCode),
         ]);
 
         if (!mounted) return;
         setStaffDossiers(dossiers);
         setSelectedDossierId(dossiers[0]?.id ?? null);
         setManagerDashboard(manager);
-        setCitizenTracking(citizen);
       } catch (err) {
         if (mounted) setError(err instanceof Error ? err.message : 'Could not load role data.');
       } finally {
@@ -106,7 +105,7 @@ export function RolesPage() {
     event.preventDefault();
     setError(null);
     try {
-      setCitizenTracking(await getCitizenTracking(trackingCode.trim()));
+      setCitizenTracking(await getCitizenTracking(trackingCode.trim(), accessCode.trim()));
     } catch (err) {
       setCitizenTracking(null);
       setError(citizenTrackingErrorMessage(err));
@@ -233,10 +232,11 @@ export function RolesPage() {
         <section className="roles-page__panel">
           <div className="roles-page__panel-header">
             <h2>Citizen Tracking</h2>
-            <span>Try EXP-001</span>
+            <span>Try EXP-001 / P10244</span>
           </div>
           <form className="roles-page__search" onSubmit={handleCitizenSearch}>
-            <input value={trackingCode} onChange={(event) => setTrackingCode(event.target.value)} aria-label="Tracking code" />
+            <input value={trackingCode} onChange={(event) => setTrackingCode(event.target.value)} aria-label="Tracking code" placeholder="Tracking code" />
+            <input value={accessCode} onChange={(event) => setAccessCode(event.target.value)} aria-label="Access code" placeholder="Access code" />
             <button type="submit">Track</button>
           </form>
           {citizenTracking && (

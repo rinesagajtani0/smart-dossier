@@ -1,13 +1,21 @@
 import { parseJson } from "./json.js";
+import { normalizeInstitutionForUi, normalizePhaseForUi } from "./phaseMap.js";
 
 export function trackingCodeFor(dossier) {
   return dossier.title?.split(" - ").at(0) || `DOS-${dossier.id}`;
+}
+
+export function citizenAccessCodeFor(dossier) {
+  const propertyPart = (dossier.propertyNumber || `DOS${dossier.id}`).replace(/[^a-z0-9]/gi, "").toUpperCase();
+  return propertyPart || `DOS${dossier.id}`;
 }
 
 export function presentDossier(dossier) {
   return {
     ...dossier,
     trackingCode: trackingCodeFor(dossier),
+    phase: normalizePhaseForUi(dossier.phase),
+    institution: normalizeInstitutionForUi(dossier.institution),
     missingFields: parseJson(dossier.missingFieldsJson, []),
     documents: dossier.documents?.map((doc) => ({
       ...doc,
@@ -36,14 +44,22 @@ export function presentStaffDossier(dossier) {
     propertyNumber: dossier.propertyNumber,
     cadastralZone: dossier.cadastralZone,
     propertyType: dossier.propertyType,
-    phase: dossier.phase,
-    institution: dossier.institution,
+    phase: normalizePhaseForUi(dossier.phase),
+    institution: normalizeInstitutionForUi(dossier.institution),
     status: dossier.status,
     deadline: dossier.deadline,
     riskLevel: dossier.riskLevel,
     missingFields,
     needsAttention: dossier.riskLevel === "high" || missingFields.length > 0,
     updatedAt: dossier.updatedAt
+  };
+}
+
+export function presentSimilarCase(candidate) {
+  const { similarity, ...dossier } = candidate;
+  return {
+    ...presentDossier(dossier),
+    similarity
   };
 }
 
@@ -56,12 +72,12 @@ export function presentCitizenDossier(dossier, processStep) {
     processType: dossier.processType,
     applicantName: dossier.applicantName,
     propertyLocation: dossier.propertyLocation,
-    phase: dossier.phase,
-    institution: dossier.institution,
+    phase: normalizePhaseForUi(dossier.phase),
+    institution: normalizeInstitutionForUi(dossier.institution),
     status: dossier.status,
     deadline: dossier.deadline,
     nextStep: processStep?.nextPhase
-      ? `The dossier is expected to move to ${processStep.nextPhase}.`
+      ? `The dossier is expected to move to ${normalizePhaseForUi(processStep.nextPhase)}.`
       : "The dossier is in the final step.",
     citizenMessage: missingFields.length
       ? `Action needed: please provide ${missingFields.join(", ")}.`

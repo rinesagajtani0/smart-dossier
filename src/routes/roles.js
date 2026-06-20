@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { presentCitizenDossier, presentStaffDossier, trackingCodeFor } from "../lib/dossierPresenter.js";
+import {
+  citizenAccessCodeFor,
+  presentCitizenDossier,
+  presentStaffDossier,
+  trackingCodeFor
+} from "../lib/dossierPresenter.js";
+import { buildRecommendedAction } from "../lib/actions.js";
 import { parseJson } from "../lib/json.js";
 import { prisma } from "../lib/prisma.js";
 
@@ -18,33 +24,6 @@ function daysUntil(deadline) {
   if (!deadline) return null;
   const diffMs = new Date(deadline).getTime() - Date.now();
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-}
-
-function buildNextAction(dossier, processStep) {
-  const missingFields = parseJson(dossier.missingFieldsJson, []);
-  if (missingFields.length) {
-    return {
-      type: "request-documents",
-      label: `Request ${missingFields.join(", ")}`,
-      reason: "The dossier cannot advance while required fields are missing."
-    };
-  }
-
-  if (processStep?.criticalPoint) {
-    return {
-      type: "review-critical-point",
-      label: `Review ${dossier.phase} carefully`,
-      reason: "This phase is marked as a critical delay point in the process."
-    };
-  }
-
-  return {
-    type: processStep?.nextPhase ? "advance-phase" : "complete",
-    label: processStep?.nextPhase ? `Move to ${processStep.nextPhase}` : "Prepare final closure",
-    reason: processStep?.nextPhase
-      ? "No missing fields are currently recorded."
-      : "The dossier is already in the final process step."
-  };
 }
 
 async function getDossierByTrackingCode(trackingCode) {
@@ -87,7 +66,14 @@ router.get("/staff/dossiers", async (req, res) => {
 
   const dossiers = await prisma.dossier.findMany({
     where,
-    orderBy: [{ riskLevel: "desc" }, { deadline: "asc" }, { updatedAt: "desc" }]
+    orderBy: [{ deadline: "asc" }, { updatedAt: "desc" }]
+  });
+
+  const riskPriority = { high: 0, medium: 1, low: 2 };
+  dossiers.sort((a, b) => {
+    const riskDiff = riskPriority[a.riskLevel] - riskPriority[b.riskLevel];
+    if (riskDiff !== 0) return riskDiff;
+    return new Date(a.deadline || 0).getTime() - new Date(b.deadline || 0).getTime();
   });
 
   res.json({
@@ -111,7 +97,7 @@ router.get("/staff/dossiers/:id/workbench", async (req, res) => {
   res.json({
     role: "staff",
     dossier: presentStaffDossier(dossier),
-    nextAction: buildNextAction(dossier, processStep),
+    nextAction: buildRecommendedAction(dossier, processStep),
     processStep: processStep
       ? {
           phase: processStep.phase,
@@ -172,6 +158,13 @@ router.get("/manager/dashboard", async (_req, res) => {
 router.get("/citizen/track/:trackingCode", async (req, res) => {
   const dossier = await getDossierByTrackingCode(req.params.trackingCode);
   if (!dossier) return res.status(404).json({ error: "Dossier not found" });
+
+  const accessCode = req.query.accessCode?.toString();
+  if (!accessCode || accessCode.toUpperCase() !== citizenAccessCodeFor(dossier)) {
+    return res.status(403).json({
+      error: "Access code required for this dossier."
+    });
+  }
 
   const processStep = await prisma.processStep.findFirst({
     where: { processType: dossier.processType, phase: dossier.phase }

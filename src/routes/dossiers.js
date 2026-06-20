@@ -4,12 +4,13 @@ import { Router } from "express";
 import multer from "multer";
 import pdf from "pdf-parse";
 import { z } from "zod";
+import { getSimilarDossiers } from "../lib/caseMemory.js";
 import { presentDossier } from "../lib/dossierPresenter.js";
 import { extractDocumentFields, summarizeDossier } from "../lib/extraction.js";
 import { parseJson, toJson } from "../lib/json.js";
+import { buildPreventDelayLetter } from "../lib/letters.js";
 import { predictDelay } from "../lib/prediction.js";
 import { prisma } from "../lib/prisma.js";
-import { scoreSimilarity } from "../lib/similarity.js";
 
 const router = Router();
 const uploadDir = path.resolve("uploads");
@@ -41,25 +42,6 @@ async function readUploadedText(file) {
     return parsed.text;
   }
   return buffer.toString("utf8");
-}
-
-async function getSimilarDossiers(id) {
-  const dossier = await prisma.dossier.findUnique({
-    where: { id },
-    include: { caseHistory: true }
-  });
-  if (!dossier) return null;
-
-  const candidates = await prisma.dossier.findMany({
-    where: { id: { not: id }, caseHistory: { isNot: null } },
-    include: { caseHistory: true }
-  });
-
-  return candidates
-    .map((candidate) => ({ ...candidate, similarity: scoreSimilarity(dossier, candidate) }))
-    .filter((candidate) => candidate.similarity.score > 0)
-    .sort((a, b) => b.similarity.score - a.similarity.score)
-    .slice(0, 5);
 }
 
 router.get("/", async (_req, res) => {
@@ -208,18 +190,7 @@ router.post("/:id/generate-letter", async (req, res) => {
   const dossier = await prisma.dossier.findUnique({ where: { id: Number(req.params.id) } });
   if (!dossier) return res.status(404).json({ error: "Dossier not found" });
 
-  const missing = parseJson(dossier.missingFieldsJson, []);
-  const content = [
-    `Subject: Request to complete dossier ${dossier.title}`,
-    "",
-    `Dear ${dossier.applicantName || "Applicant"},`,
-    "",
-    `During the review phase "${dossier.phase}" at ${dossier.institution}, the dossier requires the following item(s): ${missing.join(", ") || "additional supporting documentation"}.`,
-    `Please submit the requested documentation as soon as possible to prevent delay in the property procedure.`,
-    "",
-    "Respectfully,",
-    "Smart Dossier AI"
-  ].join("\n");
+  const content = buildPreventDelayLetter(dossier);
 
   const letter = await prisma.letter.create({
     data: {
