@@ -10,9 +10,17 @@ import {
   type StaffDossier,
   type StaffWorkbench,
 } from '../services/roleService';
+import { ApiError } from '../services/apiClient';
 import './RolesPage.css';
 
 type RoleTab = 'staff' | 'manager' | 'citizen';
+
+function citizenTrackingErrorMessage(err: unknown): string {
+  if (err instanceof ApiError && err.status === 404) {
+    return 'No dossier found for that tracking code. Double-check the code and try again.';
+  }
+  return err instanceof Error ? err.message : 'Could not find tracking code.';
+}
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return 'not set';
@@ -101,7 +109,7 @@ export function RolesPage() {
       setCitizenTracking(await getCitizenTracking(trackingCode.trim()));
     } catch (err) {
       setCitizenTracking(null);
-      setError(err instanceof Error ? err.message : 'Could not find tracking code.');
+      setError(citizenTrackingErrorMessage(err));
     }
   }
 
