@@ -58,7 +58,8 @@ app.get("/", (_req, res) => {
       "GET /legal/change-impact/:dossierId",
       "POST /legal/adapt-dossier/:dossierId",
       "GET /legal/dossier-alerts/:dossierId",
-      "GET /graph/legal-impact/:dossierId",
+      "GET /graph/legal-changes",
+      "GET /graph/legal-impact/:legalChangeId",
       "GET /properties/watchlist/rules",
       "GET /properties/:propertyNumber/value-evolution",
       "GET /properties/:propertyNumber/alerts"

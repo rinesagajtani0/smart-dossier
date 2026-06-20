@@ -43,13 +43,14 @@
   color: var(--text);
 }
 
-.legal-impact-dashboard-page__form input {
+.legal-impact-dashboard-page__form select {
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
-  width: 140px;
+  min-width: 320px;
+  max-width: 420px;
   color: var(--text-h);
   background: var(--bg);
 }
@@ -68,11 +69,6 @@
 .legal-impact-dashboard-page__form button:disabled {
   opacity: 0.6;
   cursor: default;
-}
-
-.legal-impact-dashboard-page__form small {
-  font-size: 12px;
-  color: var(--text);
 }
 
 .legal-impact-dashboard-page__status {

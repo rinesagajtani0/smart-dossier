@@ -26,6 +26,12 @@
   color: var(--text-h);
 }
 
+.legal-impact-panel__subtitle {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
 .legal-impact-panel__stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -75,16 +81,4 @@
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--text);
-}
-
-.legal-impact-panel__recommended {
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-}
-
-.legal-impact-panel__recommended p {
-  margin: 4px 0 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-h);
 }

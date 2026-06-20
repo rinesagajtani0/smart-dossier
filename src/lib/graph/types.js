@@ -21,12 +21,15 @@
  * graph foundation works with. Built from ALBANIAN_LEGAL_BASIS.regulatoryUpdates
  * (see legalImpactGraphService.js's toLegalChange) — not a second registry.
  * @typedef {Object} LegalChange
- * @property {string} id
+ * @property {string} id - the root identifier analysis starts from
  * @property {string} title
  * @property {string} description
  * @property {string} effectiveDate - ISO date string
  * @property {string[]} affectedPhases - phase labels this change applies to;
  *   each is resolved to a GraphNode entry point via mapPhaseToGraphNode.
+ * @property {string[]} affectedProcessTypes - process types this change
+ *   applies to; scopes which dossiers are even candidates for review,
+ *   since the workflow graph itself is shared across process types.
  * @property {string[]} changedFields
  * @property {string[]} addedRequiredDocuments
  * @property {"low"|"medium"|"high"} severity

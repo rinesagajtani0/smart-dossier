@@ -1,17 +1,23 @@
 import type { LegalImpactGraphResult } from '../services/legalImpactService';
-import { RiskLevelBadge } from './RiskLevelBadge';
+import { LegalImpactRiskBadge } from './LegalImpactRiskBadge';
 import { StatCard } from './StatCard';
 import { LegalImpactPropagationPath } from './LegalImpactPropagationPath';
+import { AffectedDossiersPanel } from './AffectedDossiersPanel';
+import { WhyImpactfulCard } from './WhyImpactfulCard';
+import { ImmediateActionsPanel } from './ImmediateActionsPanel';
+import { AdministrativeImpactCard } from './AdministrativeImpactCard';
+import { riskTierFromScore } from '../utils/legalImpactRisk';
 import './LegalImpactPanel.css';
 
 interface LegalImpactPanelProps {
   impact: LegalImpactGraphResult;
 }
 
-const SCORE_TONE: Record<LegalImpactGraphResult['severity'], 'default' | 'warning' | 'danger'> = {
+const SCORE_TONE: Record<ReturnType<typeof riskTierFromScore>, 'default' | 'warning' | 'danger'> = {
   low: 'default',
   medium: 'warning',
   high: 'danger',
+  critical: 'danger',
 };
 
 export function LegalImpactPanel({ impact }: LegalImpactPanelProps) {
@@ -19,7 +25,7 @@ export function LegalImpactPanel({ impact }: LegalImpactPanelProps) {
     return (
       <div className="legal-impact-panel">
         <p className="legal-impact-panel__none">
-          No legal change impact detected for this dossier's current phase.
+          "{impact.legalChangeTitle}" has no impact on any dossier's current phase.
         </p>
       </div>
     );
@@ -28,15 +34,22 @@ export function LegalImpactPanel({ impact }: LegalImpactPanelProps) {
   return (
     <div className="legal-impact-panel">
       <div className="legal-impact-panel__header">
-        <h2>Legal Impact</h2>
-        <RiskLevelBadge riskLevel={impact.severity} />
+        <div>
+          <h2>Legal Impact</h2>
+          <p className="legal-impact-panel__subtitle">{impact.legalChangeTitle}</p>
+        </div>
+        <LegalImpactRiskBadge score={impact.impactScore} />
       </div>
 
       <div className="legal-impact-panel__stats">
         <StatCard label="Affected Nodes" value={impact.affectedNodes.length} />
         <StatCard label="Affected Dossiers" value={impact.affectedDossiers} tone="warning" />
-        <StatCard label="Impact Score" value={impact.impactScore} tone={SCORE_TONE[impact.severity]} />
+        <StatCard label="Impact Score" value={impact.impactScore} tone={SCORE_TONE[riskTierFromScore(impact.impactScore)]} />
       </div>
+
+      <AdministrativeImpactCard impact={impact} />
+
+      <WhyImpactfulCard impact={impact} />
 
       <div className="legal-impact-panel__section">
         <h3>Propagation Path</h3>
@@ -56,6 +69,14 @@ export function LegalImpactPanel({ impact }: LegalImpactPanelProps) {
         )}
       </div>
 
+      <div className="legal-impact-panel__section">
+        <h3>Affected Dossiers</h3>
+        <AffectedDossiersPanel
+          dossiers={impact.dossiersRequiringReview}
+          addedRequiredDocuments={impact.addedRequiredDocuments}
+        />
+      </div>
+
       {(impact.changedFields.length > 0 || impact.addedRequiredDocuments.length > 0) && (
         <div className="legal-impact-panel__details-grid">
           {impact.changedFields.length > 0 && (
@@ -73,10 +94,7 @@ export function LegalImpactPanel({ impact }: LegalImpactPanelProps) {
         </div>
       )}
 
-      <div className="legal-impact-panel__recommended">
-        <span className="legal-impact-panel__label">Recommended Action</span>
-        <p>{impact.recommendedAction}</p>
-      </div>
+      <ImmediateActionsPanel impact={impact} />
     </div>
   );
 }

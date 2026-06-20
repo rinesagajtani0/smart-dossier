@@ -5,7 +5,6 @@ import {
   TERMINAL_NODE,
   WORKFLOW_NODES
 } from "./graph/legalImpactWorkflowGraph.js";
-import { normalizePhaseForUi } from "./phaseMap.js";
 
 /** @typedef {import('./graph/types.js').LegalChange} LegalChange */
 /** @typedef {import('./graph/types.js').GraphNode} GraphNode */
@@ -37,6 +36,7 @@ function toLegalChange(update) {
     description: update.reason,
     effectiveDate: update.effectiveDate,
     affectedPhases: update.appliesToPhases,
+    affectedProcessTypes: update.appliesToProcessTypes,
     changedFields: update.changedFields,
     addedRequiredDocuments: update.newRequiredDocuments,
     severity: severityOfUpdate(update)
@@ -57,11 +57,13 @@ function severityFromScore(score) {
 }
 
 /**
- * Graph-level engine for legal-impact analysis: given LegalChanges, works
- * out which workflow nodes/transitions they affect and how severe that is.
- * Stays free of Prisma — dossier lookups and bulk dossier queries are the
+ * Graph-level engine for legal-impact analysis. The analysis is rooted at
+ * a LegalChange, not a dossier: a change names the phases it affects, the
+ * graph determines every downstream phase that inherits the impact, and
+ * only then do dossiers enter the picture — as the set of records sitting
+ * in an affected phase. Stays free of Prisma — dossier lookups are the
  * caller's job (see routes/graph.js); this class only ever takes plain
- * dossier-shaped objects or phase strings that the caller already fetched.
+ * dossier-shaped objects that the caller already fetched.
  */
 export class LegalImpactGraphService {
   constructor() {
@@ -74,37 +76,31 @@ export class LegalImpactGraphService {
   }
 
   /**
-   * Legal changes that apply to this dossier's process type and current
-   * phase. appliesToPhases is expressed in normalized English UI phase
-   * names; dossier.phase is the raw DB value (often Albanian) — normalize
-   * before comparing, same matching logic as legalEngine.js.
-   * @param {{ processType: string, phase: string }} dossier
-   * @returns {LegalChange[]}
+   * The root lookup: resolves a legalChangeId to the LegalChange the rest
+   * of the analysis starts from.
+   * @param {string} legalChangeId
+   * @returns {LegalChange | null}
    */
-  getApplicableLegalChanges(dossier) {
-    const phase = normalizePhaseForUi(dossier.phase);
-    return ALBANIAN_LEGAL_BASIS.regulatoryUpdates
-      .filter(
-        (update) =>
-          update.appliesToProcessTypes.includes(dossier.processType) &&
-          (update.appliesToPhases.includes(phase) || update.appliesToPhases.includes(dossier.phase))
-      )
-      .map(toLegalChange);
+  getLegalChangeById(legalChangeId) {
+    const update = ALBANIAN_LEGAL_BASIS.regulatoryUpdates.find((candidate) => candidate.id === legalChangeId);
+    return update ? toLegalChange(update) : null;
   }
 
   /**
-   * How many of the given dossier phases land in an affected node. Takes
-   * plain phase strings — the caller fetches the candidate dossiers (e.g.
-   * all open dossiers of the same process type) and passes their phases in,
-   * keeping this class itself free of Prisma.
-   * @param {string[]} dossierPhases
+   * Which of the given dossiers sit in an affected node right now — i.e.
+   * which dossiers require review. Takes plain dossier-shaped objects (the
+   * caller fetches candidates, typically open dossiers whose processType is
+   * in the LegalChange's affectedProcessTypes) and returns the subset whose
+   * current phase maps onto an affected node, keeping this class itself
+   * free of Prisma.
+   * @param {Array<{ phase: string }>} dossiers
    * @param {GraphNode[]} affectedNodes
-   * @returns {number}
+   * @returns {Array<{ phase: string }>}
    */
-  countAffectedDossiers(dossierPhases, affectedNodes) {
-    if (affectedNodes.length === 0) return 0;
+  filterDossiersRequiringReview(dossiers, affectedNodes) {
+    if (affectedNodes.length === 0) return [];
     const affectedNodeSet = new Set(affectedNodes);
-    return dossierPhases.filter((phase) => affectedNodeSet.has(mapPhaseToGraphNode(phase))).length;
+    return dossiers.filter((dossier) => affectedNodeSet.has(mapPhaseToGraphNode(dossier.phase)));
   }
 
   /**
@@ -162,9 +158,10 @@ export class LegalImpactGraphService {
   }
 
   /**
-   * Evaluates the graph-level impact of a set of legal changes with no
-   * dossier context — callers that need "which changes apply to dossier X"
-   * resolve that first (a future integration step) and pass the result in.
+   * Evaluates the graph-level impact of one or more legal changes (the
+   * usual case is a single change, looked up via getLegalChangeById).
+   * Affected-dossier counting is layered on top by the caller, via
+   * filterDossiersRequiringReview, once it has affectedNodes in hand.
    * @param {LegalChange[]} legalChanges
    * @returns {LegalImpactResult}
    */
