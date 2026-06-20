@@ -73,6 +73,9 @@ export function WorkflowPage() {
               EXP-007 <strong>74% match</strong>
             </span>
           </div>
+          <Link to="/case-memory" className="workflow-preview__try-it">
+            Try it →
+          </Link>
         </WorkflowStepCard>
 
         <WorkflowStepCard {...delayPrediction}>

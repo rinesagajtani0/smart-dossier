@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Workflow', end: true },
   { to: '/procedure-generator', label: 'Procedure Generator', end: false },
   { to: '/document-upload', label: 'Document Upload', end: false },
+  { to: '/case-memory', label: 'Case Memory', end: false },
   { to: '/dashboard', label: 'Dashboard', end: false },
   { to: '/roles', label: 'Roles', end: false },
 ];

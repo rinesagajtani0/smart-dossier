@@ -3,6 +3,7 @@ import { AppLayout } from './layouts/AppLayout';
 import { WorkflowPage } from './pages/WorkflowPage';
 import { ProcedureGeneratorPage } from './pages/ProcedureGeneratorPage';
 import { DocumentUploadPage } from './pages/DocumentUploadPage';
+import { CaseMemoryPage } from './pages/CaseMemoryPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { DossierDetailPage } from './pages/DossierDetailPage';
 import { RolesPage } from './pages/RolesPage';
@@ -15,6 +16,7 @@ function App() {
           <Route index element={<WorkflowPage />} />
           <Route path="procedure-generator" element={<ProcedureGeneratorPage />} />
           <Route path="document-upload" element={<DocumentUploadPage />} />
+          <Route path="case-memory" element={<CaseMemoryPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="roles" element={<RolesPage />} />
           <Route path="dossiers/:id" element={<DossierDetailPage />} />

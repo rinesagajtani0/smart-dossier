@@ -199,6 +199,34 @@ export async function getSimilarDossiers(id: string): Promise<SimilarDossierMatc
   }));
 }
 
+// --- Case Memory -----------------------------------------------------------
+// Same /dossiers/:id/similar endpoint as getSimilarDossiers above, but
+// projected to the lean shape the Case Memory panel needs (case id, score,
+// outcome, delay reason) instead of the full mapped Dossier.
+
+interface ApiCaseMemoryMatch {
+  trackingCode: string;
+  similarity: { score: number; reasons: string[] };
+  caseHistory?: { outcome: string; delayReason?: string | null } | null;
+}
+
+export interface SimilarCase {
+  caseId: string;
+  score: number;
+  outcome: string | null;
+  delayReason: string | null;
+}
+
+export async function getCaseMemory(id: string): Promise<SimilarCase[]> {
+  const matches = await request<ApiCaseMemoryMatch[]>(`/dossiers/${id}/similar`);
+  return matches.map((match) => ({
+    caseId: match.trackingCode,
+    score: match.similarity.score,
+    outcome: match.caseHistory?.outcome ?? null,
+    delayReason: match.caseHistory?.delayReason ?? null,
+  }));
+}
+
 export interface DelayPrediction {
   risk: RiskLevel;
   predictedDelay: string;
