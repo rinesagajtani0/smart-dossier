@@ -65,6 +65,7 @@ export interface KanbanCardSummary {
   riskLevel: RiskLevel;
   deadline: string | null;
   missingFields: string[];
+  legalChangeImpact: LegalChangeImpact | null;
 }
 
 export type KanbanColumns = Record<Phase, KanbanCardSummary[]>;

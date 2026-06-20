@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { KanbanCardSummary } from '../types/dossier';
 import { RiskBadge } from './PhaseBadge';
+import { LegalChangeBadge } from './LegalChangeBadge';
 import { formatShortDate, isOverdue } from '../utils/date';
 import './KanbanCard.css';
 
@@ -16,7 +17,10 @@ export function KanbanCard({ card }: KanbanCardProps) {
     <Link to={`/dossiers/${card.id}`} className="kanban-card">
       <div className="kanban-card__header">
         <h4>{card.title}</h4>
-        <RiskBadge riskLevel={card.riskLevel} />
+        <div className="kanban-card__badges">
+          <RiskBadge riskLevel={card.riskLevel} />
+          {card.legalChangeImpact && <LegalChangeBadge />}
+        </div>
       </div>
       {card.applicantName && <p className="kanban-card__meta">{card.applicantName}</p>}
       {subtitle && <p className="kanban-card__meta">{subtitle}</p>}

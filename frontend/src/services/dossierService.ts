@@ -29,6 +29,13 @@ interface ApiUserAlert {
   type: string;
 }
 
+export interface ApiLegalChangeImpact {
+  systemAdaptation?: {
+    processAction?: string;
+    deadlineAction?: string;
+  };
+}
+
 interface ApiDossier {
   id: number;
   title: string;
@@ -59,12 +66,7 @@ interface ApiDossier {
     requestedDocuments?: string[];
     changedFields?: string[];
   } | null;
-  legalChangeImpact?: {
-    systemAdaptation?: {
-      processAction?: string;
-      deadlineAction?: string;
-    };
-  } | null;
+  legalChangeImpact?: ApiLegalChangeImpact | null;
 }
 
 function formatDate(value: string | null | undefined): string {
@@ -121,8 +123,8 @@ function mapUserAlerts(dossier: ApiDossier): UserAlert[] {
   }));
 }
 
-function mapLegalChangeImpact(dossier: ApiDossier): LegalChangeImpact | null {
-  const systemAdaptation = dossier.legalChangeImpact?.systemAdaptation;
+export function mapLegalChangeImpact(legalChangeImpact?: ApiLegalChangeImpact | null): LegalChangeImpact | null {
+  const systemAdaptation = legalChangeImpact?.systemAdaptation;
   if (!systemAdaptation) {
     return null;
   }
@@ -167,7 +169,7 @@ function mapDossier(dossier: ApiDossier): Dossier {
     userAlerts: mapUserAlerts(dossier),
     requestedDocuments: dossier.alerts?.requestedDocuments ?? [],
     changedFields: dossier.alerts?.changedFields ?? [],
-    legalChangeImpact: mapLegalChangeImpact(dossier),
+    legalChangeImpact: mapLegalChangeImpact(dossier.legalChangeImpact),
   };
 }
 

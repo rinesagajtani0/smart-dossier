@@ -2,6 +2,8 @@ import type { DashboardStats, KanbanCardSummary, KanbanColumns } from '../types/
 import { PHASES } from '../data/phases';
 import { mapCaseStatus } from '../utils/phase';
 import { request } from './apiClient';
+import type { ApiLegalChangeImpact } from './dossierService';
+import { mapLegalChangeImpact } from './dossierService';
 
 interface ApiKanbanCard {
   id: number;
@@ -13,6 +15,7 @@ interface ApiKanbanCard {
   riskLevel: 'low' | 'medium' | 'high';
   deadline?: string | null;
   missingFields?: string[];
+  legalChangeImpact?: ApiLegalChangeImpact | null;
 }
 
 interface ApiKanbanResponse {
@@ -30,6 +33,7 @@ function mapKanbanCard(card: ApiKanbanCard): KanbanCardSummary {
     riskLevel: card.riskLevel,
     deadline: card.deadline ?? null,
     missingFields: card.missingFields ?? [],
+    legalChangeImpact: mapLegalChangeImpact(card.legalChangeImpact),
   };
 }
 
