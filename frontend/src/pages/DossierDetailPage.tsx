@@ -6,6 +6,7 @@ import { LegalChangePanel } from '../components/LegalChangePanel';
 import { PhaseHoldModal } from '../components/PhaseHoldModal';
 import { DeadlineReviewNotice } from '../components/DeadlineReviewNotice';
 import { PropertyAlertsSection } from '../components/PropertyAlertsSection';
+import { Can } from '../auth/Can';
 import { formatShortDate, isOverdue } from '../utils/date';
 import './DossierDetailPage.css';
 
@@ -51,11 +52,16 @@ export function DossierDetailPage() {
 
       <AlertsSection alerts={dossier.userAlerts} />
 
-      <LegalChangePanel
-        alerts={dossier.userAlerts}
-        requestedDocuments={dossier.requestedDocuments}
-        changedFields={dossier.changedFields}
-      />
+      {/* Legal-change internals (changed fields, required documents, approval)
+          are a staff/manager dossier-management action — a citizen sees that
+          a dossier is affected via the alert above, not this detail. */}
+      <Can permission="manage-dossiers">
+        <LegalChangePanel
+          alerts={dossier.userAlerts}
+          requestedDocuments={dossier.requestedDocuments}
+          changedFields={dossier.changedFields}
+        />
+      </Can>
 
       <DeadlineReviewNotice legalChangeImpact={dossier.legalChangeImpact} />
 

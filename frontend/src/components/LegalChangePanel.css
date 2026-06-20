@@ -96,6 +96,31 @@
   opacity: 0.75;
 }
 
+.legal-change-panel__approval {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.legal-change-panel__approve-button {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #92400e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.legal-change-panel__approve-button:hover:not(:disabled) {
+  background: #78350f;
+}
+
+.legal-change-panel__approve-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 @media (max-width: 600px) {
   .legal-change-panel__details {
     grid-template-columns: 1fr;

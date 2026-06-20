@@ -1,0 +1,35 @@
+.role-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 12px;
+}
+
+.role-switcher label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+
+.role-switcher select {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .role-switcher {
+    margin-top: 0;
+    border-top: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+}

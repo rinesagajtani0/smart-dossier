@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { PropertyAlert } from '../services/propertyAlertService';
+import { Can } from '../auth/Can';
 import './PropertyAlertCard.css';
 
 interface PropertyAlertCardProps {
@@ -29,24 +30,28 @@ export function PropertyAlertCard({ alert }: PropertyAlertCardProps) {
       {alert.message && <p className="property-alert-card__message">{alert.message}</p>}
 
       {alert.shouldNotifyUser && (
-        <div className="property-alert-card__actions">
-          <button
-            type="button"
-            className="property-alert-card__button property-alert-card__button--primary"
-            onClick={() => setUserNotified(true)}
-            disabled={userNotified}
-          >
-            {userNotified ? 'User Notified' : 'Notify User'}
-          </button>
-          <button
-            type="button"
-            className="property-alert-card__button property-alert-card__button--secondary"
-            onClick={() => setAlertSent(true)}
-            disabled={alertSent}
-          >
-            {alertSent ? 'Alert Sent' : 'Send Alert'}
-          </button>
-        </div>
+        // Notifying/alerting is a staff action on someone else's behalf —
+        // a citizen viewing their own dossier shouldn't see it.
+        <Can permission="manage-dossiers">
+          <div className="property-alert-card__actions">
+            <button
+              type="button"
+              className="property-alert-card__button property-alert-card__button--primary"
+              onClick={() => setUserNotified(true)}
+              disabled={userNotified}
+            >
+              {userNotified ? 'User Notified' : 'Notify User'}
+            </button>
+            <button
+              type="button"
+              className="property-alert-card__button property-alert-card__button--secondary"
+              onClick={() => setAlertSent(true)}
+              disabled={alertSent}
+            >
+              {alertSent ? 'Alert Sent' : 'Send Alert'}
+            </button>
+          </div>
+        </Can>
       )}
     </div>
   );

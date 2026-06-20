@@ -1,0 +1,36 @@
+.access-denied-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.access-denied-page__icon {
+  font-size: 40px;
+}
+
+.access-denied-page h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.access-denied-page p {
+  margin: 0;
+  max-width: 420px;
+  color: var(--text);
+}
+
+.access-denied-page code {
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.access-denied-page__link {
+  margin-top: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}

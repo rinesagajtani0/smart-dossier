@@ -12,9 +12,19 @@ import {
 } from '../services/roleService';
 import { ApiError } from '../services/apiClient';
 import { formatAlbanianDate } from '../utils/date';
+import { usePermissions } from '../auth/usePermissions';
 import './RolesPage.css';
 
 type RoleTab = 'staff' | 'manager' | 'citizen';
+
+// This page bundles three demo views behind one route — gate which tab a
+// role can open instead of splitting it into three routes (that would
+// change existing structure beyond access control).
+const TAB_PERMISSION: Record<RoleTab, 'view-staff-tools' | 'view-manager-reports' | 'track-dossier'> = {
+  staff: 'view-staff-tools',
+  manager: 'view-manager-reports',
+  citizen: 'track-dossier',
+};
 
 function citizenTrackingErrorMessage(err: unknown): string {
   if (err instanceof ApiError && err.status === 404) {
@@ -33,7 +43,12 @@ function riskClass(riskLevel: string): string {
 }
 
 export function RolesPage() {
-  const [activeRole, setActiveRole] = useState<RoleTab>('staff');
+  const { can } = usePermissions();
+  const availableTabs = useMemo(
+    () => (['staff', 'manager', 'citizen'] as RoleTab[]).filter((tab) => can(TAB_PERMISSION[tab])),
+    [can],
+  );
+  const [activeRole, setActiveRole] = useState<RoleTab>(() => availableTabs[0] ?? 'citizen');
   const [staffDossiers, setStaffDossiers] = useState<StaffDossier[]>([]);
   const [selectedDossierId, setSelectedDossierId] = useState<number | null>(null);
   const [workbench, setWorkbench] = useState<StaffWorkbench | null>(null);
@@ -48,6 +63,12 @@ export function RolesPage() {
     () => staffDossiers.find((dossier) => dossier.id === selectedDossierId) ?? staffDossiers[0],
     [selectedDossierId, staffDossiers],
   );
+
+  // If the role switches mid-view and the current tab is no longer
+  // available, fall back to the first tab the new role can see instead of
+  // rendering an unauthorized one — derived, not stored, so switching the
+  // tab itself still works normally via setActiveRole.
+  const safeActiveRole = availableTabs.includes(activeRole) ? activeRole : availableTabs[0] ?? 'citizen';
 
   useEffect(() => {
     let mounted = true;
@@ -116,22 +137,23 @@ export function RolesPage() {
           <p>Demo access for civil servants, managers, and citizens without authentication.</p>
         </div>
         <div className="roles-page__tabs" aria-label="Role views">
-          <button className={activeRole === 'staff' ? 'roles-page__tab roles-page__tab--active' : 'roles-page__tab'} onClick={() => setActiveRole('staff')} type="button">
-            Staff
-          </button>
-          <button className={activeRole === 'manager' ? 'roles-page__tab roles-page__tab--active' : 'roles-page__tab'} onClick={() => setActiveRole('manager')} type="button">
-            Manager
-          </button>
-          <button className={activeRole === 'citizen' ? 'roles-page__tab roles-page__tab--active' : 'roles-page__tab'} onClick={() => setActiveRole('citizen')} type="button">
-            Citizen
-          </button>
+          {availableTabs.map((tab) => (
+            <button
+              key={tab}
+              className={safeActiveRole === tab ? 'roles-page__tab roles-page__tab--active' : 'roles-page__tab'}
+              onClick={() => setActiveRole(tab)}
+              type="button"
+            >
+              {tab === 'staff' ? 'Staff' : tab === 'manager' ? 'Manager' : 'Citizen'}
+            </button>
+          ))}
         </div>
       </header>
 
       {loading && <p className="roles-page__status">Loading role data...</p>}
       {error && <p className="roles-page__status roles-page__status--error">{error}</p>}
 
-      {!loading && activeRole === 'staff' && (
+      {!loading && safeActiveRole === 'staff' && (
         <section className="roles-page__split">
           <div className="roles-page__panel">
             <div className="roles-page__panel-header">
@@ -192,7 +214,7 @@ export function RolesPage() {
         </section>
       )}
 
-      {!loading && activeRole === 'manager' && managerDashboard && (
+      {!loading && safeActiveRole === 'manager' && managerDashboard && (
         <section className="roles-page__manager">
           <div className="roles-page__metrics">
             <div><strong>{managerDashboard.totals.dossiers}</strong><span>Total</span></div>
@@ -224,7 +246,7 @@ export function RolesPage() {
         </section>
       )}
 
-      {!loading && activeRole === 'citizen' && (
+      {!loading && safeActiveRole === 'citizen' && (
         <section className="roles-page__panel">
           <div className="roles-page__panel-header">
             <h2>Citizen Tracking</h2>

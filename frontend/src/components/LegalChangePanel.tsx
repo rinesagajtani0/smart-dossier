@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import type { UserAlert } from '../types/dossier';
+import { Can } from '../auth/Can';
 import './LegalChangePanel.css';
 
 interface LegalChangePanelProps {
@@ -8,6 +10,7 @@ interface LegalChangePanelProps {
 }
 
 export function LegalChangePanel({ alerts, requestedDocuments, changedFields }: LegalChangePanelProps) {
+  const [approved, setApproved] = useState(false);
   const legalChangeAlerts = alerts.filter((alert) => alert.type === 'legal-change');
 
   if (legalChangeAlerts.length === 0) {
@@ -59,6 +62,19 @@ export function LegalChangePanel({ alerts, requestedDocuments, changedFields }: 
           )}
         </div>
       </div>
+
+      <Can permission="manage-dossiers">
+        <div className="legal-change-panel__approval">
+          <button
+            type="button"
+            className="legal-change-panel__approve-button"
+            onClick={() => setApproved(true)}
+            disabled={approved}
+          >
+            {approved ? 'Legal Update Approved' : 'Approve Legal Update'}
+          </button>
+        </div>
+      </Can>
     </section>
   );
 }
