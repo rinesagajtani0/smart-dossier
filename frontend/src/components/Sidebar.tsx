@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: '/procedure-generator', label: 'Procedure Generator', end: false },
   { to: '/document-upload', label: 'Document Upload', end: false },
   { to: '/case-memory', label: 'Case Memory', end: false },
+  { to: '/delay-prediction', label: 'Delay Prediction', end: false },
   { to: '/dashboard', label: 'Dashboard', end: false },
   { to: '/roles', label: 'Roles', end: false },
 ];

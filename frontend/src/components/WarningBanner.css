@@ -1,0 +1,32 @@
+.warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.warning-banner__icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.warning-banner--high {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.16),
+    rgba(239, 68, 68, 0.16) 10px,
+    rgba(239, 68, 68, 0.1) 10px,
+    rgba(239, 68, 68, 0.1) 20px
+  );
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #b91c1c;
+}
+
+.warning-banner--medium {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #b45309;
+}

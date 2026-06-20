@@ -93,6 +93,9 @@ export function WorkflowPage() {
               <dd>Property Valuation</dd>
             </div>
           </dl>
+          <Link to="/delay-prediction" className="workflow-preview__try-it">
+            Try it →
+          </Link>
         </WorkflowStepCard>
 
         <WorkflowStepCard {...preventDelay}>
