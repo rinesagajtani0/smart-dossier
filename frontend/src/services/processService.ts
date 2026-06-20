@@ -9,10 +9,26 @@ export interface ProcessStep {
   expectedDays: number;
   nextPhase: string | null;
   requiredDocuments: string[];
+  legalChangeApplies: boolean;
+  legalUpdates: string[];
+  changedFields: string[];
+  addedRequiredDocuments: string[];
 }
 
-interface ApiProcessStep extends ProcessStep {
-  requiredDocumentsJson: string;
+interface ApiProcessStep {
+  id: number;
+  processType: string;
+  phase: string;
+  institution: string;
+  criticalPoint: boolean;
+  expectedDays: number;
+  nextPhase: string | null;
+  requiredDocuments: string[];
+  requiredDocumentsJson?: string;
+  legalChangeApplies?: boolean;
+  legalUpdates?: string[];
+  changedFields?: string[];
+  addedRequiredDocuments?: string[];
 }
 
 export async function getProcessSteps(processType: string): Promise<ProcessStep[]> {
@@ -26,6 +42,10 @@ export async function getProcessSteps(processType: string): Promise<ProcessStep[
     expectedDays: step.expectedDays,
     nextPhase: step.nextPhase,
     requiredDocuments: step.requiredDocuments,
+    legalChangeApplies: step.legalChangeApplies ?? false,
+    legalUpdates: step.legalUpdates ?? [],
+    changedFields: step.changedFields ?? [],
+    addedRequiredDocuments: step.addedRequiredDocuments ?? [],
   }));
 }
 
@@ -51,6 +71,7 @@ export interface GeneratedProcedure {
   expectedTimeline: string;
   relevantRules: string[];
   risks: string[];
+  steps: ProcessStep[];
 }
 
 interface IntentMapping {
@@ -115,5 +136,6 @@ export async function generateProcedure(input: ProcedureGeneratorInput): Promise
     risks: criticalSteps.map(
       (step) => `Missing ${step.requiredDocuments.join(' or ')} during ${step.phase} is a common source of delay.`,
     ),
+    steps,
   };
 }

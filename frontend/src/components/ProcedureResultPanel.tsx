@@ -1,5 +1,6 @@
 import type { GeneratedProcedure } from '../services/processService';
 import { ProcedureResultList, ProcedureResultSection } from './ProcedureResultSection';
+import { ProcessStepCard } from './ProcessStepCard';
 import './ProcedureResultPanel.css';
 
 interface ProcedureResultPanelProps {
@@ -32,6 +33,16 @@ export function ProcedureResultPanel({ procedure }: ProcedureResultPanelProps) {
       <ProcedureResultSection label="Risks">
         <ProcedureResultList items={procedure.risks} emptyLabel="No notable risks identified." />
       </ProcedureResultSection>
+
+      <div className="procedure-result-panel__full">
+        <ProcedureResultSection label="Process Workflow">
+          <div className="procedure-result-panel__steps">
+            {procedure.steps.map((step) => (
+              <ProcessStepCard key={step.id} step={step} />
+            ))}
+          </div>
+        </ProcedureResultSection>
+      </div>
     </div>
   );
 }

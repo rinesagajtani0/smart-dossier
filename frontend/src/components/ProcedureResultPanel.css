@@ -22,6 +22,16 @@
   color: var(--text-h);
 }
 
+.procedure-result-panel__full {
+  grid-column: 1 / -1;
+}
+
+.procedure-result-panel__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 @media (max-width: 700px) {
   .procedure-result-panel {
     grid-template-columns: 1fr;

@@ -1,0 +1,108 @@
+.process-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.process-step-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.process-step-card__phase {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+.process-step-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.process-step-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.process-step-card__badge--critical {
+  background: rgba(180, 83, 9, 0.14);
+  color: #b45309;
+}
+
+.process-step-card__badge--legal-review {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.process-step-card__meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.process-step-card__documents {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* Legal-change steps get a distinct compliance highlight, separate from the
+   plain critical-checkpoint styling above. */
+.process-step-card--legal-review {
+  border: 2px solid #b91c1c;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(239, 68, 68, 0.1) 10px,
+    rgba(239, 68, 68, 0.04) 10px,
+    rgba(239, 68, 68, 0.04) 20px
+  );
+}
+
+.process-step-card__legal-notice {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #92400e;
+  background: rgba(217, 119, 6, 0.14);
+  color: #78350f;
+}
+
+.process-step-card__legal-title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #92400e;
+}
+
+.process-step-card__legal-list {
+  margin: 0 0 4px;
+  padding-left: 18px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.process-step-card__legal-sub {
+  margin: 0;
+  font-size: 12px;
+}
