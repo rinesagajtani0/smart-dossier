@@ -118,6 +118,9 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   // PreventDelayPage / CitizenPreventDelayPanel.
   '/prevent-delay': ['use-prevent-delay', 'view-own-prevent-delay'],
   '/dashboard': ['view-dashboard'],
+  // Manager-only — reviews graph-driven legal-change propagation across the
+  // workflow; not part of Staff's day-to-day tools.
+  '/legal-impact': ['view-manager-reports'],
   // /roles bundles a citizen tab, a staff tab, and a manager tab in one
   // page (RolesPage.tsx) behind client-side state, not separate routes.
   // The route itself stays public so each role can reach its own tab;

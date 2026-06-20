@@ -1,0 +1,37 @@
+.legal-impact-propagation-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.legal-impact-propagation-path__step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legal-impact-propagation-path__node {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--code-bg);
+  color: var(--text);
+}
+
+.legal-impact-propagation-path__node--affected {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.legal-impact-propagation-path__arrow {
+  font-size: 14px;
+  color: var(--border);
+}
+
+.legal-impact-propagation-path__arrow--affected {
+  color: var(--accent);
+  font-weight: 700;
+}

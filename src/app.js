@@ -5,6 +5,7 @@ import { hasOpenAI, openAiModel } from "./lib/ai.js";
 import dashboardRouter from "./routes/dashboard.js";
 import demoRouter from "./routes/demo.js";
 import dossiersRouter from "./routes/dossiers.js";
+import graphRouter from "./routes/graph.js";
 import legalRouter from "./routes/legal.js";
 import nlpRouter from "./routes/nlp.js";
 import proceduresRouter from "./routes/procedures.js";
@@ -57,6 +58,7 @@ app.get("/", (_req, res) => {
       "GET /legal/change-impact/:dossierId",
       "POST /legal/adapt-dossier/:dossierId",
       "GET /legal/dossier-alerts/:dossierId",
+      "GET /graph/legal-impact/:dossierId",
       "GET /properties/watchlist/rules",
       "GET /properties/:propertyNumber/value-evolution",
       "GET /properties/:propertyNumber/alerts"
@@ -67,6 +69,7 @@ app.get("/", (_req, res) => {
 app.use("/demo", demoRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/dossiers", dossiersRouter);
+app.use("/graph", graphRouter);
 app.use("/legal", legalRouter);
 app.use("/nlp", nlpRouter);
 app.use("/procedures", proceduresRouter);

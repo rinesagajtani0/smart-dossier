@@ -11,6 +11,7 @@ import { CaseMemoryPage } from './pages/CaseMemoryPage';
 import { DelayPredictionPage } from './pages/DelayPredictionPage';
 import { PreventDelayPage } from './pages/PreventDelayPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { LegalImpactDashboardPage } from './pages/LegalImpactDashboardPage';
 import { DossierDetailPage } from './pages/DossierDetailPage';
 import { RolesPage } from './pages/RolesPage';
 import { AccessDeniedPage } from './pages/AccessDeniedPage';
@@ -75,6 +76,14 @@ function App() {
               element={
                 <RequireAccess permissions={ROUTE_PERMISSIONS['/dashboard']}>
                   <DashboardPage />
+                </RequireAccess>
+              }
+            />
+            <Route
+              path="legal-impact"
+              element={
+                <RequireAccess permissions={ROUTE_PERMISSIONS['/legal-impact']}>
+                  <LegalImpactDashboardPage />
                 </RequireAccess>
               }
             />

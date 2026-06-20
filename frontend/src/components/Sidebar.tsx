@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: '/delay-prediction', label: 'Delay Prediction', end: false },
   { to: '/prevent-delay', label: 'Prevent Delay', end: false },
   { to: '/dashboard', label: 'Dashboard', end: false },
+  { to: '/legal-impact', label: 'Legal Impact', end: false },
   { to: '/roles', label: 'Roles', end: false },
 ];
 

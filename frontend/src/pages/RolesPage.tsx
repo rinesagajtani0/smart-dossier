@@ -208,6 +208,13 @@ export function RolesPage() {
               to="/prevent-delay"
               linkLabel="Open Delay Prevention →"
             />
+            <RoleCapabilityCard
+              icon="⚖"
+              title="Legal Impact Dashboard"
+              description="See how a legal change propagates through the workflow and how many dossiers need review."
+              to="/legal-impact"
+              linkLabel="Open Legal Impact →"
+            />
           </div>
 
           <div>
