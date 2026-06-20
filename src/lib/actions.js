@@ -1,6 +1,19 @@
 import { parseJson } from "./json.js";
+import { evaluateLegalChangeImpact } from "./legalEngine.js";
 
 export function buildRecommendedAction(dossier, processStep) {
+  const legalImpact = evaluateLegalChangeImpact(dossier);
+  if (legalImpact.hasImpact) {
+    return {
+      type: legalImpact.additionalRequiredDocuments.length ? "legal-change-request-documents" : "legal-change-review",
+      label: legalImpact.additionalRequiredDocuments.length
+        ? `Request ${legalImpact.additionalRequiredDocuments.join(", ")}`
+        : `Review legal changes for ${legalImpact.phase}`,
+      reason: legalImpact.recommendedAction,
+      legalChangeImpact: legalImpact
+    };
+  }
+
   const missingFields = parseJson(dossier.missingFieldsJson, []);
   if (missingFields.length) {
     return {

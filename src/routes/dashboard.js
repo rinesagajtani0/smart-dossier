@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { parseJson } from "../lib/json.js";
+import { evaluateLegalChangeImpact } from "../lib/legalEngine.js";
 import { normalizePhaseForUi } from "../lib/phaseMap.js";
 
 const router = Router();
@@ -24,6 +25,7 @@ router.get("/stats", async (_req, res) => {
     acc[phase] = (acc[phase] || 0) + 1;
     return acc;
   }, {});
+  const legalImpacted = dossiers.filter((dossier) => evaluateLegalChangeImpact(dossier).hasImpact);
 
   const mainBottleneck = Object.entries(phaseCounts)
     .sort((a, b) => b[1] - a[1])
@@ -34,6 +36,7 @@ router.get("/stats", async (_req, res) => {
     highRisk: dossiers.filter((dossier) => dossier.riskLevel === "high").length,
     delayed: dossiers.filter((dossier) => dossier.caseHistory?.outcome === "delayed").length,
     rejected: dossiers.filter((dossier) => dossier.caseHistory?.outcome === "rejected").length,
+    legalImpacted: legalImpacted.length,
     deadlinesThisWeek: dossiers.filter((dossier) => dueThisWeek(dossier.deadline)).length,
     mainBottleneck,
     byPhase: phaseCounts,
@@ -52,6 +55,7 @@ router.get("/kanban", async (_req, res) => {
 
   const columns = dossiers.reduce((acc, dossier) => {
     const phase = normalizePhaseForUi(dossier.phase);
+    const legalChangeImpact = evaluateLegalChangeImpact(dossier);
     if (!acc[phase]) acc[phase] = [];
     acc[phase].push({
       id: dossier.id,
@@ -62,6 +66,13 @@ router.get("/kanban", async (_req, res) => {
       phase,
       status: dossier.status,
       riskLevel: dossier.riskLevel,
+      legalChangeImpact: legalChangeImpact.hasImpact
+        ? {
+            hasImpact: true,
+            additionalRequiredDocuments: legalChangeImpact.additionalRequiredDocuments,
+            recommendedAction: legalChangeImpact.recommendedAction
+          }
+        : null,
       deadline: dossier.deadline,
       missingFields: parseJson(dossier.missingFieldsJson, [])
     });

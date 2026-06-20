@@ -1,5 +1,8 @@
 import { askJson, askText } from "./ai.js";
 import { ALBANIAN_LEGAL_BASIS } from "./albanianLegalBasis.js";
+import { parseJson, toJson } from "./json.js";
+import { normalizePhaseForUi } from "./phaseMap.js";
+import { prisma } from "./prisma.js";
 
 const LEGAL_RULES = [
   {
@@ -47,6 +50,123 @@ function includesAny(text, words) {
 function missingFieldLabels(text, fields) {
   const normalized = text.toLowerCase();
   return fields.filter((field) => !normalized.includes(field.toLowerCase()));
+}
+
+function intersects(left, right) {
+  const normalizedRight = new Set(right.map((item) => String(item).toLowerCase()));
+  return left.filter((item) => normalizedRight.has(String(item).toLowerCase()));
+}
+
+function updateAppliesToDossier(update, dossier) {
+  const processMatches = update.appliesToProcessTypes.includes(dossier.processType);
+  const phase = normalizePhaseForUi(dossier.phase);
+  const phaseMatches = update.appliesToPhases.includes(phase) || update.appliesToPhases.includes(dossier.phase);
+  return processMatches && phaseMatches;
+}
+
+export function getApplicableLegalUpdates(processType, phase) {
+  const normalizedPhase = normalizePhaseForUi(phase);
+  return ALBANIAN_LEGAL_BASIS.regulatoryUpdates.filter((update) => {
+    const processMatches = update.appliesToProcessTypes.includes(processType);
+    const phaseMatches = update.appliesToPhases.includes(normalizedPhase) || update.appliesToPhases.includes(phase);
+    return processMatches && phaseMatches;
+  });
+}
+
+export function applyLegalUpdatesToProcessStep(processType, step) {
+  if (!step) return null;
+
+  const updates = getApplicableLegalUpdates(processType, step.phase);
+  const requiredDocuments = parseJson(step.requiredDocumentsJson, step.requiredDocuments || []);
+  const addedDocuments = [...new Set(updates.flatMap((update) => update.newRequiredDocuments))];
+
+  return {
+    ...step,
+    requiredDocuments: [...new Set([...requiredDocuments, ...addedDocuments])],
+    requiredDocumentsJson: undefined,
+    criticalPoint: step.criticalPoint || updates.length > 0,
+    expectedDays: step.expectedDays + updates.length * 2,
+    legalChangeApplies: updates.length > 0,
+    legalUpdates: updates.map((update) => ({
+      id: update.id,
+      title: update.title,
+      effectiveDate: update.effectiveDate,
+      reason: update.reason,
+      source: update.source,
+      newRequiredDocuments: update.newRequiredDocuments,
+      changedFields: update.changedFields
+    })),
+    changedFields: [...new Set(updates.flatMap((update) => update.changedFields))],
+    addedRequiredDocuments: addedDocuments
+  };
+}
+
+export function buildSystemAdaptationPlan(dossier, impact) {
+  if (!impact?.hasImpact) {
+    return {
+      requiresWorkflowChange: false,
+      riskAdjustment: "none",
+      deadlineAction: "keep-current-deadline",
+      processAction: "continue-current-workflow",
+      fieldActions: [],
+      documentActions: [],
+      operationalActions: []
+    };
+  }
+
+  const requiresDocuments = impact.additionalRequiredDocuments.length > 0;
+  const fieldActions = impact.changedFields.map((field) => ({
+    field,
+    action: "revalidate-field",
+    reason: "The legal basis changed for this data point."
+  }));
+  const documentActions = impact.additionalRequiredDocuments.map((document) => ({
+    document,
+    action: "request-or-refresh-document",
+    reason: "The updated legal requirement applies to the dossier's current process phase."
+  }));
+
+  return {
+    requiresWorkflowChange: true,
+    riskAdjustment: requiresDocuments || impact.changedFields.length >= 3 ? "increase" : "review",
+    deadlineAction: "recalculate-or-confirm-deadline",
+    processAction: requiresDocuments ? "hold-before-next-phase" : "legal-review-before-next-phase",
+    fieldActions,
+    documentActions,
+    operationalActions: [
+      {
+        action: "notify-assigned-user",
+        reason: "The user must be warned before the dossier advances."
+      },
+      {
+        action: "refresh-current-process-step",
+        reason: "Required documents, expected days, or critical-point status may have changed."
+      },
+      {
+        action: "rerun-delay-prediction",
+        reason: "Legal changes can increase delay risk even when no document is missing."
+      }
+    ],
+    affectedPhase: impact.phase,
+    affectedProcessType: dossier.processType
+  };
+}
+
+export function buildLegalChangeUserAlert(impact) {
+  if (!impact?.hasImpact) return null;
+
+  return {
+    type: "legal-change",
+    severity: impact.additionalRequiredDocuments.length ? "high" : "medium",
+    title: "Legal requirements changed",
+    message: impact.additionalRequiredDocuments.length
+      ? `New legal requirements apply. Request ${impact.additionalRequiredDocuments.join(", ")} from the user.`
+      : impact.recommendedAction,
+    recommendedAction: impact.recommendedAction,
+    requestedDocuments: impact.additionalRequiredDocuments,
+    changedFields: impact.changedFields,
+    applicableUpdateIds: impact.applicableUpdates.map((update) => update.id)
+  };
 }
 
 export async function checkLegalDocument({ documentText = "", documentType = "unknown" }) {
@@ -105,5 +225,102 @@ Ensure the document meets ASHK documentation standards and includes required Alb
   return {
     ...check,
     rewritePreview
+  };
+}
+
+export function evaluateLegalChangeImpact(dossier) {
+  const missingFields = parseJson(dossier.missingFieldsJson, []);
+  const applicableUpdates = ALBANIAN_LEGAL_BASIS.regulatoryUpdates.filter((update) =>
+    updateAppliesToDossier(update, dossier)
+  );
+
+  const requiredDocuments = [
+    ...new Set(applicableUpdates.flatMap((update) => update.newRequiredDocuments))
+  ];
+  const alreadyMissing = intersects(requiredDocuments, missingFields);
+  const additionalRequiredDocuments = requiredDocuments.filter(
+    (document) => !alreadyMissing.includes(document)
+  );
+
+  return {
+    hasImpact: applicableUpdates.length > 0,
+    dossierId: dossier.id,
+    processType: dossier.processType,
+    phase: normalizePhaseForUi(dossier.phase),
+    applicableUpdates: applicableUpdates.map((update) => ({
+      id: update.id,
+      title: update.title,
+      effectiveDate: update.effectiveDate,
+      reason: update.reason,
+      source: update.source,
+      newRequiredDocuments: update.newRequiredDocuments,
+      changedFields: update.changedFields
+    })),
+    additionalRequiredDocuments,
+    changedFields: [...new Set(applicableUpdates.flatMap((update) => update.changedFields))],
+    recommendedAction: additionalRequiredDocuments.length
+      ? `Request ${additionalRequiredDocuments.join(", ")} before the dossier advances.`
+      : applicableUpdates.length
+        ? "Review the dossier against the latest legal requirements before advancing."
+        : "No legal change impact detected for the current phase.",
+    systemAdaptation: buildSystemAdaptationPlan(dossier, {
+      hasImpact: applicableUpdates.length > 0,
+      additionalRequiredDocuments,
+      changedFields: [...new Set(applicableUpdates.flatMap((update) => update.changedFields))],
+      phase: normalizePhaseForUi(dossier.phase)
+    }),
+    alert:
+      applicableUpdates.length > 0
+        ? "Legal requirements changed for this dossier phase."
+        : null
+  };
+}
+
+export async function adaptDossierToLegalChanges(dossierId) {
+  const dossier = await prisma.dossier.findUnique({
+    where: { id: Number(dossierId) }
+  });
+  if (!dossier) return null;
+
+  const impact = evaluateLegalChangeImpact(dossier);
+  const currentMissingFields = parseJson(dossier.missingFieldsJson, []);
+  const nextMissingFields = [
+    ...currentMissingFields,
+    ...impact.additionalRequiredDocuments.filter(
+      (document) =>
+        !currentMissingFields.some(
+          (field) => String(field).toLowerCase() === String(document).toLowerCase()
+        )
+    )
+  ];
+
+  const nextRiskLevel =
+    impact.systemAdaptation.riskAdjustment === "increase" && dossier.riskLevel !== "high"
+      ? dossier.riskLevel === "low"
+        ? "medium"
+        : "high"
+      : dossier.riskLevel === "low" && impact.hasImpact
+        ? "medium"
+        : dossier.riskLevel;
+
+  const shouldUpdate = nextMissingFields.length !== currentMissingFields.length || nextRiskLevel !== dossier.riskLevel;
+  const updatedDossier = shouldUpdate
+    ? await prisma.dossier.update({
+        where: { id: dossier.id },
+        data: {
+          missingFieldsJson: toJson(nextMissingFields),
+          riskLevel: nextRiskLevel
+        }
+      })
+    : dossier;
+
+  return {
+    dossierId: dossier.id,
+    adapted: shouldUpdate,
+    requestedDocuments: impact.additionalRequiredDocuments,
+    missingFields: nextMissingFields,
+    legalChangeImpact: impact,
+    userAlert: buildLegalChangeUserAlert(impact),
+    dossier: updatedDossier
   };
 }

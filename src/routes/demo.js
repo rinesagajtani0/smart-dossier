@@ -5,7 +5,9 @@ import { presentDossier, presentSimilarCase } from "../lib/dossierPresenter.js";
 import { summarizeDossier } from "../lib/extraction.js";
 import { parseJson } from "../lib/json.js";
 import { buildPreventDelayLetter } from "../lib/letters.js";
+import { evaluateLegalChangeImpact } from "../lib/legalEngine.js";
 import { predictDelay } from "../lib/prediction.js";
+import { getPropertyAlerts } from "../lib/propertyAlerts.js";
 import { prisma } from "../lib/prisma.js";
 
 const router = Router();
@@ -36,6 +38,9 @@ router.get("/dossiers/:id/intelligence", async (req, res) => {
   ]);
 
   const delayPrediction = predictDelay(dossier, similarCases || [], processSteps);
+  const propertyAlerts = dossier.propertyNumber
+    ? await getPropertyAlerts(dossier.propertyNumber)
+    : { alerts: [], message: "No property number available for alert checks." };
 
   res.json({
     dossier: presentDossier(dossier),
@@ -44,6 +49,8 @@ router.get("/dossiers/:id/intelligence", async (req, res) => {
     delayPrediction,
     processStep: presentProcessStep(processStep),
     recommendedAction: buildRecommendedAction(dossier, processStep),
+    legalChangeImpact: evaluateLegalChangeImpact(dossier),
+    propertyAlerts,
     generatedLetterPreview: buildPreventDelayLetter(dossier)
   });
 });

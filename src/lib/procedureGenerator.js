@@ -1,42 +1,71 @@
 import { askJson } from "./ai.js";
-import { ALBANIAN_LEGAL_BASIS } from "./albanianLegalBasis.js";
+import { ALBANIAN_LEGAL_BASIS, getLegalBasisForProcess } from "./albanianLegalBasis.js";
+import { applyLegalUpdatesToProcessStep } from "./legalEngine.js";
 
 function classifyIntent(intent) {
   const value = intent.toLowerCase();
-  if (value.includes("transfer")) return "transfer";
-  if (value.includes("valuation") || value.includes("vler")) return "valuation";
-  if (value.includes("legalization") || value.includes("legaliz")) return "legalization";
-  return "registration";
+  if (value.includes("expropriation") || value.includes("shprones")) return "expropriation";
+  if (value.includes("ekb") || value.includes("privatization") || value.includes("privatiz")) {
+    return "ekb-privatization";
+  }
+  return "property-registration";
+}
+
+function getProcessTemplate(processType) {
+  return (
+    Object.values(ALBANIAN_LEGAL_BASIS.processTemplates).find((item) => item.id === processType) ||
+    ALBANIAN_LEGAL_BASIS.processTemplates.propertyRegistration
+  );
 }
 
 export async function generateProcedure({ intent = "", municipality = "", propertyType = "" }) {
-  const templateKey = classifyIntent(intent);
-  const phases = ALBANIAN_LEGAL_BASIS.processPhases[templateKey] || ALBANIAN_LEGAL_BASIS.processPhases.propertyRegistration;
-  
+  const processType = classifyIntent(intent);
+  const processTemplate = getProcessTemplate(processType);
+  const legalBasis = getLegalBasisForProcess(processTemplate.id);
+  const adaptedSteps = processTemplate.steps.map((step) => applyLegalUpdatesToProcessStep(processTemplate.id, step));
+  const expectedDays = adaptedSteps.reduce((sum, step) => sum + step.expectedDays, 0);
+
   const template = {
-    procedure: templateKey === 'legalization' ? 'Legalizimi i Ndërtimeve' : 
-                templateKey === 'transfer' ? 'Transferimi i Pronës' : 
-                templateKey === 'valuation' ? 'Vlerësimi i Pronës' : 'Regjistrimi i Pronës',
-    steps: phases.map(step => ({
+    procedure: processTemplate.label,
+    processType: processTemplate.id,
+    steps: adaptedSteps.map((step) => ({
       phase: step.phase,
       institution: step.institution,
       expectedDays: step.expectedDays,
-      requiredDocuments: step.requiredDocuments
+      requiredDocuments: step.requiredDocuments,
+      criticalPoint: step.criticalPoint,
+      nextPhase: step.nextPhase,
+      legalChangeApplies: step.legalChangeApplies,
+      legalUpdates: step.legalUpdates,
+      changedFields: step.changedFields
     })),
-    requiredDocuments: phases.flatMap(step => step.requiredDocuments),
-    expectedTimeline: `${phases.reduce((sum, step) => sum + step.expectedDays, 0)}-${Math.round(phases.reduce((sum, step) => sum + step.expectedDays, 0) * 1.3)} days`,
-    institutions: [...new Set(phases.map(step => step.institution))],
-    relevantRules: ALBANIAN_LEGAL_BASIS.laws.map(law => law.name),
-    risks: ALBANIAN_LEGAL_BASIS.criticalPoints.map(point => point.point)
+    requiredDocuments: [...new Set(adaptedSteps.flatMap((step) => step.requiredDocuments))],
+    expectedTimeline: `${expectedDays}-${Math.round(expectedDays * 1.35)} days`,
+    institutions: [...new Set(processTemplate.steps.map((step) => step.institution))],
+    relevantRules: legalBasis.map((law) => ({
+      id: law.id,
+      name: law.name,
+      title: law.title,
+      source: law.source
+    })),
+    risks: [
+      ...ALBANIAN_LEGAL_BASIS.criticalPoints
+      .filter((point) => point.processTypes.includes(processTemplate.id))
+        .map((point) => point.alert),
+      ...adaptedSteps
+        .filter((step) => step.legalChangeApplies)
+        .map((step) => `Legal update applies in ${step.phase}: ${step.addedRequiredDocuments.join(", ") || "field revalidation required"}.`)
+    ]
   };
 
   return askJson(
-    `Generate a property procedure plan for Albanian civil-service workflows based on actual Albanian laws and institutions.
-Legal context: ${ALBANIAN_LEGAL_BASIS.legalContext}
+    `Generate a property procedure plan for Albanian civil-service workflows.
+Use only the provided structured process templates, legal basis, institutions, and critical points.
 Return only JSON with this exact shape:
 {
   "procedure": "",
-  "steps": [{ "phase": "", "institution": "", "expectedDays": 0, "requiredDocuments": [] }],
+  "processType": "",
+  "steps": [{ "phase": "", "institution": "", "expectedDays": 0, "requiredDocuments": [], "criticalPoint": false, "nextPhase": "" }],
   "requiredDocuments": [],
   "expectedTimeline": "",
   "institutions": [],
@@ -45,17 +74,17 @@ Return only JSON with this exact shape:
   "municipality": "",
   "propertyType": ""
 }
-Use the provided Albanian legal template as baseline and adapt it to the citizen intent. Reference actual Albanian laws like Law No. 111/2018, Law No. 33/2012, and Law No. 9482/2006.`,
-    JSON.stringify({ intent, municipality, propertyType, template, albanianContext: ALBANIAN_LEGAL_BASIS }, null, 2),
+Do not invent phases or legal rules that are not in the provided dataset.`,
+    JSON.stringify({ intent, municipality, propertyType, template, knowledgeBase: ALBANIAN_LEGAL_BASIS }, null, 2),
     () => ({
       ...template,
-      municipality: municipality || "e paspecifikuara",
-      propertyType: propertyType || "e paspecifikuara",
-      legalBasis: ALBANIAN_LEGAL_BASIS.laws.map(law => `${law.name}: ${law.title}`),
+      municipality: municipality || "not specified",
+      propertyType: propertyType || "not specified",
+      legalBasis,
       assumptions: [
-        "Based on actual Albanian property laws and institutions",
-        "Procedures follow Law No. 111/2018 (On Cadastre), Law No. 33/2012, and Law No. 9482/2006",
-        "Institutions include ASHK, Bashkia, Regional Councils, and Courts"
+        "Structured from the local Albanian property knowledge base.",
+        "Challenge-provided diagrams should replace or refine the expropriation and EKB steps when available.",
+        "No real integrations are used in this demo."
       ]
     })
   );

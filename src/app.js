@@ -53,7 +53,13 @@ app.get("/", (_req, res) => {
       "POST /procedures/generate",
       "POST /legal/check-document",
       "POST /legal/rewrite-document",
-      "GET /properties/:propertyNumber/value-evolution"
+      "GET /legal/updates",
+      "GET /legal/change-impact/:dossierId",
+      "POST /legal/adapt-dossier/:dossierId",
+      "GET /legal/dossier-alerts/:dossierId",
+      "GET /properties/watchlist/rules",
+      "GET /properties/:propertyNumber/value-evolution",
+      "GET /properties/:propertyNumber/alerts"
     ]
   });
 });

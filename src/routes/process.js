@@ -1,6 +1,6 @@
 import { Router } from "express";
+import { applyLegalUpdatesToProcessStep } from "../lib/legalEngine.js";
 import { prisma } from "../lib/prisma.js";
-import { parseJson } from "../lib/json.js";
 
 const router = Router();
 
@@ -10,10 +10,7 @@ router.get("/:processType", async (req, res) => {
     orderBy: { id: "asc" }
   });
 
-  res.json(steps.map((step) => ({
-    ...step,
-    requiredDocuments: parseJson(step.requiredDocumentsJson, [])
-  })));
+  res.json(steps.map((step) => applyLegalUpdatesToProcessStep(req.params.processType, step)));
 });
 
 export default router;

@@ -1,4 +1,5 @@
 import { parseJson } from "./json.js";
+import { evaluateLegalChangeImpact } from "./legalEngine.js";
 
 function riskFromScore(score) {
   if (score >= 70) return "high";
@@ -9,6 +10,7 @@ function riskFromScore(score) {
 export function predictDelay(dossier, similarCases, processSteps) {
   const missing = parseJson(dossier.missingFieldsJson, []);
   const step = processSteps.find((item) => item.phase === dossier.phase);
+  const legalImpact = evaluateLegalChangeImpact(dossier);
   const delayedMatches = similarCases.filter((item) => item.caseHistory?.outcome === "delayed");
   const avgDelay = delayedMatches.length
     ? Math.round(delayedMatches.reduce((sum, item) => sum + item.caseHistory.delayDays, 0) / delayedMatches.length)
@@ -17,6 +19,7 @@ export function predictDelay(dossier, similarCases, processSteps) {
   let score = 15;
   if (missing.length) score += Math.min(35, missing.length * 12);
   if (step?.criticalPoint) score += 20;
+  if (legalImpact.hasImpact) score += legalImpact.additionalRequiredDocuments.length ? 25 : 12;
   if (delayedMatches.length) score += Math.min(30, delayedMatches.length * 10);
   if (dossier.deadline && new Date(dossier.deadline).getTime() - Date.now() < 4 * 24 * 60 * 60 * 1000) score += 15;
 
@@ -29,13 +32,20 @@ export function predictDelay(dossier, similarCases, processSteps) {
     risk,
     predictedDelay,
     likelyBlockage,
-    reason: delayedMatches.length
-      ? `${delayedMatches.length} similar delayed case(s) had related issues, especially ${delayedMatches[0].caseHistory.delayReason || mainMissing}.`
+    reason: legalImpact.hasImpact
+      ? `Legal requirements changed for this phase. ${legalImpact.recommendedAction}`
+      : delayedMatches.length
+        ? `${delayedMatches.length} similar delayed case(s) had related issues, especially ${delayedMatches[0].caseHistory.delayReason || mainMissing}.`
+        : missing.length
+          ? `The dossier is missing ${missing.join(", ")}.`
+          : "No strong delay pattern was found in similar cases.",
+    recommendedAction: legalImpact.hasImpact
+      ? legalImpact.systemAdaptation.processAction === "hold-before-next-phase"
+        ? legalImpact.recommendedAction
+        : "Run a legal review before moving the dossier to the next phase."
       : missing.length
-        ? `The dossier is missing ${missing.join(", ")}.`
-        : "No strong delay pattern was found in similar cases.",
-    recommendedAction: missing.length
-      ? `Request ${mainMissing} today and attach it before the next phase.`
-      : `Verify the current phase with ${dossier.institution} and keep the deadline active.`
+        ? `Request ${mainMissing} today and attach it before the next phase.`
+        : `Verify the current phase with ${dossier.institution} and keep the deadline active.`,
+    legalChangeImpact: legalImpact.hasImpact ? legalImpact : null
   };
 }

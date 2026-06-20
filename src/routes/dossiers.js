@@ -9,7 +9,9 @@ import { presentDossier } from "../lib/dossierPresenter.js";
 import { extractDocumentFields, summarizeDossier } from "../lib/extraction.js";
 import { parseJson, toJson } from "../lib/json.js";
 import { buildPreventDelayLetter } from "../lib/letters.js";
+import { adaptDossierToLegalChanges, buildLegalChangeUserAlert, evaluateLegalChangeImpact } from "../lib/legalEngine.js";
 import { predictDelay } from "../lib/prediction.js";
+import { getPropertyAlerts } from "../lib/propertyAlerts.js";
 import { prisma } from "../lib/prisma.js";
 
 const router = Router();
@@ -44,6 +46,53 @@ async function readUploadedText(file) {
   return buffer.toString("utf8");
 }
 
+async function getDossierAlerts(dossier) {
+  const legalChangeImpact = evaluateLegalChangeImpact(dossier);
+  const propertyAlerts = dossier.propertyNumber
+    ? await getPropertyAlerts(dossier.propertyNumber)
+    : { alerts: [], message: "No property number available for alert checks." };
+  const legalAlert = buildLegalChangeUserAlert(legalChangeImpact);
+
+  return {
+    legalChangeImpact,
+    propertyAlerts,
+    userAlerts: [
+      ...(legalAlert ? [legalAlert] : []),
+      ...(propertyAlerts.alerts || []).map((alert) => ({
+        type: alert.type,
+        severity: alert.severity,
+        title: alert.title,
+        message: alert.message,
+        recommendedAction: alert.recommendedAction,
+        score: alert.score,
+        reasons: alert.reasons
+      }))
+    ]
+  };
+}
+
+async function autoAdaptDossier(dossierId) {
+  const adaptation = await adaptDossierToLegalChanges(dossierId);
+  if (!adaptation) return null;
+
+  const dossier = await prisma.dossier.findUnique({
+    where: { id: Number(dossierId) },
+    include: { documents: true, caseHistory: true, letters: true, aiOutputs: true }
+  });
+  if (!dossier) return null;
+
+  return {
+    dossier,
+    legalAdaptation: {
+      adapted: adaptation.adapted,
+      requestedDocuments: adaptation.requestedDocuments,
+      missingFields: adaptation.missingFields,
+      userAlert: adaptation.userAlert
+    },
+    alerts: await getDossierAlerts(dossier)
+  };
+}
+
 router.get("/", async (_req, res) => {
   const dossiers = await prisma.dossier.findMany({
     orderBy: { updatedAt: "desc" },
@@ -58,7 +107,10 @@ router.get("/:id", async (req, res) => {
     include: { documents: true, caseHistory: true, letters: true, aiOutputs: true }
   });
   if (!dossier) return res.status(404).json({ error: "Dossier not found" });
-  res.json(presentDossier(dossier));
+  res.json({
+    ...presentDossier(dossier),
+    alerts: await getDossierAlerts(dossier)
+  });
 });
 
 router.post("/", async (req, res) => {
@@ -70,7 +122,12 @@ router.post("/", async (req, res) => {
       missingFieldsJson: toJson(input.missingFields)
     }
   });
-  res.status(201).json(presentDossier(dossier));
+  const adapted = await autoAdaptDossier(dossier.id);
+  res.status(201).json({
+    ...presentDossier(adapted?.dossier || dossier),
+    legalAdaptation: adapted?.legalAdaptation || null,
+    alerts: adapted?.alerts || null
+  });
 });
 
 router.patch("/:id", async (req, res) => {
@@ -85,7 +142,12 @@ router.patch("/:id", async (req, res) => {
     where: { id: Number(req.params.id) },
     data: updates
   });
-  res.json(presentDossier(dossier));
+  const adapted = await autoAdaptDossier(dossier.id);
+  res.json({
+    ...presentDossier(adapted?.dossier || dossier),
+    legalAdaptation: adapted?.legalAdaptation || null,
+    alerts: adapted?.alerts || null
+  });
 });
 
 router.post("/:id/documents", upload.single("file"), async (req, res) => {
@@ -104,7 +166,7 @@ router.post("/:id/documents", upload.single("file"), async (req, res) => {
   });
 
   const missingFields = extracted.missingFields || [];
-  await prisma.dossier.update({
+  const dossier = await prisma.dossier.update({
     where: { id: Number(req.params.id) },
     data: {
       applicantName: extracted.applicantName || undefined,
@@ -116,8 +178,14 @@ router.post("/:id/documents", upload.single("file"), async (req, res) => {
       riskLevel: missingFields.length >= 2 ? "high" : missingFields.length ? "medium" : "low"
     }
   });
+  const adapted = await autoAdaptDossier(dossier.id);
 
-  res.status(201).json({ ...document, extractedData: extracted });
+  res.status(201).json({
+    ...document,
+    extractedData: extracted,
+    legalAdaptation: adapted?.legalAdaptation || null,
+    alerts: adapted?.alerts || null
+  });
 });
 
 router.post("/nlp/extract/:documentId", async (req, res) => {

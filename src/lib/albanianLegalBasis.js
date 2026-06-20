@@ -1,244 +1,457 @@
-// Albanian Property Legal Basis for Smart Dossier
-// Based on actual Albanian legislation and institutions
-
 export const ALBANIAN_LEGAL_BASIS = {
-  // Key Laws
+  sources: [
+    {
+      id: "qbz",
+      name: "Qendra e Botimeve Zyrtare",
+      url: "https://qbz.gov.al/",
+      use: "Primary source for Albanian laws and bylaws."
+    },
+    {
+      id: "ashk",
+      name: "Agjencia Shteterore e Kadastres",
+      url: "https://www.ashk.gov.al/",
+      use: "Institutional source for cadastral services, property registration, certificates, and ASHK procedures."
+    },
+    {
+      id: "e-albania",
+      name: "e-Albania",
+      url: "https://e-albania.al/",
+      use: "Digital public service descriptions and citizen-facing application requirements."
+    },
+    {
+      id: "challenge-diagrams",
+      name: "Innovation4Albania challenge diagrams",
+      url: null,
+      use: "Provided manual for Expropriation and EKB Privatization phases, institutions, legal basis, and critical points."
+    }
+  ],
+
   laws: [
     {
+      id: "law-111-2018",
       name: "Law No. 111/2018",
       title: "On Cadastre",
-      description: "Established the State Cadastre Agency (ASHK) by merging IPRO, ALUIZNI, and AKKP",
-      keyPoints: [
-        "Unified property registration system",
-        "Digital cadastral services",
-        "Integration of property data",
-        "74 services for citizens and businesses"
-      ]
+      source: "qbz",
+      tags: ["cadastre", "ashk", "registration"],
+      summary:
+        "Framework law for the State Cadastre Agency and cadastral/property registration functions."
     },
     {
-      name: "Law No. 33/2012", 
+      id: "law-33-2012",
+      name: "Law No. 33/2012",
       title: "On Registration of Immovable Property",
-      description: "Governs the registration process for property rights",
-      keyPoints: [
-        "Property registration procedures",
-        "Title establishment",
-        "Registration fees and timelines",
-        "Appeal processes"
-      ]
+      source: "qbz",
+      tags: ["registration", "immovable-property", "title"],
+      summary:
+        "Legal basis for registration of immovable property rights and related documentation."
     },
     {
-      name: "Law No. 9482/2006",
-      title: "On Legalization, Urban Planning and Integration of Illegal Constructions",
-      description: "Legalization process for informal constructions",
-      keyPoints: [
-        "Self-declaration process for illegal buildings",
-        "Urban planning requirements",
-        "Compensation mechanisms for former owners",
-        "ALUIZNI agency responsibilities"
-      ]
+      id: "civil-code",
+      name: "Civil Code",
+      title: "Civil Code of the Republic of Albania",
+      source: "qbz",
+      tags: ["ownership", "transfer", "property-rights"],
+      summary:
+        "General legal basis for ownership, transfer, and protection of property rights."
     },
     {
-      name: "Civil Code (1994)",
-      title: "Civil Code of Albania",
-      description: "Foundation of property rights in Albania",
-      keyPoints: [
-        "Property ownership rights",
-        "Property transfer procedures",
-        "Mortgage and lien regulations",
-        "Property protection mechanisms"
-      ]
+      id: "expropriation-law",
+      name: "Expropriation legal framework",
+      title: "Public interest expropriation procedure",
+      source: "challenge-diagrams",
+      tags: ["expropriation", "compensation", "public-interest"],
+      summary:
+        "Challenge-provided process model for property expropriation, including valuation, notification, objection, and decision steps."
+    },
+    {
+      id: "ekb-privatization-framework",
+      name: "EKB privatization framework",
+      title: "Privatization of public/social housing dossiers",
+      source: "challenge-diagrams",
+      tags: ["ekb", "privatization", "housing"],
+      summary:
+        "Challenge-provided process model for EKB privatization dossiers and institution handoffs."
     }
   ],
 
-  // Real Albanian Institutions
   institutions: [
     {
+      id: "ashk",
       name: "ASHK",
-      fullName: "Agjencia Shtetërore e Kadastrës (State Cadastre Agency)",
-      role: "Central authority for property registration and cadastral services",
+      fullName: "Agjencia Shteterore e Kadastres",
       responsibilities: [
-        "Property registration",
-        "Cadastral mapping",
-        "Title issuance",
-        "Legalization processes",
-        "Property valuation",
-        "Digital services"
+        "property registration",
+        "cadastral verification",
+        "ownership certificates",
+        "property maps and cadastral data"
       ]
     },
     {
-      name: "Bashkia",
-      fullName: "Municipality (Local Government Unit)",
-      role: "Local authority for urban planning and construction permits",
+      id: "municipality",
+      name: "Municipality",
+      fullName: "Bashkia",
       responsibilities: [
-        "Urban planning permits",
-        "Construction licenses",
-        "Local zoning regulations",
-        "Property tax assessment",
-        "Local development plans"
+        "local intake",
+        "citizen communication",
+        "urban planning information",
+        "local administrative coordination"
       ]
     },
     {
-      name: "Këshilli i Qarkut",
-      fullName: "Regional Council",
-      role: "Regional authority for larger urban planning decisions",
+      id: "valuation-office",
+      name: "Valuation Office",
+      fullName: "Property valuation unit",
       responsibilities: [
-        "Regional urban planning approval",
-        "Territorial development plans",
-        "Infrastructure coordination",
-        "Inter-municipal property issues"
+        "valuation report",
+        "compensation estimate",
+        "market and infrastructure impact assessment"
       ]
     },
     {
-      name: "Gykata",
-      fullName: "Court System",
-      role: "Judicial authority for property disputes",
+      id: "legal-department",
+      name: "Legal Department",
+      fullName: "Institutional legal review unit",
       responsibilities: [
-        "Property dispute resolution",
-        "Expropriation compensation disputes",
-        "Ownership conflicts",
-        "Title verification appeals"
+        "legal completeness review",
+        "ownership mismatch review",
+        "decision and letter drafting"
       ]
     },
     {
-      name: "Ministria e Financave",
-      fullName: "Ministry of Finance",
-      role: "Financial authority for property transactions and compensation",
+      id: "ekb",
+      name: "EKB",
+      fullName: "Enti Kombetar i Banesave",
       responsibilities: [
-        "Property transaction taxes",
-        "Compensation payments",
-        "State property management",
-        "Financial regulations"
+        "housing privatization dossier review",
+        "beneficiary verification",
+        "contract and payment documentation"
       ]
     }
   ],
 
-  // Typical Property Process Phases (based on Albanian procedures)
-  processPhases: {
-    propertyRegistration: [
-      {
-        phase: "Kërkesë Filluese",
-        institution: "ASHK",
-        description: "Initial property registration application",
-        expectedDays: 2,
-        requiredDocuments: ["Application form", "Identity document", "Ownership proof", "Cadastral plan"]
-      },
-      {
-        phase: "Verifikim Kadastral",
-        institution: "ASHK", 
-        description: "Cadastral verification and mapping",
-        expectedDays: 5,
-        requiredDocuments: ["Cadastral survey", "Boundary verification", "Technical documentation"]
-      },
-      {
-        phase: "Vlerësim i Pronës",
-        institution: "ASHK",
-        description: "Property valuation and assessment",
-        expectedDays: 7,
-        requiredDocuments: ["Valuation report", "Market analysis", "Property specifications"]
-      },
-      {
-        phase: "Rishikim Ligjor",
-        institution: "ASHK",
-        description: "Legal review of documentation",
-        expectedDays: 6,
-        requiredDocuments: ["Legal verification", "Title search", "Compliance check"]
-      },
-      {
-        phase: "Miratim dhe Regjistrim",
-        institution: "ASHK",
-        description: "Final approval and registration",
-        expectedDays: 3,
-        requiredDocuments: ["Final certificate", "Registration fee payment", "Title issuance"]
-      }
-    ],
-    
-    legalization: [
-      {
-        phase: "Vetëdeklarim",
-        institution: "ALUIZNI/ASHK",
-        description: "Self-declaration of illegal construction",
-        expectedDays: 3,
-        requiredDocuments: ["Self-declaration form", "Construction details", "Proof of possession"]
-      },
-      {
-        phase: "Verifikim Teknik",
-        institution: "ALUIZNI/ASHK",
-        description: "Technical verification of construction",
-        expectedDays: 10,
-        requiredDocuments: ["Technical survey", "Structural assessment", "Compliance check"]
-      },
-      {
-        phase: "Vlerësim për Kompensim",
-        institution: "ALUIZNI/ASHK",
-        description: "Valuation for compensation calculation",
-        expectedDays: 7,
-        requiredDocuments: ["Property valuation", "Land value assessment", "Compensation calculation"]
-      },
-      {
-        phase: "Miratim Urbanistik",
-        institution: "Bashkia",
-        description: "Urban planning approval",
-        expectedDays: 8,
-        requiredDocuments: ["Urban plan compliance", "Zoning verification", "Infrastructure assessment"]
-      },
-      {
-        phase: "Certifikim Legalizimi",
-        institution: "ALUIZNI/ASHK",
-        description: "Issuance of legalization certificate",
-        expectedDays: 5,
-        requiredDocuments: ["Legalization fee payment", "Final certificate", "Property registration"]
-      }
-    ]
+  processTemplates: {
+    propertyRegistration: {
+      id: "property-registration",
+      label: "Property Registration",
+      legalBasis: ["law-111-2018", "law-33-2012", "civil-code"],
+      steps: [
+        {
+          phase: "Intake",
+          institution: "Municipality",
+          expectedDays: 2,
+          requiredDocuments: ["application form", "identity document"],
+          criticalPoint: false,
+          nextPhase: "ASHK Check"
+        },
+        {
+          phase: "ASHK Check",
+          institution: "ASHK",
+          expectedDays: 5,
+          requiredDocuments: ["ownership certificate", "property number", "cadastral zone"],
+          criticalPoint: true,
+          nextPhase: "Property Valuation"
+        },
+        {
+          phase: "Property Valuation",
+          institution: "Valuation Office",
+          expectedDays: 7,
+          requiredDocuments: ["valuation report", "tax clearance"],
+          criticalPoint: true,
+          nextPhase: "Legal Review"
+        },
+        {
+          phase: "Legal Review",
+          institution: "Legal Department",
+          expectedDays: 6,
+          requiredDocuments: ["ownership certificate", "owner consent"],
+          criticalPoint: true,
+          nextPhase: "Final Approval"
+        },
+        {
+          phase: "Final Approval",
+          institution: "Municipality",
+          expectedDays: 3,
+          requiredDocuments: ["complete dossier"],
+          criticalPoint: false,
+          nextPhase: null
+        }
+      ]
+    },
+
+    expropriation: {
+      id: "expropriation",
+      label: "Expropriation",
+      legalBasis: ["expropriation-law", "law-111-2018", "civil-code"],
+      steps: [
+        {
+          phase: "Public Interest Request",
+          institution: "Municipality",
+          expectedDays: 3,
+          requiredDocuments: ["public interest request", "project map", "affected property list"],
+          criticalPoint: false,
+          nextPhase: "Cadastral Verification"
+        },
+        {
+          phase: "Cadastral Verification",
+          institution: "ASHK",
+          expectedDays: 7,
+          requiredDocuments: ["ownership certificate", "cadastral map", "property boundaries"],
+          criticalPoint: true,
+          nextPhase: "Valuation and Compensation"
+        },
+        {
+          phase: "Valuation and Compensation",
+          institution: "Valuation Office",
+          expectedDays: 10,
+          requiredDocuments: ["valuation report", "market comparison", "compensation calculation"],
+          criticalPoint: true,
+          nextPhase: "Owner Notification"
+        },
+        {
+          phase: "Owner Notification",
+          institution: "Municipality",
+          expectedDays: 5,
+          requiredDocuments: ["notification letter", "proof of delivery", "objection deadline"],
+          criticalPoint: true,
+          nextPhase: "Legal Decision"
+        },
+        {
+          phase: "Legal Decision",
+          institution: "Legal Department",
+          expectedDays: 8,
+          requiredDocuments: ["legal opinion", "final decision draft", "compensation approval"],
+          criticalPoint: true,
+          nextPhase: "Execution and Archive"
+        },
+        {
+          phase: "Execution and Archive",
+          institution: "Municipality",
+          expectedDays: 4,
+          requiredDocuments: ["payment confirmation", "archive record", "handoff confirmation"],
+          criticalPoint: false,
+          nextPhase: null
+        }
+      ]
+    },
+
+    ekbPrivatization: {
+      id: "ekb-privatization",
+      label: "EKB Privatization",
+      legalBasis: ["ekb-privatization-framework", "law-111-2018", "civil-code"],
+      steps: [
+        {
+          phase: "Applicant Intake",
+          institution: "EKB",
+          expectedDays: 2,
+          requiredDocuments: ["application form", "identity document", "housing contract"],
+          criticalPoint: false,
+          nextPhase: "Beneficiary Verification"
+        },
+        {
+          phase: "Beneficiary Verification",
+          institution: "EKB",
+          expectedDays: 6,
+          requiredDocuments: ["family certificate", "eligibility proof", "payment history"],
+          criticalPoint: true,
+          nextPhase: "Property Verification"
+        },
+        {
+          phase: "Property Verification",
+          institution: "ASHK",
+          expectedDays: 7,
+          requiredDocuments: ["property number", "cadastral zone", "ownership status"],
+          criticalPoint: true,
+          nextPhase: "Contract Preparation"
+        },
+        {
+          phase: "Contract Preparation",
+          institution: "Legal Department",
+          expectedDays: 5,
+          requiredDocuments: ["contract draft", "payment calculation", "legal review"],
+          criticalPoint: true,
+          nextPhase: "Final Approval"
+        },
+        {
+          phase: "Final Approval",
+          institution: "EKB",
+          expectedDays: 3,
+          requiredDocuments: ["signed contract", "payment confirmation", "archive record"],
+          criticalPoint: false,
+          nextPhase: null
+        }
+      ]
+    }
   },
 
-  // Critical Points (Common bottlenecks in Albanian property processes)
   criticalPoints: [
     {
-      point: "Cadastral Survey Delays",
-      phase: "Verifikim Kadastral",
+      id: "missing-ownership-certificate",
+      processTypes: ["property-registration", "expropriation"],
+      phase: "ASHK Check",
       risk: "high",
-      description: "Technical surveys and boundary verification often cause delays",
-      mitigation: "Use digital cadastral data, schedule surveys in advance"
+      triggerFields: ["ownership certificate"],
+      alert: "Ownership certificate is missing or unclear.",
+      recommendedAction: "Request updated ownership certificate from ASHK before advancing."
     },
     {
-      point: "Compensation Disputes",
-      phase: "Vlerësim për Kompensim", 
+      id: "missing-valuation-report",
+      processTypes: ["property-registration", "expropriation"],
+      phase: "Property Valuation",
       risk: "high",
-      description: "Former owners often contest compensation amounts",
-      mitigation: "Use standardized valuation methods, clear legal basis"
+      triggerFields: ["valuation report"],
+      alert: "Valuation report is missing, which commonly blocks the dossier.",
+      recommendedAction: "Request valuation report and attach it to the dossier today."
     },
     {
-      point: "Urban Planning Approval",
-      phase: "Miratim Urbanistik",
+      id: "cadastral-data-unclear",
+      processTypes: ["property-registration", "expropriation", "ekb-privatization"],
+      phase: "Cadastral Verification",
+      risk: "high",
+      triggerFields: ["property number", "cadastral zone"],
+      alert: "Cadastral identifiers are incomplete or inconsistent.",
+      recommendedAction: "Verify property number and cadastral zone with ASHK."
+    },
+    {
+      id: "owner-notification-risk",
+      processTypes: ["expropriation"],
+      phase: "Owner Notification",
+      risk: "high",
+      triggerFields: ["proof of delivery", "objection deadline"],
+      alert: "Notification delivery or objection deadline is not documented.",
+      recommendedAction: "Generate notification letter and record proof of delivery."
+    },
+    {
+      id: "ekb-beneficiary-mismatch",
+      processTypes: ["ekb-privatization"],
+      phase: "Beneficiary Verification",
       risk: "medium",
-      description: "Municipal approvals can be slow due to bureaucratic processes",
-      mitigation: "Early engagement with urban planning offices, complete documentation"
-    },
-    {
-      point: "Title Search Issues",
-      phase: "Rishikim Ligjor",
-      risk: "medium", 
-      description: "Historical property records may be incomplete or conflicting",
-      mitigation: "Comprehensive title search, legal expert review"
-    },
-    {
-      point: "Documentation Completeness",
-      phase: "Kërkesë Filluese",
-      risk: "medium",
-      description: "Incomplete documentation causes rejections and delays",
-      mitigation: "Document checklist, pre-submission review"
+      triggerFields: ["eligibility proof", "payment history"],
+      alert: "Beneficiary or payment history information is incomplete.",
+      recommendedAction: "Request eligibility and payment history confirmation from EKB records."
     }
   ],
 
-  // Legal Context for AI
-  legalContext: `
-    Albanian property law is governed by the Civil Code (1994), Law No. 111/2018 "On Cadastre", 
-    Law No. 33/2012 "On Registration of Immovable Property", and Law No. 9482/2006 "On Legalization, 
-    Urban Planning and Integration of Illegal Constructions". The State Cadastre Agency (ASHK) is the 
-    central authority for property registration, created in 2019 through the merger of the Immovable 
-    Property Registration Office (IPRO), the Agency for Legalization, Urbanization, and Integration 
-    of Informal Areas (ALUIZNI), and the National Housing Authority (AKKP). Property processes involve 
-    multiple institutions including ASHK, Municipalities (Bashkia), Regional Councils, and the Court system. 
-    Common bottlenecks include cadastral survey delays, compensation disputes, and urban planning approvals.
-  `
+  regulatoryUpdates: [
+    {
+      id: "cadastre-digital-map-required",
+      effectiveDate: "2026-01-01",
+      title: "Digital cadastral map required for cadastral verification",
+      appliesToProcessTypes: ["property-registration", "expropriation", "ekb-privatization"],
+      appliesToPhases: ["ASHK Check", "Cadastral Verification", "Property Verification"],
+      newRequiredDocuments: ["digital cadastral map"],
+      changedFields: ["cadastralZone", "propertyNumber", "boundaryCoordinates"],
+      reason:
+        "Synthetic demo update: cadastral verification now requires a digital cadastral map to reduce boundary disputes.",
+      source: "challenge-diagrams"
+    },
+    {
+      id: "owner-notification-proof-required",
+      effectiveDate: "2026-02-15",
+      title: "Proof of delivery required for owner notifications",
+      appliesToProcessTypes: ["expropriation"],
+      appliesToPhases: ["Owner Notification", "Legal Decision"],
+      newRequiredDocuments: ["proof of delivery", "objection deadline notice"],
+      changedFields: ["notificationDate", "deliveryMethod", "objectionDeadline"],
+      reason:
+        "Synthetic demo update: expropriation dossiers must document owner notification and objection deadline.",
+      source: "challenge-diagrams"
+    },
+    {
+      id: "ekb-payment-history-required",
+      effectiveDate: "2026-03-01",
+      title: "EKB payment history must be attached before contract preparation",
+      appliesToProcessTypes: ["ekb-privatization"],
+      appliesToPhases: ["Beneficiary Verification", "Contract Preparation"],
+      newRequiredDocuments: ["payment history confirmation"],
+      changedFields: ["paymentHistory", "beneficiaryStatus"],
+      reason:
+        "Synthetic demo update: payment history is required before preparing privatization contracts.",
+      source: "challenge-diagrams"
+    },
+    {
+      id: "valuation-market-appendix-required",
+      effectiveDate: "2026-04-01",
+      title: "Valuation report must include market comparison appendix",
+      appliesToProcessTypes: ["property-registration", "expropriation"],
+      appliesToPhases: ["Property Valuation", "Valuation and Compensation"],
+      newRequiredDocuments: ["market comparison appendix", "valuation methodology note"],
+      changedFields: ["valuationMethod", "marketComparableProperties", "valuationDate"],
+      reason:
+        "Synthetic demo update: valuation phases now require a market comparison appendix to make compensation and property value decisions auditable.",
+      source: "challenge-diagrams"
+    }
+  ],
+
+  propertyWatchlist: [
+    {
+      propertyNumber: "P-102/44",
+      type: "demolition-risk",
+      severity: "critical",
+      title: "Municipal demolition review signal",
+      message:
+        "This property is on a synthetic municipal review list for possible demolition or structural intervention.",
+      recommendedAction:
+        "Notify the assigned civil servant and request construction permit, structural safety certificate, and municipal inspection note."
+    },
+    {
+      propertyNumber: "P-210/4",
+      type: "public-project-risk",
+      severity: "high",
+      title: "Possible road project impact",
+      message:
+        "This property is on a synthetic infrastructure watchlist and may be affected by a road expansion corridor.",
+      recommendedAction:
+        "Check project map, affected property list, and owner notification requirements before advancing."
+    }
+  ],
+
+  propertyAlertRules: [
+    {
+      id: "demolition-risk-unsafe-building",
+      severity: "critical",
+      type: "demolition-risk",
+      triggers: {
+        propertyTypes: ["house", "commercial"],
+        locations: ["Prishtina", "Durres", "Vlore"],
+        missingFields: ["structural safety certificate", "construction permit"],
+        keywords: ["unsafe", "demolition", "structural risk", "illegal construction"]
+      },
+      title: "Possible demolition or structural-risk action",
+      message:
+        "This property may require urgent review because demolition/structural-risk indicators were detected.",
+      recommendedAction:
+        "Notify the responsible officer, request construction permit and structural safety certificate, and block final approval until reviewed."
+    },
+    {
+      id: "public-project-expropriation-risk",
+      severity: "high",
+      type: "public-project-risk",
+      triggers: {
+        propertyTypes: ["land", "house"],
+        locations: ["Prishtina", "Tirana", "Durres"],
+        missingFields: ["project map", "public interest request"],
+        keywords: ["road project", "infrastructure", "public interest", "expropriation"]
+      },
+      title: "Possible public-project or expropriation impact",
+      message:
+        "The property may be affected by a public project or expropriation workflow.",
+      recommendedAction:
+        "Check project map, affected property list, and owner notification requirements."
+    }
+  ]
 };
+
+export function findProcessTemplate(processType) {
+  return Object.values(ALBANIAN_LEGAL_BASIS.processTemplates).find(
+    (template) => template.id === processType
+  );
+}
+
+export function getLegalBasisForProcess(processType) {
+  const template = findProcessTemplate(processType);
+  if (!template) return [];
+
+  return template.legalBasis
+    .map((id) => ALBANIAN_LEGAL_BASIS.laws.find((law) => law.id === id))
+    .filter(Boolean);
+}
