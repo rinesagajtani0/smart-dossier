@@ -1,5 +1,6 @@
 import { formatAlbanianDate } from '../utils/date';
 import { RoleCapabilityCard } from './RoleCapabilityCard';
+import { SubmittedApplicationsQueue } from './SubmittedApplicationsQueue';
 import type { StaffDossier, StaffWorkbench } from '../services/roleService';
 import './StaffRoleSection.css';
 
@@ -22,6 +23,8 @@ function riskClass(riskLevel: string): string {
 export function StaffRoleSection({ dossiers, selectedDossier, onSelectDossier, workbench }: StaffRoleSectionProps) {
   return (
     <div className="staff-role-section">
+      <SubmittedApplicationsQueue dossiers={dossiers} />
+
       <h2 className="staff-role-section__title">Work Queue</h2>
       <section className="roles-page__split">
         <div className="roles-page__panel">

@@ -86,12 +86,6 @@
   color: var(--text-h);
 }
 
-.document-upload-page__success-title {
-  margin: 0;
-  font-size: 18px;
-  color: var(--text-h);
-}
-
 .document-upload-page__success-link {
   align-self: flex-start;
   font-size: 14px;

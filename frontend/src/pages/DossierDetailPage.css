@@ -50,6 +50,27 @@
   line-height: 150%;
 }
 
+.dossier-detail__extracted-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  font-size: 14px;
+}
+
+.dossier-detail__extracted-grid span {
+  color: var(--text);
+}
+
+.dossier-detail__extracted-grid strong {
+  color: var(--text-h);
+}
+
+.dossier-detail__missing-fields {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #b45309;
+}
+
 .dossier-detail__tags {
   display: flex;
   flex-wrap: wrap;

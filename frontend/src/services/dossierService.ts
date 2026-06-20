@@ -14,6 +14,7 @@ import { formatAlbanianDate } from '../utils/date';
 import { patchJson, postJson, postMultipartWithProgress, request } from './apiClient';
 import type { ExtractedDocumentData } from './nlpService';
 import { showToast } from './toastService';
+import { emitDossierUpdated } from './dossierEvents';
 
 export interface ApiLegalAdaptation {
   adapted?: boolean;
@@ -183,6 +184,11 @@ function mapDossier(dossier: ApiDossier): Dossier {
     changedFields: dossier.alerts?.changedFields ?? [],
     legalChangeImpact: mapLegalChangeImpact(dossier.legalChangeImpact),
     propertyNumber: dossier.propertyNumber ?? null,
+    applicantName: dossier.applicantName ?? null,
+    ownerName: dossier.ownerName ?? null,
+    cadastralZone: dossier.cadastralZone ?? null,
+    propertyLocation: dossier.propertyLocation ?? null,
+    missingFields,
   };
 }
 
@@ -205,7 +211,10 @@ export interface CreateDossierInput {
   propertyNumber?: string;
   cadastralZone?: string;
   propertyType?: string;
-  phase?: Phase;
+  // The backend column is a free string (every process type defines its own
+  // phase names — see ProcessStep), not limited to the 5-value Phase union
+  // used for known UI phases elsewhere in this app.
+  phase?: string;
   institution?: string;
   status?: CaseStatus;
   deadline?: string;
@@ -224,6 +233,7 @@ export async function createDossier(input: CreateDossierInput): Promise<Dossier>
 export async function updateDossier(id: string, patch: UpdateDossierInput): Promise<Dossier> {
   const dossier = await patchJson<ApiDossier>(`/dossiers/${id}`, patch);
   notifyLegalAdaptation(dossier.legalAdaptation);
+  emitDossierUpdated(id);
   return mapDossier(dossier);
 }
 

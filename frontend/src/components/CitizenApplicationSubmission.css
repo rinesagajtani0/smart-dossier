@@ -1,0 +1,59 @@
+.citizen-application-submission {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.citizen-application-submission--submitted {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.citizen-application-submission__title {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.citizen-application-submission p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.citizen-application-submission__documents {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.citizen-application-submission__documents li::before {
+  content: '📄 ';
+}
+
+.citizen-application-submission__submit-button {
+  align-self: flex-start;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.citizen-application-submission__hint {
+  font-size: 13px;
+  color: var(--text);
+}

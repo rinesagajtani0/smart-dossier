@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getManagerDashboard } from '../services/roleService';
+import { subscribeToDossierUpdates } from '../services/dossierEvents';
 import type { ManagerDashboard } from '../services/roleService';
 
 interface UseManagerDashboardResult {
@@ -16,19 +17,26 @@ export function useManagerDashboard(): UseManagerDashboardResult {
   useEffect(() => {
     let isMounted = true;
 
-    getManagerDashboard()
-      .then((data) => {
-        if (isMounted) setManagerDashboard(data);
-      })
-      .catch(() => {
-        if (isMounted) setError('Failed to load manager dashboard data.');
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
+    function load(showLoading: boolean) {
+      if (showLoading) setLoading(true);
+      getManagerDashboard()
+        .then((data) => {
+          if (isMounted) setManagerDashboard(data);
+        })
+        .catch(() => {
+          if (isMounted) setError('Failed to load manager dashboard data.');
+        })
+        .finally(() => {
+          if (isMounted && showLoading) setLoading(false);
+        });
+    }
+
+    load(true);
+    const unsubscribe = subscribeToDossierUpdates(() => load(false));
 
     return () => {
       isMounted = false;
+      unsubscribe();
     };
   }, []);
 

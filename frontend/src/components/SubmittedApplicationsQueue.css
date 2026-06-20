@@ -1,0 +1,12 @@
+.submitted-applications-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.submitted-applications-queue__hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
