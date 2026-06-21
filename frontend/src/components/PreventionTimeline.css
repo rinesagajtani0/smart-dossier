@@ -1,0 +1,117 @@
+.prevention-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.prevention-timeline__step {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  opacity: 0;
+  animation: prevention-timeline-step-in 0.4s ease forwards;
+  animation-delay: var(--step-delay, 0ms);
+}
+
+.prevention-timeline__step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: calc(50% + 22px);
+  width: calc(100% - 30px);
+  height: 2px;
+  background: var(--border);
+}
+
+.prevention-timeline__marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--code-bg);
+  color: var(--text-h);
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.prevention-timeline__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.prevention-timeline__step--complete .prevention-timeline__marker {
+  background: rgba(21, 128, 61, 0.16);
+  color: #15803d;
+}
+
+.prevention-timeline__step--complete .prevention-timeline__label {
+  color: #15803d;
+}
+
+.prevention-timeline__step--bottleneck .prevention-timeline__marker {
+  background: rgba(180, 83, 9, 0.18);
+  color: #b45309;
+  animation: prevention-timeline-pulse 1.1s ease-in-out infinite;
+}
+
+.prevention-timeline__step--bottleneck .prevention-timeline__label {
+  color: #b45309;
+  font-weight: 700;
+}
+
+@keyframes prevention-timeline-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes prevention-timeline-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(180, 83, 9, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(180, 83, 9, 0.12);
+  }
+}
+
+@media (max-width: 760px) {
+  .prevention-timeline {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+
+  .prevention-timeline__step {
+    flex: 1 1 28%;
+  }
+
+  .prevention-timeline__step::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prevention-timeline__step,
+  .prevention-timeline__step--bottleneck .prevention-timeline__marker {
+    animation: none;
+    opacity: 1;
+  }
+}

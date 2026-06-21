@@ -1,0 +1,62 @@
+.prevention-completion-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 22px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.prevention-completion-bar__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.prevention-completion-bar__count {
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.prevention-completion-bar__track {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+.prevention-completion-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #15803d);
+  animation: prevention-completion-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.prevention-completion-bar__percent {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  align-self: flex-end;
+}
+
+@keyframes prevention-completion-grow {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--target-width);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prevention-completion-bar__fill {
+    animation: none;
+    width: var(--target-width);
+  }
+}

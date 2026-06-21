@@ -1,0 +1,129 @@
+.prevention-pulse-illustration {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 280px;
+}
+
+.prevention-pulse-illustration__network {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.prevention-pulse-illustration__line {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 22px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--accent-border) 0 6px, transparent 6px 12px);
+}
+
+.prevention-pulse-illustration__pulse {
+  position: absolute;
+  top: 22px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px 3px var(--accent-border);
+  transform: translate(0, -50%);
+  animation: prevention-pulse-travel 3.4s ease-in-out infinite;
+}
+
+.prevention-pulse-illustration__node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: prevention-node-in 0.4s ease both;
+  animation-delay: var(--node-delay, 0s);
+}
+
+.prevention-pulse-illustration__node-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.prevention-pulse-illustration__node-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.prevention-pulse-illustration__ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.prevention-pulse-illustration__ai-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: prevention-pulse-blink 1.3s ease-in-out infinite;
+}
+
+@keyframes prevention-pulse-travel {
+  0% {
+    left: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes prevention-node-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes prevention-pulse-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prevention-pulse-illustration__pulse,
+  .prevention-pulse-illustration__ai-dot,
+  .prevention-pulse-illustration__node {
+    animation: none;
+  }
+}

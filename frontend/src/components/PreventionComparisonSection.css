@@ -1,0 +1,116 @@
+.prevention-comparison {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.prevention-comparison__card {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px 24px;
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
+  animation: prevention-comparison-in 0.45s ease both;
+}
+
+.prevention-comparison__card--without {
+  border: 1px solid rgba(185, 28, 28, 0.3);
+  background: rgba(185, 28, 28, 0.06);
+  animation-delay: 0ms;
+}
+
+.prevention-comparison__card--with {
+  border: 1px solid rgba(21, 128, 61, 0.3);
+  background: rgba(21, 128, 61, 0.06);
+  animation-delay: 120ms;
+}
+
+.prevention-comparison__card h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.prevention-comparison__card--without h3 {
+  color: #b91c1c;
+}
+
+.prevention-comparison__card--with h3 {
+  color: #15803d;
+}
+
+.prevention-comparison__card ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prevention-comparison__card li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.prevention-comparison__card--without li span {
+  color: #b91c1c;
+}
+
+.prevention-comparison__card--with li span {
+  color: #15803d;
+}
+
+.prevention-comparison__arrow {
+  flex: 0 0 auto;
+  font-size: 22px;
+  color: var(--accent);
+  animation: prevention-comparison-arrow 1.6s ease-in-out infinite;
+}
+
+@keyframes prevention-comparison-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes prevention-comparison-arrow {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+@media (max-width: 700px) {
+  .prevention-comparison {
+    flex-direction: column;
+  }
+
+  .prevention-comparison__arrow {
+    transform: rotate(90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prevention-comparison__card,
+  .prevention-comparison__arrow {
+    animation: none;
+  }
+}

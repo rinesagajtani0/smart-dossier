@@ -1,0 +1,63 @@
+.animated-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(155deg, var(--surface) 0%, var(--accent-bg) 130%);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  animation: animated-stat-card-in 0.5s ease both;
+  animation-delay: var(--entrance-delay, 0ms);
+}
+
+.animated-stat-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-border);
+  box-shadow: 0 16px 28px -8px rgba(170, 59, 255, 0.25);
+}
+
+.animated-stat-card__icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.animated-stat-card__value {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+}
+
+.animated-stat-card__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.animated-stat-card__caption {
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.8;
+}
+
+@keyframes animated-stat-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-stat-card {
+    animation: none;
+  }
+}
