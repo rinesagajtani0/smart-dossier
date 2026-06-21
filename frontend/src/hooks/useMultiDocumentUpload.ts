@@ -8,6 +8,7 @@ export interface DocumentUploadState {
   status: UploadStatus;
   progress: number;
   fileName: string | null;
+  fileSize: number | null;
   result: UploadedDocumentResult | null;
   error: string | null;
 }
@@ -16,6 +17,7 @@ const IDLE_STATE: DocumentUploadState = {
   status: 'idle',
   progress: 0,
   fileName: null,
+  fileSize: null,
   result: null,
   error: null,
 };
@@ -23,6 +25,7 @@ const IDLE_STATE: DocumentUploadState = {
 interface UseMultiDocumentUploadResult {
   getState: (documentName: string) => DocumentUploadState;
   upload: (documentName: string, dossierId: string, file: File) => void;
+  clear: (documentName: string) => void;
 }
 
 // One dossier, many required documents: each upload box needs its own
@@ -39,7 +42,14 @@ export function useMultiDocumentUpload(): UseMultiDocumentUploadResult {
   const upload = useCallback((documentName: string, dossierId: string, file: File) => {
     setUploads((prev) => ({
       ...prev,
-      [documentName]: { status: 'uploading', progress: 0, fileName: file.name, result: null, error: null },
+      [documentName]: {
+        status: 'uploading',
+        progress: 0,
+        fileName: file.name,
+        fileSize: file.size,
+        result: null,
+        error: null,
+      },
     }));
 
     uploadDossierDocument(dossierId, file, (percent) => {
@@ -67,7 +77,19 @@ export function useMultiDocumentUpload(): UseMultiDocumentUploadResult {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const clear = useCallback(
+    (documentName: string) => {
+      setUploads((prev) => {
+        const next = { ...prev };
+        delete next[documentName];
+        return next;
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   const getState = useCallback((documentName: string) => uploads[documentName] ?? IDLE_STATE, [uploads]);
 
-  return { getState, upload };
+  return { getState, upload, clear };
 }

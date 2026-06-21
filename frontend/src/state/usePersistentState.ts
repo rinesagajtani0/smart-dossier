@@ -16,10 +16,14 @@ export function usePersistentState<T>(
   key: string,
   initialValue: T
 ): [T, (value: SetStateAction<T>) => void, () => void] {
-  const store = useContext(WorkflowStateContext);
-  if (!store) {
+  const context = useContext(WorkflowStateContext);
+  if (!context) {
     throw new Error('usePersistentState must be used within a WorkflowStateProvider');
   }
+  // Re-bound to a new const so the null-check above stays narrowed inside
+  // the nested closures below — TS doesn't carry narrowing for a variable
+  // captured by a function declaration the way it does for a fresh binding.
+  const store = context;
 
   // Read-only at init time — writing the store during render (even inside
   // a lazy initializer) isn't safe under React's rules. If the key was

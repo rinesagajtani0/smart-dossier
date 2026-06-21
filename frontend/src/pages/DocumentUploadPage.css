@@ -1,8 +1,8 @@
 .document-upload-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 800px;
+  gap: 26px;
+  max-width: 1100px;
 }
 
 .document-upload-page__back {
@@ -10,45 +10,107 @@
   color: var(--accent);
   text-decoration: none;
   align-self: flex-start;
+  transition: transform 0.15s ease;
 }
 
-.document-upload-page__header {
-  text-align: left;
+.document-upload-page__back:hover {
+  transform: translateX(-2px);
 }
 
-.document-upload-page__header h1 {
-  font-size: 28px;
-  margin: 0 0 6px;
+.document-upload-page__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 32px 36px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 0% 0%, var(--accent-bg), transparent 60%),
+    linear-gradient(160deg, var(--surface) 0%, var(--bg) 100%);
+  box-shadow: var(--shadow);
+  animation: document-upload-page-in 0.5s ease both;
 }
 
-.document-upload-page__header p {
-  font-size: 14px;
+.document-upload-page__hero-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.document-upload-page__hero h1 {
+  font-size: 30px;
+  margin: 4px 0 0;
+}
+
+.document-upload-page__hero p {
+  max-width: 600px;
+  font-size: 15px;
+  line-height: 1.6;
   color: var(--text);
+}
+
+.document-upload-page__layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.document-upload-page__layout--split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.document-upload-page__main {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+  animation: document-upload-page-in 0.5s ease both;
+  animation-delay: 0.08s;
 }
 
 .document-upload-page__dossier-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-width: 240px;
+  gap: 8px;
+  max-width: 260px;
 }
 
 .document-upload-page__dossier-field span {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--text);
 }
 
 .document-upload-page__dossier-field input {
-  padding: 10px 12px;
+  padding: 11px 14px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   font-family: inherit;
   color: var(--text-h);
   background: var(--bg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.document-upload-page__dossier-field input:hover {
+  border-color: var(--accent-border);
+}
+
+.document-upload-page__dossier-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .document-upload-page__dossier-field small {
@@ -57,9 +119,9 @@
 }
 
 .document-upload-page__required-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 18px;
 }
 
 .document-upload-page__status {
@@ -70,6 +132,21 @@
   color: #b91c1c;
 }
 
+.document-upload-page__status--success {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.document-upload-page__ready {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
 .document-upload-page__success {
   display: flex;
   flex-direction: column;
@@ -78,6 +155,7 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .document-upload-page__success p {
@@ -92,4 +170,42 @@
   font-weight: 700;
   color: var(--accent);
   text-decoration: none;
+}
+
+@keyframes document-upload-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .document-upload-page__layout--split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .document-upload-page__hero {
+    padding: 24px 22px;
+  }
+
+  .document-upload-page__hero h1 {
+    font-size: 24px;
+  }
+
+  .document-upload-page__required-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .document-upload-page__hero,
+  .document-upload-page__main {
+    animation: none;
+  }
 }
