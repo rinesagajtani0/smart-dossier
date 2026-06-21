@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { ExtractionResultPanel } from '../components/ExtractionResultPanel';
 import { DossierExtractionReview } from '../components/DossierExtractionReview';
 import { useNlpExtraction } from '../hooks/useNlpExtraction';
 import { usePersistentState } from '../state/usePersistentState';
+import { isApplicationSubmitted } from '../hooks/useApplicationSubmission';
+import { isExtractionConfirmed } from '../hooks/useExtractionConfirmation';
 import { getStaffDossiers } from '../services/roleService';
 import type { StaffDossier } from '../services/roleService';
 import './NlpExtractionPage.css';
@@ -20,24 +22,29 @@ export function NlpExtractionPage() {
   // to looking it up, so the dossier-review flow still works either way.
   const stateDossier = (location.state as { dossier?: StaffDossier } | null)?.dossier ?? null;
 
+  const [staffDossiers, setStaffDossiers] = useState<StaffDossier[]>(stateDossier ? [stateDossier] : []);
   const [queueDossier, setQueueDossier] = useState<StaffDossier | null>(stateDossier);
-  const [queueDossierLoading, setQueueDossierLoading] = useState(Boolean(!stateDossier && dossierIdParam));
+  const [queueDossierLoading, setQueueDossierLoading] = useState(true);
   const [queueDossierError, setQueueDossierError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (stateDossier || !dossierIdParam) return;
     let mounted = true;
-    setQueueDossierLoading(true);
 
     getStaffDossiers()
       .then((list) => {
         if (!mounted) return;
-        const found = list.find((item) => String(item.id) === dossierIdParam) ?? null;
-        setQueueDossier(found);
-        if (!found) setQueueDossierError('Could not find that dossier in the staff queue.');
+        setStaffDossiers(list);
+        setQueueDossierError(null);
+
+        const routeDossier =
+          stateDossier ?? (dossierIdParam ? list.find((item) => String(item.id) === dossierIdParam) ?? null : null);
+        setQueueDossier(routeDossier);
+        if (dossierIdParam && !routeDossier) {
+          setQueueDossierError('Could not find that dossier in the staff queue.');
+        }
       })
       .catch((err) => {
-        if (mounted) setQueueDossierError(err instanceof Error ? err.message : 'Could not load dossier.');
+        if (mounted) setQueueDossierError(err instanceof Error ? err.message : 'Could not load submitted applications.');
       })
       .finally(() => {
         if (mounted) setQueueDossierLoading(false);
@@ -47,6 +54,14 @@ export function NlpExtractionPage() {
       mounted = false;
     };
   }, [dossierIdParam, stateDossier]);
+
+  const submittedDossiers = useMemo(
+    () =>
+      staffDossiers.filter(
+        (dossier) => isApplicationSubmitted(String(dossier.id)) && !isExtractionConfirmed(String(dossier.id)),
+      ),
+    [staffDossiers],
+  );
 
   const [documentId, setDocumentId] = usePersistentState('nlp-extraction:documentId', initialDocumentId);
   const { result, loading, error, extract } = useNlpExtraction();
@@ -82,7 +97,7 @@ export function NlpExtractionPage() {
         </p>
       </header>
 
-      {queueDossierLoading && <p className="nlp-extraction-page__status">Loading dossier…</p>}
+      {queueDossierLoading && <p className="nlp-extraction-page__status">Loading submitted applications…</p>}
       {queueDossierError && (
         <p className="nlp-extraction-page__status nlp-extraction-page__status--error">{queueDossierError}</p>
       )}
@@ -91,6 +106,35 @@ export function NlpExtractionPage() {
         <DossierExtractionReview dossier={queueDossier} />
       ) : (
         <>
+          {submittedDossiers.length > 0 && (
+            <section className="nlp-extraction-page__queue">
+              <div className="nlp-extraction-page__queue-header">
+                <div>
+                  <h2>Submitted Applications</h2>
+                  <p>Select an application to automatically load its latest uploaded document.</p>
+                </div>
+                <span>{submittedDossiers.length} awaiting review</span>
+              </div>
+
+              <div className="nlp-extraction-page__queue-list">
+                {submittedDossiers.map((dossier) => (
+                  <button
+                    key={dossier.id}
+                    type="button"
+                    className="nlp-extraction-page__queue-item"
+                    onClick={() => setQueueDossier(dossier)}
+                  >
+                    <span>
+                      <strong>{dossier.trackingCode}</strong>
+                      {dossier.title}
+                    </span>
+                    <span>{dossier.riskLevel} risk</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
           <form className="nlp-extraction-page__form" onSubmit={handleSubmit}>
             <label>
               <span>Document ID</span>
@@ -105,7 +149,7 @@ export function NlpExtractionPage() {
             <button type="submit" disabled={loading || !documentId}>
               {loading ? 'Extracting…' : 'Extract Fields'}
             </button>
-            <small>Upload a document first, or enter an existing document ID.</small>
+            <small>Advanced fallback: enter a document ID only. Submitted applications above use dossier IDs and resolve the document automatically.</small>
           </form>
 
           {error && <p className="nlp-extraction-page__status nlp-extraction-page__status--error">{error}</p>}
