@@ -24,50 +24,61 @@ export function WorkflowPage() {
       </header>
 
       <div className="workflow-page__grid">
-        <WorkflowStepCard {...procedureGenerator}>
-          <ol className="workflow-preview__chip-list">
-            {DEMO_PROCEDURE_PHASES.map((phase) => (
-              <li key={phase}>{phase}</li>
-            ))}
-          </ol>
-          <Link to="/procedure-generator" className="workflow-preview__try-it">
-            Try it →
-          </Link>
-        </WorkflowStepCard>
+        {/* Citizen-only intake tools — staff/manager work from already-
+            submitted dossiers, not this flow. Same gating as /procedure-
+            generator and /document-upload themselves. */}
+        <Can permission="use-procedure-generator">
+          <WorkflowStepCard {...procedureGenerator}>
+            <ol className="workflow-preview__chip-list">
+              {DEMO_PROCEDURE_PHASES.map((phase) => (
+                <li key={phase}>{phase}</li>
+              ))}
+            </ol>
+            <Link to="/procedure-generator" className="workflow-preview__try-it">
+              Try it →
+            </Link>
+          </WorkflowStepCard>
+        </Can>
 
-        <WorkflowStepCard {...documentUpload}>
-          <div className="workflow-preview__files">
-            {DEMO_UPLOADED_FILES.map((file) => (
-              <span key={file.fileName} className="workflow-preview__file">
-                {file.fileName}
-                <em>{file.status}</em>
-              </span>
-            ))}
-          </div>
-          <Link to="/document-upload" className="workflow-preview__try-it">
-            Try it →
-          </Link>
-        </WorkflowStepCard>
+        <Can permission="upload-documents">
+          <WorkflowStepCard {...documentUpload}>
+            <div className="workflow-preview__files">
+              {DEMO_UPLOADED_FILES.map((file) => (
+                <span key={file.fileName} className="workflow-preview__file">
+                  {file.fileName}
+                  <em>{file.status}</em>
+                </span>
+              ))}
+            </div>
+            <Link to="/document-upload" className="workflow-preview__try-it">
+              Try it →
+            </Link>
+          </WorkflowStepCard>
+        </Can>
 
-        <WorkflowStepCard {...nlpExtraction}>
-          <dl className="workflow-preview__kv">
-            <div>
-              <dt>Applicant</dt>
-              <dd>{DEMO_EXTRACTED_FIELDS.applicant}</dd>
-            </div>
-            <div>
-              <dt>Property Number</dt>
-              <dd>{DEMO_EXTRACTED_FIELDS.propertyNumber}</dd>
-            </div>
-            <div>
-              <dt>Confidence</dt>
-              <dd>{DEMO_EXTRACTED_FIELDS.confidence}</dd>
-            </div>
-          </dl>
-          <Link to="/nlp-extraction" className="workflow-preview__try-it">
-            Try it →
-          </Link>
-        </WorkflowStepCard>
+        {/* Preview shows internal extraction confidence — staff/manager
+            only, same as the /nlp-extraction route itself. */}
+        <Can permission="view-nlp-extraction">
+          <WorkflowStepCard {...nlpExtraction}>
+            <dl className="workflow-preview__kv">
+              <div>
+                <dt>Applicant</dt>
+                <dd>{DEMO_EXTRACTED_FIELDS.applicant}</dd>
+              </div>
+              <div>
+                <dt>Property Number</dt>
+                <dd>{DEMO_EXTRACTED_FIELDS.propertyNumber}</dd>
+              </div>
+              <div>
+                <dt>Confidence</dt>
+                <dd>{DEMO_EXTRACTED_FIELDS.confidence}</dd>
+              </div>
+            </dl>
+            <Link to="/nlp-extraction" className="workflow-preview__try-it">
+              Try it →
+            </Link>
+          </WorkflowStepCard>
+        </Can>
 
         {/* Preview shows internal case IDs/similarity scores — staff/manager
             only, same as the /case-memory route itself. */}
@@ -121,9 +132,11 @@ export function WorkflowPage() {
       </div>
 
       <footer className="workflow-page__cta">
-        <Link to="/dashboard" className="workflow-page__cta-button">
-          Go to Operations Dashboard
-        </Link>
+        <Can permission="view-dashboard">
+          <Link to="/dashboard" className="workflow-page__cta-button">
+            Go to Operations Dashboard
+          </Link>
+        </Can>
         <Link to="/roles" className="workflow-page__cta-button workflow-page__cta-button--secondary">
           View Role Demos
         </Link>

@@ -18,6 +18,9 @@ interface RecommendationCardProps {
   onPrimaryAction: () => void;
   onSecondaryAction: () => void;
   delay?: number;
+  // Citizens see the same recommendation detail but can't action it
+  // themselves — that's a staff/manager operation. See PreventDelayPage.
+  readOnly?: boolean;
 }
 
 const SEVERITY_ICON: Record<RecommendationSeverity, string> = {
@@ -51,6 +54,7 @@ export function RecommendationCard({
   onPrimaryAction,
   onSecondaryAction,
   delay = 0,
+  readOnly = false,
 }: RecommendationCardProps) {
   const [open, setOpen] = useState(false);
   const isCompleted = status === 'completed';
@@ -119,6 +123,10 @@ export function RecommendationCard({
 
           {isCompleted ? (
             <p className="recommendation-card__resolved">✓ Action completed — delay risk recalculated.</p>
+          ) : readOnly ? (
+            <p className="recommendation-card__readonly-note">
+              <span aria-hidden="true">👁</span> View only — staff will action this recommendation.
+            </p>
           ) : (
             <div className="recommendation-card__actions">
               <button

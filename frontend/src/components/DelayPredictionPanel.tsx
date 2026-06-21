@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import type { DelayPrediction } from '../services/dossierService';
 import type { RiskLevel } from '../types/dossier';
+import { usePermissions } from '../auth/usePermissions';
 import { RiskLevelBadge } from './RiskLevelBadge';
 import { WarningBanner } from './WarningBanner';
 import { ProcedureResultSection } from './ProcedureResultSection';
@@ -14,7 +16,15 @@ const WARNING_MESSAGES: Partial<Record<RiskLevel, string>> = {
   medium: 'Some risk of delay — keep a close eye on this dossier.',
 };
 
+// This panel only ever renders for staff or manager (citizens get
+// CitizenDelayPredictionPanel instead — see DelayPredictionPage), so the
+// only distinction left to make here is staff vs. manager: staff
+// investigates and reviews the risk, manager makes the call on intervention.
 export function DelayPredictionPanel({ prediction }: DelayPredictionPanelProps) {
+  const { can } = usePermissions();
+  const isManager = can('view-manager-reports');
+  const [primaryActionDone, setPrimaryActionDone] = useState(false);
+  const [secondaryActionDone, setSecondaryActionDone] = useState(false);
   const warningMessage = WARNING_MESSAGES[prediction.risk];
 
   return (
@@ -66,6 +76,55 @@ export function DelayPredictionPanel({ prediction }: DelayPredictionPanelProps) 
           </div>
         </div>
       )}
+
+      <div
+        className={`delay-prediction-panel__role-actions delay-prediction-panel__role-actions--${isManager ? 'manager' : 'staff'}`}
+      >
+        <h3 className="delay-prediction-panel__role-actions-title">
+          {isManager ? 'Manager Decision' : 'Staff Review'}
+        </h3>
+        <div className="delay-prediction-panel__role-actions-buttons">
+          {isManager ? (
+            <>
+              <button
+                type="button"
+                className="delay-prediction-panel__action-button delay-prediction-panel__action-button--primary"
+                onClick={() => setPrimaryActionDone(true)}
+                disabled={primaryActionDone}
+              >
+                {primaryActionDone ? 'Intervention Approved' : 'Approve Intervention Plan'}
+              </button>
+              <button
+                type="button"
+                className="delay-prediction-panel__action-button delay-prediction-panel__action-button--secondary"
+                onClick={() => setSecondaryActionDone(true)}
+                disabled={secondaryActionDone}
+              >
+                {secondaryActionDone ? 'Escalated to Legal Review' : 'Escalate to Legal Review'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="delay-prediction-panel__action-button delay-prediction-panel__action-button--primary"
+                onClick={() => setPrimaryActionDone(true)}
+                disabled={primaryActionDone}
+              >
+                {primaryActionDone ? 'Risk Reviewed' : 'Mark Risk Reviewed'}
+              </button>
+              <button
+                type="button"
+                className="delay-prediction-panel__action-button delay-prediction-panel__action-button--secondary"
+                onClick={() => setSecondaryActionDone(true)}
+                disabled={secondaryActionDone}
+              >
+                {secondaryActionDone ? 'Flagged for Manager' : 'Flag for Manager Review'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

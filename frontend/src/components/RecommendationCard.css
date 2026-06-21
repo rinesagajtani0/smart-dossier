@@ -340,6 +340,16 @@
   animation: recommendation-check-pop 0.4s ease both;
 }
 
+.recommendation-card__readonly-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--code-bg);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 @keyframes recommendation-status-pulse {
   0%,
   100% {

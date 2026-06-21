@@ -110,6 +110,79 @@
   color: #92400e;
 }
 
+.delay-prediction-panel__role-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+}
+
+.delay-prediction-panel__role-actions-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-h);
+}
+
+.delay-prediction-panel__role-actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.delay-prediction-panel__action-button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.delay-prediction-panel__role-actions--staff .delay-prediction-panel__action-button--primary {
+  background: #b45309;
+  color: #fff;
+}
+
+.delay-prediction-panel__role-actions--staff .delay-prediction-panel__action-button--primary:hover:not(:disabled) {
+  background: #92400e;
+}
+
+.delay-prediction-panel__role-actions--staff .delay-prediction-panel__action-button--secondary {
+  background: transparent;
+  border-color: #b45309;
+  color: #b45309;
+}
+
+.delay-prediction-panel__role-actions--manager .delay-prediction-panel__action-button--primary {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.delay-prediction-panel__role-actions--manager .delay-prediction-panel__action-button--primary:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.delay-prediction-panel__role-actions--manager .delay-prediction-panel__action-button--secondary {
+  background: transparent;
+  border-color: #1d4ed8;
+  color: #1d4ed8;
+}
+
+.delay-prediction-panel__action-button--secondary:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.delay-prediction-panel__action-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 @media (max-width: 600px) {
   .delay-prediction-panel__grid {
     grid-template-columns: 1fr;

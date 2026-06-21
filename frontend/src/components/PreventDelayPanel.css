@@ -40,6 +40,60 @@
   color: var(--text-h);
 }
 
+.prevent-delay-panel__role-actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prevent-delay-panel__action-button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.prevent-delay-panel__role-actions--staff .prevent-delay-panel__action-button--primary {
+  background: #b45309;
+  color: #fff;
+}
+
+.prevent-delay-panel__role-actions--staff .prevent-delay-panel__action-button--primary:hover:not(:disabled) {
+  background: #92400e;
+}
+
+.prevent-delay-panel__role-actions--staff .prevent-delay-panel__action-button--secondary {
+  background: transparent;
+  border-color: #b45309;
+  color: #b45309;
+}
+
+.prevent-delay-panel__role-actions--manager .prevent-delay-panel__action-button--primary {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.prevent-delay-panel__role-actions--manager .prevent-delay-panel__action-button--primary:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.prevent-delay-panel__role-actions--manager .prevent-delay-panel__action-button--secondary {
+  background: transparent;
+  border-color: #1d4ed8;
+  color: #1d4ed8;
+}
+
+.prevent-delay-panel__action-button--secondary:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.prevent-delay-panel__action-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 @keyframes prevent-delay-panel-reveal {
   from {
     opacity: 0;

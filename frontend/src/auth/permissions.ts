@@ -37,8 +37,8 @@ const CITIZEN_PERMISSIONS: Permission[] = [
 ];
 
 const STAFF_PERMISSIONS: Permission[] = [
-  'upload-documents',
-  'use-procedure-generator',
+  // Procedure Generator and Document Upload are Citizen-only — staff/manager
+  // work from already-submitted dossiers, not the citizen intake flow.
   'view-dashboard',
   'view-dossiers',
   'view-nlp-extraction',

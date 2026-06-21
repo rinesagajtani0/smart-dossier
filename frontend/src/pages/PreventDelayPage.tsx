@@ -10,6 +10,7 @@ import { PreventionCompletionBar } from '../components/PreventionCompletionBar';
 import { PreventionTimeline } from '../components/PreventionTimeline';
 import { ProcedureResultSkeleton } from '../components/ProcedureResultSkeleton';
 import { Can } from '../auth/Can';
+import { usePermissions } from '../auth/usePermissions';
 import { usePreventDelay } from '../hooks/usePreventDelay';
 import type { PreventDelayPlan } from '../hooks/usePreventDelay';
 import { usePreventionEngine } from '../hooks/usePreventionEngine';
@@ -27,6 +28,26 @@ const RISK_SAFETY_SCORE: Record<RiskLevel, number> = {
   medium: 65,
   low: 90,
 };
+
+// Manager sees these recommendations as something to sign off on rather
+// than do by hand — same underlying lever (usePreventionEngine.resolveTask),
+// just framed as authorization/escalation instead of a hands-on staff task.
+const MANAGER_PRIMARY_LABELS: Record<string, string> = {
+  'request-document': 'Authorize Document Request',
+  'request-verification': 'Authorize Institution Verification',
+  'notify-citizen': 'Authorize Citizen Notification',
+};
+
+const MANAGER_SECONDARY_LABELS: Record<string, string> = {
+  escalate: 'Approve Escalation',
+  'assign-staff': 'Authorize Staff Reassignment',
+  'schedule-followup': 'Approve Follow-Up Schedule',
+};
+
+function roleLabel(type: string, defaultLabel: string, isManager: boolean, labels: Record<string, string>): string {
+  if (!isManager) return defaultLabel;
+  return labels[type] ?? defaultLabel;
+}
 
 function compliancePercent(remainingMissing: number, nextSteps: number): number {
   const total = remainingMissing + nextSteps;
@@ -46,6 +67,13 @@ export function PreventDelayPage() {
   const { dossierId, setDossierId, hint } = useDefaultDossierId('prevent-delay');
   const { plan, loading, error, preventDelay } = usePreventDelay();
   const engine = usePreventionEngine(dossierId, plan);
+  const { can } = usePermissions();
+  // Citizens reach this page too (their own read-only view) — the
+  // recommendation cards below stay informational for them, and only
+  // staff/manager get the actionable buttons. See CitizenPreventDelayPanel
+  // for the rest of their read-only experience.
+  const canAct = can('use-prevent-delay');
+  const isManager = can('view-manager-reports');
 
   const remainingMissing = plan ? Math.max(0, plan.missingDocuments.length - engine.documentsRecovered) : 0;
   const completedCount = engine.tasks.filter((task) => engine.statuses[task.id] === 'completed').length;
@@ -170,10 +198,11 @@ export function PreventDelayPage() {
                     riskImpactPercent={task.riskImpactPercent}
                     status={engine.statuses[task.id] ?? 'pending'}
                     resolving={engine.resolvingTaskId === task.id}
-                    primaryActionLabel={task.primaryAction.label}
-                    secondaryActionLabel={task.secondaryAction.label}
+                    primaryActionLabel={roleLabel(task.primaryAction.type, task.primaryAction.label, isManager, MANAGER_PRIMARY_LABELS)}
+                    secondaryActionLabel={roleLabel(task.secondaryAction.type, task.secondaryAction.label, isManager, MANAGER_SECONDARY_LABELS)}
                     onPrimaryAction={() => engine.resolveTask(task.id)}
                     onSecondaryAction={() => engine.resolveTask(task.id)}
+                    readOnly={!canAct}
                   />
                 ))}
               </div>
