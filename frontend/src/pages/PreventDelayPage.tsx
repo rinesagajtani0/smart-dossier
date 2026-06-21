@@ -7,7 +7,7 @@ import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
 import './PreventDelayPage.css';
 
 export function PreventDelayPage() {
-  const { dossierId, setDossierId, hint } = useDefaultDossierId();
+  const { dossierId, setDossierId, hint } = useDefaultDossierId('prevent-delay');
   const { plan, loading, error, preventDelay } = usePreventDelay();
 
   return (

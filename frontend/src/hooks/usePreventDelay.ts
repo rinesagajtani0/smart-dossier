@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { generateDossierLetter, getDossierSnapshot } from '../services/dossierService';
 import { getProcessSteps } from '../services/processService';
 import type { RiskLevel } from '../types/dossier';
+import { usePersistentState } from '../state/usePersistentState';
 
 export interface PreventDelayPlan {
   currentRisk: RiskLevel;
@@ -32,7 +33,7 @@ const RISK_DOWNGRADE: Record<RiskLevel, RiskLevel> = {
 };
 
 export function usePreventDelay(): UsePreventDelayResult {
-  const [plan, setPlan] = useState<PreventDelayPlan | null>(null);
+  const [plan, setPlan] = usePersistentState<PreventDelayPlan | null>('prevent-delay:plan', null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,6 +68,7 @@ export function usePreventDelay(): UsePreventDelayResult {
         setError(err instanceof Error ? err.message : 'Could not generate the prevent-delay plan.');
       })
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { plan, loading, error, preventDelay };

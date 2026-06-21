@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { uploadDossierDocument } from '../services/dossierService';
 import type { UploadedDocumentResult } from '../services/dossierService';
 import type { UploadStatus } from './useDocumentUpload';
+import { usePersistentState } from '../state/usePersistentState';
 
 export interface DocumentUploadState {
   status: UploadStatus;
@@ -30,7 +31,10 @@ interface UseMultiDocumentUploadResult {
 // endpoint. Keyed by document name since that's the only identifier each
 // box has (the backend has no per-required-document slot to upload into).
 export function useMultiDocumentUpload(): UseMultiDocumentUploadResult {
-  const [uploads, setUploads] = useState<Record<string, DocumentUploadState>>({});
+  const [uploads, setUploads] = usePersistentState<Record<string, DocumentUploadState>>(
+    'document-upload:multiUploads',
+    {}
+  );
 
   const upload = useCallback((documentName: string, dossierId: string, file: File) => {
     setUploads((prev) => ({
@@ -60,6 +64,7 @@ export function useMultiDocumentUpload(): UseMultiDocumentUploadResult {
           },
         }));
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getState = useCallback((documentName: string) => uploads[documentName] ?? IDLE_STATE, [uploads]);

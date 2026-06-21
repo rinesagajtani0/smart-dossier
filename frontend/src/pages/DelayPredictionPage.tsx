@@ -8,7 +8,7 @@ import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
 import './DelayPredictionPage.css';
 
 export function DelayPredictionPage() {
-  const { dossierId, setDossierId, hint } = useDefaultDossierId();
+  const { dossierId, setDossierId, hint } = useDefaultDossierId('delay-prediction');
   const { prediction, loading, error, search } = useDelayPrediction(dossierId);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {

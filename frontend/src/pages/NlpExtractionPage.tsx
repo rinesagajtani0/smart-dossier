@@ -1,20 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ExtractionResultPanel } from '../components/ExtractionResultPanel';
 import { useNlpExtraction } from '../hooks/useNlpExtraction';
+import { usePersistentState } from '../state/usePersistentState';
 import './NlpExtractionPage.css';
 
 export function NlpExtractionPage() {
   const [searchParams] = useSearchParams();
   const initialDocumentId = searchParams.get('documentId') ?? '';
-  const [documentId, setDocumentId] = useState(initialDocumentId);
+  const [documentId, setDocumentId] = usePersistentState('nlp-extraction:documentId', initialDocumentId);
   const { result, loading, error, extract } = useNlpExtraction();
 
   useEffect(() => {
-    if (initialDocumentId) extract(initialDocumentId);
+    // An explicit ?documentId= link (e.g. from Document Upload) always wins
+    // over whatever's persisted — but only run the extraction if we don't
+    // already have a result for that same document, so coming back to this
+    // page doesn't silently re-trigger a fetch for data we already have.
+    if (!initialDocumentId) return;
+    if (initialDocumentId !== documentId) setDocumentId(initialDocumentId);
+    if (!result || String(result.id) !== initialDocumentId) extract(initialDocumentId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialDocumentId]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

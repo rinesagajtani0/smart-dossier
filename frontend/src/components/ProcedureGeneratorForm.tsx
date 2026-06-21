@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { INTENT_MAPPINGS } from '../services/processService';
 import type { ProcedureGeneratorInput } from '../services/processService';
+import { usePersistentState } from '../state/usePersistentState';
 import './ProcedureGeneratorForm.css';
 
 // Albanian property type terminology (Tokë Bujqësore = agricultural land,
@@ -30,9 +30,9 @@ interface ProcedureGeneratorFormProps {
 }
 
 export function ProcedureGeneratorForm({ onGenerate, loading }: ProcedureGeneratorFormProps) {
-  const [userIntent, setUserIntent] = useState(INTENT_MAPPINGS[0].id);
-  const [municipality, setMunicipality] = useState(MUNICIPALITIES[0]);
-  const [propertyType, setPropertyType] = useState(PROPERTY_TYPES[0]);
+  const [userIntent, setUserIntent] = usePersistentState('procedure-generator:userIntent', INTENT_MAPPINGS[0].id);
+  const [municipality, setMunicipality] = usePersistentState('procedure-generator:municipality', MUNICIPALITIES[0]);
+  const [propertyType, setPropertyType] = usePersistentState('procedure-generator:propertyType', PROPERTY_TYPES[0]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

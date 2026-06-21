@@ -1,5 +1,5 @@
 import { askJson, askText } from "./ai.js";
-import { ALBANIAN_LEGAL_BASIS } from "./albanianLegalBasis.js";
+import { ALBANIAN_LEGAL_BASIS, resolveLegalBasis } from "./albanianLegalBasis.js";
 import { parseJson, toJson } from "./json.js";
 import { normalizePhaseForUi } from "./phaseMap.js";
 import { prisma } from "./prisma.js";
@@ -10,35 +10,40 @@ const LEGAL_RULES = [
     label: "Compliance with Law No. 111/2018 On Cadastre",
     trigger: ["cadastral", "kadastral", "registration", "regjistrim"],
     requiredFields: ["propertyNumber", "cadastralZone", "ownerName", "boundaryCoordinates"],
-    reason: "Law No. 111/2018 requires complete cadastral information for ASHK registration procedures."
+    reason: "Law No. 111/2018 requires complete cadastral information for ASHK registration procedures.",
+    legalBasisIds: ["law-111-2018"]
   },
   {
     id: "law-33-2012-registration",
     label: "Compliance with Law No. 33/2012 On Registration of Immovable Property",
     trigger: ["registration", "regjistrim", "property", "pronë"],
     requiredFields: ["titleDocument", "ownershipProof", "identityDocument", "registrationFee"],
-    reason: "Law No. 33/2012 mandates specific documentation for property registration with ASHK."
+    reason: "Law No. 33/2012 mandates specific documentation for property registration with ASHK.",
+    legalBasisIds: ["law-33-2012"]
   },
   {
     id: "law-9482-2006-legalization",
     label: "Compliance with Law No. 9482/2006 On Legalization of Illegal Constructions",
     trigger: ["legalization", "legalizim", "illegal", "informal"],
     requiredFields: ["selfDeclaration", "constructionDate", "proofOfPossession", "technicalSurvey"],
-    reason: "Law No. 9482/2006 requires self-declaration and technical verification for legalization processes."
+    reason: "Law No. 9482/2006 requires self-declaration and technical verification for legalization processes.",
+    legalBasisIds: ["law-9482-2006"]
   },
   {
     id: "civil-code-ownership",
     label: "Civil Code Compliance for Property Rights",
     trigger: ["ownership", "pronësi", "transfer", "transferim"],
     requiredFields: ["ownerName", "propertyTitle", "acquisitionMode", "legalBasis"],
-    reason: "Albanian Civil Code (1994) establishes property rights and transfer requirements."
+    reason: "Albanian Civil Code (1994) establishes property rights and transfer requirements.",
+    legalBasisIds: ["civil-code"]
   },
   {
     id: "ashk-documentation",
     label: "ASHK Documentation Requirements",
     trigger: ["ashk", "cadastral", "certificate"],
     requiredFields: ["propertyNumber", "cadastralZone", "officialStamp", "registrationDate"],
-    reason: "ASHK requires standardized documentation with official stamps and registration dates."
+    reason: "ASHK requires standardized documentation with official stamps and registration dates.",
+    legalBasisIds: ["law-111-2018", "law-33-2012"]
   }
 ];
 
@@ -184,7 +189,7 @@ Return only JSON with this exact shape:
   "changedFields": [],
   "reason": "",
   "newRequirements": [],
-  "matchedRules": [{ "id": "", "label": "" }]
+  "matchedRules": [{ "id": "", "label": "", "legalBasis": [{ "id": "", "name": "", "title": "" }] }]
 }
 Reference actual Albanian laws: Law No. 111/2018 (On Cadastre), Law No. 33/2012 (On Registration of Immovable Property), Law No. 9482/2006 (On Legalization), and Civil Code (1994).`,
     JSON.stringify({ documentType, documentText: documentText.slice(0, 12000), rules: LEGAL_RULES, albanianContext: ALBANIAN_LEGAL_BASIS }, null, 2),
@@ -193,7 +198,11 @@ Reference actual Albanian laws: Law No. 111/2018 (On Cadastre), Law No. 33/2012 
       changedFields: uniqueChangedFields,
       reason: matchedRules.map((rule) => rule.reason).join(" ") || "Document complies with Albanian property legal requirements.",
       newRequirements: matchedRules.flatMap((rule) => rule.requiredFields),
-      matchedRules: matchedRules.map((rule) => ({ id: rule.id, label: rule.label })),
+      matchedRules: matchedRules.map((rule) => ({
+        id: rule.id,
+        label: rule.label,
+        legalBasis: resolveLegalBasis(rule.legalBasisIds)
+      })),
       legalBasis: ALBANIAN_LEGAL_BASIS.laws.map(law => `${law.name}: ${law.title}`)
     })
   );

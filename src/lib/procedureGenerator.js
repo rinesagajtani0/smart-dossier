@@ -1,6 +1,12 @@
 import { askJson } from "./ai.js";
-import { ALBANIAN_LEGAL_BASIS, getLegalBasisForProcess } from "./albanianLegalBasis.js";
+import { ALBANIAN_LEGAL_BASIS, getLegalBasisForProcess, resolveLegalBasis } from "./albanianLegalBasis.js";
 import { applyLegalUpdatesToProcessStep } from "./legalEngine.js";
+
+function describeCriticalPoint(point) {
+  const basis = resolveLegalBasis(point.legalBasisIds);
+  const citation = basis.length ? ` (Legal basis: ${basis.map((law) => law.name).join(", ")})` : "";
+  return `${point.alert}${citation}`;
+}
 
 function classifyIntent(intent) {
   const value = intent.toLowerCase();
@@ -51,7 +57,7 @@ export async function generateProcedure({ intent = "", municipality = "", proper
     risks: [
       ...ALBANIAN_LEGAL_BASIS.criticalPoints
       .filter((point) => point.processTypes.includes(processTemplate.id))
-        .map((point) => point.alert),
+        .map(describeCriticalPoint),
       ...adaptedSteps
         .filter((step) => step.legalChangeApplies)
         .map((step) => `Legal update applies in ${step.phase}: ${step.addedRequiredDocuments.join(", ") || "field revalidation required"}.`)

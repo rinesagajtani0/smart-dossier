@@ -1,4 +1,13 @@
 export const ALBANIAN_LEGAL_BASIS = {
+  legalContext:
+    "Albanian property procedures (registration, expropriation, and EKB privatization) are administered " +
+    "through ASHK (cadastral verification and ownership certificates), municipalities (intake, citizen " +
+    "communication, and final approval), valuation offices (compensation and market assessments), and legal " +
+    "departments (compliance review and decision drafting). Core legal basis includes Law No. 111/2018 (On " +
+    "Cadastre), Law No. 33/2012 (On Registration of Immovable Property), Law No. 9482/2006 (On Legalization), " +
+    "and the Civil Code, which together govern ownership, registration, valuation, notification, and dossier " +
+    "completeness requirements.",
+
   sources: [
     {
       id: "qbz",
@@ -53,6 +62,15 @@ export const ALBANIAN_LEGAL_BASIS = {
       tags: ["ownership", "transfer", "property-rights"],
       summary:
         "General legal basis for ownership, transfer, and protection of property rights."
+    },
+    {
+      id: "law-9482-2006",
+      name: "Law No. 9482/2006",
+      title: "On the Legalization and Urban Integration of Informal Constructions",
+      source: "qbz",
+      tags: ["legalization", "informal-construction", "self-declaration"],
+      summary:
+        "Legal basis for self-declaration, technical verification, and legalization of informal or illegal constructions."
     },
     {
       id: "expropriation-law",
@@ -291,7 +309,8 @@ export const ALBANIAN_LEGAL_BASIS = {
       risk: "high",
       triggerFields: ["ownership certificate"],
       alert: "Ownership certificate is missing or unclear.",
-      recommendedAction: "Request updated ownership certificate from ASHK before advancing."
+      recommendedAction: "Request updated ownership certificate from ASHK before advancing.",
+      legalBasisIds: ["law-33-2012", "civil-code"]
     },
     {
       id: "missing-valuation-report",
@@ -300,7 +319,8 @@ export const ALBANIAN_LEGAL_BASIS = {
       risk: "high",
       triggerFields: ["valuation report"],
       alert: "Valuation report is missing, which commonly blocks the dossier.",
-      recommendedAction: "Request valuation report and attach it to the dossier today."
+      recommendedAction: "Request valuation report and attach it to the dossier today.",
+      legalBasisIds: ["expropriation-law", "law-33-2012"]
     },
     {
       id: "cadastral-data-unclear",
@@ -309,7 +329,8 @@ export const ALBANIAN_LEGAL_BASIS = {
       risk: "high",
       triggerFields: ["property number", "cadastral zone"],
       alert: "Cadastral identifiers are incomplete or inconsistent.",
-      recommendedAction: "Verify property number and cadastral zone with ASHK."
+      recommendedAction: "Verify property number and cadastral zone with ASHK.",
+      legalBasisIds: ["law-111-2018"]
     },
     {
       id: "owner-notification-risk",
@@ -318,7 +339,8 @@ export const ALBANIAN_LEGAL_BASIS = {
       risk: "high",
       triggerFields: ["proof of delivery", "objection deadline"],
       alert: "Notification delivery or objection deadline is not documented.",
-      recommendedAction: "Generate notification letter and record proof of delivery."
+      recommendedAction: "Generate notification letter and record proof of delivery.",
+      legalBasisIds: ["expropriation-law"]
     },
     {
       id: "ekb-beneficiary-mismatch",
@@ -327,7 +349,8 @@ export const ALBANIAN_LEGAL_BASIS = {
       risk: "medium",
       triggerFields: ["eligibility proof", "payment history"],
       alert: "Beneficiary or payment history information is incomplete.",
-      recommendedAction: "Request eligibility and payment history confirmation from EKB records."
+      recommendedAction: "Request eligibility and payment history confirmation from EKB records.",
+      legalBasisIds: ["ekb-privatization-framework"]
     }
   ],
 
@@ -341,7 +364,7 @@ export const ALBANIAN_LEGAL_BASIS = {
       newRequiredDocuments: ["digital cadastral map"],
       changedFields: ["cadastralZone", "propertyNumber", "boundaryCoordinates"],
       reason:
-        "Synthetic demo update: cadastral verification now requires a digital cadastral map to reduce boundary disputes.",
+        "Curated regulatory scenario modeled on ASHK's shift toward digital cadastral mapping under Law No. 111/2018: cadastral verification now requires a georeferenced digital map to reduce boundary disputes between neighboring parcels.",
       source: "challenge-diagrams"
     },
     {
@@ -353,7 +376,7 @@ export const ALBANIAN_LEGAL_BASIS = {
       newRequiredDocuments: ["proof of delivery", "objection deadline notice"],
       changedFields: ["notificationDate", "deliveryMethod", "objectionDeadline"],
       reason:
-        "Synthetic demo update: expropriation dossiers must document owner notification and objection deadline.",
+        "Curated regulatory scenario reflecting due-process requirements for expropriation: owners must receive a documented notification with proof of delivery and a clearly stated objection deadline before the legal decision phase proceeds.",
       source: "challenge-diagrams"
     },
     {
@@ -365,7 +388,7 @@ export const ALBANIAN_LEGAL_BASIS = {
       newRequiredDocuments: ["payment history confirmation"],
       changedFields: ["paymentHistory", "beneficiaryStatus"],
       reason:
-        "Synthetic demo update: payment history is required before preparing privatization contracts.",
+        "Curated regulatory scenario reflecting EKB practice of requiring verified payment history before drafting privatization contracts, reducing the risk of disputes over outstanding balances after contract signature.",
       source: "challenge-diagrams"
     },
     {
@@ -377,7 +400,7 @@ export const ALBANIAN_LEGAL_BASIS = {
       newRequiredDocuments: ["market comparison appendix", "valuation methodology note"],
       changedFields: ["valuationMethod", "marketComparableProperties", "valuationDate"],
       reason:
-        "Synthetic demo update: valuation phases now require a market comparison appendix to make compensation and property value decisions auditable.",
+        "Curated regulatory scenario reflecting valuation-office practice of attaching a market comparison appendix and methodology note, so compensation and property-value decisions remain auditable and defensible on appeal.",
       source: "challenge-diagrams"
     }
   ],
@@ -447,11 +470,24 @@ export function findProcessTemplate(processType) {
   );
 }
 
+function findLaws(lawIds = []) {
+  return lawIds
+    .map((id) => ALBANIAN_LEGAL_BASIS.laws.find((law) => law.id === id))
+    .filter(Boolean);
+}
+
 export function getLegalBasisForProcess(processType) {
   const template = findProcessTemplate(processType);
   if (!template) return [];
 
-  return template.legalBasis
-    .map((id) => ALBANIAN_LEGAL_BASIS.laws.find((law) => law.id === id))
-    .filter(Boolean);
+  return findLaws(template.legalBasis);
+}
+
+export function resolveLegalBasis(lawIds = []) {
+  return findLaws(lawIds).map((law) => ({
+    id: law.id,
+    name: law.name,
+    title: law.title,
+    source: law.source
+  }));
 }

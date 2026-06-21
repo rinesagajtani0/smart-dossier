@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { uploadDossierDocument } from '../services/dossierService';
 import type { UploadedDocumentResult } from '../services/dossierService';
+import { usePersistentState } from '../state/usePersistentState';
 
 export type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
@@ -14,10 +15,13 @@ interface UseDocumentUploadResult {
 }
 
 export function useDocumentUpload(): UseDocumentUploadResult {
-  const [status, setStatus] = useState<UploadStatus>('idle');
+  // status/result/error persist across navigation (the whole point of this
+  // hook visually "remembering" a finished upload); progress stays local —
+  // it's only meaningful while an upload is actively in flight.
+  const [status, setStatus] = usePersistentState<UploadStatus>('document-upload:status', 'idle');
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<UploadedDocumentResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = usePersistentState<UploadedDocumentResult | null>('document-upload:result', null);
+  const [error, setError] = usePersistentState<string | null>('document-upload:error', null);
 
   const upload = useCallback((dossierId: string, file: File) => {
     setStatus('uploading');
@@ -34,6 +38,7 @@ export function useDocumentUpload(): UseDocumentUploadResult {
         setError(err instanceof Error ? err.message : 'Upload failed.');
         setStatus('error');
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const reset = useCallback(() => {
@@ -41,6 +46,7 @@ export function useDocumentUpload(): UseDocumentUploadResult {
     setProgress(0);
     setResult(null);
     setError(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { status, progress, result, error, upload, reset };

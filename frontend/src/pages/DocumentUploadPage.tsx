@@ -9,13 +9,14 @@ import { useMultiDocumentUpload } from '../hooks/useMultiDocumentUpload';
 import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
 import { useApplicationSubmission } from '../hooks/useApplicationSubmission';
 import { getProcedureSession } from '../services/processService';
+import { usePersistentState } from '../state/usePersistentState';
 import { Can } from '../auth/Can';
 import './DocumentUploadPage.css';
 
 export function DocumentUploadPage() {
   const [searchParams] = useSearchParams();
   const preparedDossierId = searchParams.get('dossierId') ?? undefined;
-  const { dossierId, setDossierId, hint } = useDefaultDossierId(preparedDossierId);
+  const { dossierId, setDossierId, hint } = useDefaultDossierId('document-upload', preparedDossierId);
 
   // The Procedure Generator hands off its generated procedure + required
   // documents through sessionStorage (see processService.saveProcedureSession).
@@ -26,7 +27,7 @@ export function DocumentUploadPage() {
   const requiredDocuments =
     session && session.dossierId === dossierId ? session.procedure.requiredDocuments : null;
 
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileName, setFileName] = usePersistentState<string | null>('document-upload:fileName', null);
   const { status, progress, result, error, upload, reset } = useDocumentUpload();
   const { getState, upload: uploadRequiredDocument } = useMultiDocumentUpload();
   // Whether this dossier was already submitted in an earlier visit — the

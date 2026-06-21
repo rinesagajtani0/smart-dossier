@@ -6,7 +6,7 @@ import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
 import './CaseMemoryPage.css';
 
 export function CaseMemoryPage() {
-  const { dossierId, setDossierId, hint } = useDefaultDossierId();
+  const { dossierId, setDossierId, hint } = useDefaultDossierId('case-memory');
   const { cases, loading, error, search } = useCaseMemory(dossierId);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { extractDocumentFields } from '../services/nlpService';
 import type { ExtractDocumentResult } from '../services/nlpService';
+import { usePersistentState } from '../state/usePersistentState';
 
 interface UseNlpExtractionResult {
   result: ExtractDocumentResult | null;
@@ -10,7 +11,7 @@ interface UseNlpExtractionResult {
 }
 
 export function useNlpExtraction(): UseNlpExtractionResult {
-  const [result, setResult] = useState<ExtractDocumentResult | null>(null);
+  const [result, setResult] = usePersistentState<ExtractDocumentResult | null>('nlp-extraction:result', null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,6 +26,7 @@ export function useNlpExtraction(): UseNlpExtractionResult {
         setError(err instanceof Error ? err.message : 'Could not extract fields for that document.');
       })
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { result, loading, error, extract };

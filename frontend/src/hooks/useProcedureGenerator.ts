@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { generateProcedure } from '../services/processService';
 import type { GeneratedProcedure, ProcedureGeneratorInput } from '../services/processService';
+import { usePersistentState } from '../state/usePersistentState';
 
 interface UseProcedureGeneratorResult {
   result: GeneratedProcedure | null;
@@ -21,7 +22,7 @@ function wait(ms: number): Promise<void> {
 }
 
 export function useProcedureGenerator(): UseProcedureGeneratorResult {
-  const [result, setResult] = useState<GeneratedProcedure | null>(null);
+  const [result, setResult] = usePersistentState<GeneratedProcedure | null>('procedure-generator:result', null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +37,7 @@ export function useProcedureGenerator(): UseProcedureGeneratorResult {
         setError(err instanceof Error ? err.message : 'Could not generate the procedure.');
       })
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { result, loading, error, generate };
