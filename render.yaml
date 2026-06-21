@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: smart-dossier-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npx prisma generate && npx prisma migrate deploy
+    # Re-seeds on every boot: the free plan's disk is not guaranteed to
+    # persist across restarts, and a public demo benefits from always
+    # starting in a known-good state rather than a half-edited one anyway.
+    startCommand: npx prisma db seed; npm start
+    envVars:
+      - key: DATABASE_URL
+        value: file:./dev.db
+      - key: PORT
+        value: 4000
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+
+  - type: web
+    name: smart-dossier-app
+    runtime: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      # Set this AFTER smart-dossier-api has deployed once, to its real
+      # URL (Render shows it on the service page, e.g.
+      # https://smart-dossier-api.onrender.com). Render does not let a
+      # blueprint reliably self-reference a sibling service's hostname
+      # across runtimes, so this is intentionally a manual one-time step.
+      - key: VITE_API_BASE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
