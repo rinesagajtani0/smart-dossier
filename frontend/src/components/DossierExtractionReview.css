@@ -1,0 +1,120 @@
+.dossier-extraction-review {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dossier-extraction-review--done {
+  align-items: flex-start;
+  padding: 20px 22px;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  background: var(--accent-bg);
+  animation: dossier-extraction-review-in 0.4s ease both;
+}
+
+.dossier-extraction-review__done-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(21, 128, 61, 0.16);
+  color: #15803d;
+  font-weight: 800;
+}
+
+.dossier-extraction-review--done p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.dossier-extraction-review__back-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.dossier-extraction-review__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dossier-extraction-review__header strong {
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.dossier-extraction-review__header span {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.dossier-extraction-review__status {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.dossier-extraction-review__status--error {
+  color: #b91c1c;
+}
+
+.dossier-extraction-review__hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.dossier-extraction-review__action {
+  align-self: flex-start;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dossier-extraction-review__action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.25);
+}
+
+.dossier-extraction-review__action:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.dossier-extraction-review__action--confirm {
+  background: #15803d;
+}
+
+@keyframes dossier-extraction-review-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dossier-extraction-review--done {
+    animation: none;
+  }
+
+  .dossier-extraction-review__action:hover:not(:disabled) {
+    transform: none;
+  }
+}

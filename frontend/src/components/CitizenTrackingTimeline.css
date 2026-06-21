@@ -1,0 +1,103 @@
+.citizen-tracking-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.citizen-tracking-timeline__step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 0;
+  opacity: 0;
+  animation: citizen-tracking-timeline-in 0.4s ease forwards;
+  animation-delay: var(--step-delay, 0ms);
+}
+
+.citizen-tracking-timeline__step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 36px;
+  left: 15px;
+  width: 2px;
+  height: calc(100% - 14px);
+  background: var(--border);
+}
+
+.citizen-tracking-timeline__step--done:not(:last-child)::after {
+  background: rgba(21, 128, 61, 0.35);
+}
+
+.citizen-tracking-timeline__marker {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--code-bg);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.citizen-tracking-timeline__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.citizen-tracking-timeline__step--done .citizen-tracking-timeline__marker {
+  background: rgba(21, 128, 61, 0.16);
+  color: #15803d;
+}
+
+.citizen-tracking-timeline__step--done .citizen-tracking-timeline__label {
+  color: var(--text-h);
+}
+
+.citizen-tracking-timeline__step--current .citizen-tracking-timeline__marker {
+  background: var(--accent-bg);
+  color: var(--accent);
+  animation: citizen-tracking-timeline-pulse 1.4s ease-in-out infinite;
+}
+
+.citizen-tracking-timeline__step--current .citizen-tracking-timeline__label {
+  color: var(--text-h);
+  font-weight: 800;
+}
+
+@keyframes citizen-tracking-timeline-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes citizen-tracking-timeline-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-bg);
+  }
+  50% {
+    box-shadow: 0 0 0 6px var(--accent-bg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .citizen-tracking-timeline__step,
+  .citizen-tracking-timeline__step--current .citizen-tracking-timeline__marker {
+    animation: none;
+    opacity: 1;
+  }
+}

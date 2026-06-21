@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { isApplicationSubmitted } from '../hooks/useApplicationSubmission';
 import { isExtractionConfirmed } from '../hooks/useExtractionConfirmation';
-import { SubmittedApplicationReview } from './SubmittedApplicationReview';
 import type { StaffDossier } from '../services/roleService';
 import './SubmittedApplicationsQueue.css';
 
@@ -13,15 +13,15 @@ export function SubmittedApplicationsQueue({ dossiers }: SubmittedApplicationsQu
   // A citizen's "submitted" flag and a dossier's "extraction confirmed" flag
   // both live in localStorage (see useApplicationSubmission /
   // useExtractionConfirmation) — there's no backend field for either yet.
-  // Re-checked whenever the dossier list itself changes, plus tracked
-  // locally so confirming one removes it from the queue immediately.
-  const [confirmedIds, setConfirmedIds] = useState<Set<number>>(
-    () => new Set(dossiers.filter((dossier) => isExtractionConfirmed(String(dossier.id))).map((dossier) => dossier.id))
-  );
-
+  // Re-derived from the current dossier list on every render: confirming
+  // happens on the NLP Extraction page now, and navigating back here
+  // remounts this list, so there's no need to track removal locally.
   const submittedDossiers = useMemo(
-    () => dossiers.filter((dossier) => isApplicationSubmitted(String(dossier.id)) && !confirmedIds.has(dossier.id)),
-    [dossiers, confirmedIds]
+    () =>
+      dossiers.filter(
+        (dossier) => isApplicationSubmitted(String(dossier.id)) && !isExtractionConfirmed(String(dossier.id)),
+      ),
+    [dossiers],
   );
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -35,8 +35,8 @@ export function SubmittedApplicationsQueue({ dossiers }: SubmittedApplicationsQu
     <section className="submitted-applications-queue">
       <h2 className="staff-role-section__title">Submitted Applications</h2>
       <p className="submitted-applications-queue__hint">
-        Citizens have submitted these applications — run NLP extraction and confirm the extracted fields before the
-        dossier continues.
+        Citizens have submitted these applications — open NLP Extraction to run extraction, review the fields, and
+        confirm before the dossier continues.
       </p>
 
       <div className="roles-page__split">
@@ -68,14 +68,25 @@ export function SubmittedApplicationsQueue({ dossiers }: SubmittedApplicationsQu
 
         <div className="roles-page__panel">
           <div className="roles-page__panel-header">
-            <h3>Review &amp; Confirm</h3>
+            <h3>Next Step</h3>
           </div>
           {selectedDossier && (
-            <SubmittedApplicationReview
-              key={selectedDossier.id}
-              dossier={selectedDossier}
-              onConfirmed={() => setConfirmedIds((prev) => new Set(prev).add(selectedDossier.id))}
-            />
+            <div className="submitted-applications-queue__preview">
+              <strong>{selectedDossier.trackingCode}</strong>
+              <span>{selectedDossier.title}</span>
+              <p>
+                {selectedDossier.missingFields.length > 0
+                  ? `Missing fields so far: ${selectedDossier.missingFields.join(', ')}`
+                  : 'No missing fields flagged yet — ready for extraction.'}
+              </p>
+              <Link
+                to="/nlp-extraction"
+                state={{ dossier: selectedDossier }}
+                className="submitted-applications-queue__action"
+              >
+                Open NLP Extraction →
+              </Link>
+            </div>
           )}
         </div>
       </div>

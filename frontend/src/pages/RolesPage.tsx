@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { CSSProperties, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   getCitizenTracking,
@@ -18,9 +18,16 @@ import { usePermissions } from '../auth/usePermissions';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 import { StaffRoleSection } from '../components/StaffRoleSection';
 import { RoleCapabilityCard } from '../components/RoleCapabilityCard';
+import { CitizenTrackingTimeline } from '../components/CitizenTrackingTimeline';
 import './RolesPage.css';
 
 type RoleTab = 'staff' | 'manager' | 'citizen';
+
+const ROLE_META: Record<RoleTab, { label: string; icon: string; tagline: string }> = {
+  staff: { label: 'Staff', icon: '🧑‍💼', tagline: 'Operational queue, extraction tools, and case support.' },
+  manager: { label: 'Manager', icon: '📊', tagline: 'Oversight, bottlenecks, and escalation decisions.' },
+  citizen: { label: 'Citizen', icon: '🧾', tagline: 'Plain-language application status and next steps.' },
+};
 
 // This page bundles three demo views behind one route — gate which tab a
 // role can open instead of splitting it into three routes (that would
@@ -64,6 +71,10 @@ function parseMissingDocuments(citizenMessage: string): string[] {
 function humanizeFieldName(value: string): string {
   if (!/^[a-z]+[A-Z]/.test(value)) return value;
   return value.replace(/([A-Z])/g, ' $1').replace(/^./, (char) => char.toUpperCase());
+}
+
+function entranceDelay(index: number): CSSProperties {
+  return { '--entrance-delay': `${index * 60}ms` } as CSSProperties;
 }
 
 export function RolesPage() {
@@ -151,10 +162,22 @@ export function RolesPage() {
     }
   }
 
+  // Escalations are derived on the frontend, not a backend field: any
+  // high-risk dossier within two days of its deadline (or already past it)
+  // needs a manager to step in, not just monitoring.
+  const escalations = useMemo(
+    () =>
+      (managerDashboard?.highRiskDossiers ?? []).filter(
+        (dossier) => dossier.daysUntilDeadline != null && dossier.daysUntilDeadline <= 2,
+      ),
+    [managerDashboard],
+  );
+
   return (
     <div className="roles-page">
       <header className="roles-page__header">
-        <div>
+        <div className="roles-page__heading">
+          <span className="roles-page__eyebrow">Role-Based Experience</span>
           <h1>Role Views</h1>
           <p>See exactly what a Citizen, Staff member, and Manager each experience in this app.</p>
         </div>
@@ -166,11 +189,14 @@ export function RolesPage() {
               onClick={() => setActiveRole(tab)}
               type="button"
             >
-              {tab === 'staff' ? 'Staff' : tab === 'manager' ? 'Manager' : 'Citizen'}
+              <span aria-hidden="true">{ROLE_META[tab].icon}</span>
+              {ROLE_META[tab].label}
             </button>
           ))}
         </div>
       </header>
+
+      <p className="roles-page__tagline">{ROLE_META[safeActiveRole].tagline}</p>
 
       {loading && <p className="roles-page__status">Loading role data...</p>}
       {error && <p className="roles-page__status roles-page__status--error">{error}</p>}
@@ -217,7 +243,29 @@ export function RolesPage() {
             />
           </div>
 
-          <div>
+          <div className="roles-page__section" style={entranceDelay(1)}>
+            <h2 className="roles-page__section-title">Performance Overview</h2>
+            <div className="roles-page__metrics">
+              <div>
+                <strong>{managerDashboard.totals.dossiers}</strong>
+                <span>Total Dossiers</span>
+              </div>
+              <div>
+                <strong>{managerDashboard.totals.highRisk}</strong>
+                <span>High Risk Dossiers</span>
+              </div>
+              <div>
+                <strong>{managerDashboard.totals.delayed}</strong>
+                <span>Delayed Dossiers</span>
+              </div>
+              <div>
+                <strong>{managerDashboard.totals.deadlinesThisWeek}</strong>
+                <span>Deadlines This Week</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="roles-page__section" style={entranceDelay(2)}>
             <h2 className="roles-page__section-title">Bottleneck Monitoring</h2>
             <div className="roles-page__panel">
               <div className="roles-page__bottleneck-list">
@@ -241,7 +289,31 @@ export function RolesPage() {
             </div>
           </div>
 
-          <div>
+          <div className="roles-page__section" style={entranceDelay(3)}>
+            <h2 className="roles-page__section-title">
+              Escalations
+              {escalations.length > 0 && <span className="roles-page__section-badge">{escalations.length}</span>}
+            </h2>
+            <div className="roles-page__panel roles-page__panel--escalation">
+              {escalations.length === 0 && <p>No dossier currently needs escalation — all deadlines have headroom.</p>}
+              <div className="roles-page__list">
+                {escalations.map((dossier) => (
+                  <Link to={`/dossiers/${dossier.id}`} className="roles-page__row roles-page__row--escalation" key={dossier.id}>
+                    <span>
+                      <strong>{dossier.trackingCode}</strong> {dossier.title}
+                    </span>
+                    <span className="roles-page__escalation-flag">
+                      {dossier.daysUntilDeadline != null && dossier.daysUntilDeadline < 0
+                        ? `${Math.abs(dossier.daysUntilDeadline)}d overdue`
+                        : `${dossier.daysUntilDeadline}d left`}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="roles-page__section" style={entranceDelay(4)}>
             <h2 className="roles-page__section-title">Risk Monitoring</h2>
             <div className="roles-page__panel">
               <p className="roles-page__panel-label">Highest-Risk Dossiers</p>
@@ -292,7 +364,7 @@ export function RolesPage() {
             </div>
           </div>
 
-          <div>
+          <div className="roles-page__section" style={entranceDelay(5)}>
             <h2 className="roles-page__section-title">Recommended Focus</h2>
             <div className="roles-page__panel">
               {managerDashboard.recommendedFocus ? (
@@ -307,28 +379,6 @@ export function RolesPage() {
               ) : (
                 <p>No dossier currently needs urgent focus.</p>
               )}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="roles-page__section-title">Performance Overview</h2>
-            <div className="roles-page__metrics">
-              <div>
-                <strong>{managerDashboard.totals.dossiers}</strong>
-                <span>Total Dossiers</span>
-              </div>
-              <div>
-                <strong>{managerDashboard.totals.highRisk}</strong>
-                <span>High Risk Dossiers</span>
-              </div>
-              <div>
-                <strong>{managerDashboard.totals.delayed}</strong>
-                <span>Delayed Dossiers</span>
-              </div>
-              <div>
-                <strong>{managerDashboard.totals.deadlinesThisWeek}</strong>
-                <span>Deadlines This Week</span>
-              </div>
             </div>
           </div>
         </section>
@@ -356,31 +406,48 @@ export function RolesPage() {
               />
               <button type="submit">Track</button>
             </form>
+          </div>
 
-            {citizenTracking && (
-              <div className="roles-page__citizen-card">
-                <strong>{citizenTracking.dossier.trackingCode}</strong>
-                <h3>{citizenTracking.dossier.title}</h3>
-
-                <div className="roles-page__citizen-section">
-                  <p className="roles-page__label">Status Tracking</p>
-                  <p>
-                    {citizenTracking.dossier.status} · {citizenTracking.dossier.phase} ·{' '}
-                    {citizenTracking.dossier.institution}
-                  </p>
+          {citizenTracking && (
+            <>
+              <div className="roles-page__citizen-summary">
+                <div className="roles-page__citizen-summary-card" style={entranceDelay(0)}>
+                  <span className="roles-page__label">Application</span>
+                  <strong>{citizenTracking.dossier.trackingCode}</strong>
+                  <span className="roles-page__citizen-summary-sub">{citizenTracking.dossier.title}</span>
                 </div>
+                <div className="roles-page__citizen-summary-card" style={entranceDelay(1)}>
+                  <span className="roles-page__label">Currently With</span>
+                  <strong>{citizenTracking.dossier.institution}</strong>
+                  <span className="roles-page__citizen-summary-sub">Deadline {formatDate(citizenTracking.dossier.deadline)}</span>
+                </div>
+                <div className="roles-page__citizen-summary-card" style={entranceDelay(2)}>
+                  <span className="roles-page__label">Next Step</span>
+                  <strong>{citizenTracking.dossier.nextStep}</strong>
+                </div>
+              </div>
 
-                <div className="roles-page__citizen-section">
+              <div className="roles-page__panel roles-page__panel--timeline" style={entranceDelay(1)}>
+                <div className="roles-page__panel-header">
+                  <h3>Application Progress</h3>
+                </div>
+                <CitizenTrackingTimeline
+                  phase={citizenTracking.dossier.phase}
+                  status={citizenTracking.dossier.status}
+                />
+              </div>
+
+              <div className="roles-page__citizen-grid">
+                <div className="roles-page__panel" style={entranceDelay(2)}>
                   <p className="roles-page__label">Alerts</p>
                   <p>
                     {citizenTracking.dossier.publicRiskLabel === 'may be delayed'
                       ? 'Your application has an active risk alert — see Prevention Guidance below.'
                       : 'No active alerts for your application right now.'}
                   </p>
-                  <span>Deadline {formatDate(citizenTracking.dossier.deadline)}</span>
                 </div>
 
-                <div className="roles-page__citizen-section">
+                <div className="roles-page__panel" style={entranceDelay(3)}>
                   <p className="roles-page__label">Delay Prediction</p>
                   <p>
                     Your application is currently <strong>{citizenTracking.dossier.publicRiskLabel}</strong>.
@@ -390,7 +457,7 @@ export function RolesPage() {
                   </Link>
                 </div>
 
-                <div className="roles-page__citizen-section">
+                <div className="roles-page__panel" style={entranceDelay(4)}>
                   <p className="roles-page__label">Prevention Guidance</p>
                   {(() => {
                     const missingDocs = parseMissingDocuments(citizenTracking.dossier.citizenMessage);
@@ -404,14 +471,13 @@ export function RolesPage() {
                       <p>No documents are missing.</p>
                     );
                   })()}
-                  <p>{citizenTracking.dossier.nextStep}</p>
                   <Link to="/prevent-delay" className="roles-page__citizen-link">
                     Get prevention guidance →
                   </Link>
                 </div>
               </div>
-            )}
-          </div>
+            </>
+          )}
 
           <RoleCapabilityCard
             icon="📤"

@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ExtractionResultPanel } from './ExtractionResultPanel';
 import { useNlpExtraction } from '../hooks/useNlpExtraction';
 import { useExtractionConfirmation } from '../hooks/useExtractionConfirmation';
 import { getDossierById, updateDossier } from '../services/dossierService';
+import { showToast } from '../services/toastService';
 import { PHASES } from '../data/phases';
 import type { StaffDossier } from '../services/roleService';
-import './SubmittedApplicationReview.css';
+import './DossierExtractionReview.css';
 
-interface SubmittedApplicationReviewProps {
+interface DossierExtractionReviewProps {
   dossier: StaffDossier;
-  onConfirmed: () => void;
 }
 
-export function SubmittedApplicationReview({ dossier, onConfirmed }: SubmittedApplicationReviewProps) {
+export function DossierExtractionReview({ dossier }: DossierExtractionReviewProps) {
   const [latestDocumentId, setLatestDocumentId] = useState<string | null>(null);
   const [documentsLoading, setDocumentsLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
@@ -74,7 +75,12 @@ export function SubmittedApplicationReview({ dossier, onConfirmed }: SubmittedAp
         ...(nextPhase ? { phase: nextPhase } : isFinalStep ? { status: 'closed' } : {}),
       });
       confirm();
-      onConfirmed();
+      showToast(
+        nextPhase
+          ? `Extraction confirmed for ${dossier.trackingCode} — moved to ${nextPhase}.`
+          : `Extraction confirmed for ${dossier.trackingCode}.`,
+        'success',
+      );
     } catch (err) {
       setConfirmError(err instanceof Error ? err.message : 'Could not confirm extraction.');
     } finally {
@@ -84,23 +90,29 @@ export function SubmittedApplicationReview({ dossier, onConfirmed }: SubmittedAp
 
   if (confirmed) {
     return (
-      <div className="submitted-application-review submitted-application-review--done">
+      <div className="dossier-extraction-review dossier-extraction-review--done">
+        <span className="dossier-extraction-review__done-icon" aria-hidden="true">
+          ✓
+        </span>
         <p>Extraction confirmed. This dossier has moved on in the workflow.</p>
+        <Link to="/roles" className="dossier-extraction-review__back-link">
+          ← Back to Submitted Applications
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="submitted-application-review">
-      <div className="submitted-application-review__header">
+    <div className="dossier-extraction-review">
+      <div className="dossier-extraction-review__header">
         <strong>{dossier.trackingCode}</strong>
         <span>{dossier.title}</span>
       </div>
 
-      {documentsLoading && <p className="submitted-application-review__status">Loading uploaded documents…</p>}
+      {documentsLoading && <p className="dossier-extraction-review__status">Loading uploaded documents…</p>}
 
       {!documentsLoading && !latestDocumentId && (
-        <p className="submitted-application-review__status">
+        <p className="dossier-extraction-review__status">
           No uploaded document found for this dossier yet — extraction needs a document to read.
         </p>
       )}
@@ -108,7 +120,7 @@ export function SubmittedApplicationReview({ dossier, onConfirmed }: SubmittedAp
       {!documentsLoading && latestDocumentId && !result && (
         <button
           type="button"
-          className="submitted-application-review__action"
+          className="dossier-extraction-review__action"
           onClick={() => extract(latestDocumentId)}
           disabled={loading}
         >
@@ -116,26 +128,26 @@ export function SubmittedApplicationReview({ dossier, onConfirmed }: SubmittedAp
         </button>
       )}
 
-      {error && <p className="submitted-application-review__status submitted-application-review__status--error">{error}</p>}
+      {error && <p className="dossier-extraction-review__status dossier-extraction-review__status--error">{error}</p>}
 
       {result && (
         <>
           <ExtractionResultPanel data={result.extractedData} />
 
-          <p className="submitted-application-review__hint">
+          <p className="dossier-extraction-review__hint">
             Review the extracted fields above. Confirming will save them to the dossier record and move it forward
             in the workflow.
           </p>
 
           {confirmError && (
-            <p className="submitted-application-review__status submitted-application-review__status--error">
+            <p className="dossier-extraction-review__status dossier-extraction-review__status--error">
               {confirmError}
             </p>
           )}
 
           <button
             type="button"
-            className="submitted-application-review__action submitted-application-review__action--confirm"
+            className="dossier-extraction-review__action dossier-extraction-review__action--confirm"
             onClick={handleConfirm}
             disabled={confirming}
           >

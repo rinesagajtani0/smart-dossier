@@ -12,9 +12,23 @@
   align-self: flex-start;
 }
 
+.nlp-extraction-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nlp-extraction-page__eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
 .nlp-extraction-page__header h1 {
   font-size: 28px;
-  margin: 0 0 6px;
+  margin: 0 0 2px;
 }
 
 .nlp-extraction-page__header p {
