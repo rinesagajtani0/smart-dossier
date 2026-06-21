@@ -15,7 +15,7 @@ import { usePreventDelay } from '../hooks/usePreventDelay';
 import type { PreventDelayPlan } from '../hooks/usePreventDelay';
 import { usePreventionEngine } from '../hooks/usePreventionEngine';
 import { useDefaultDossierId } from '../hooks/useDefaultDossierId';
-import { RISK_PROBABILITY, parseUpperBoundDays } from '../utils/riskProbability';
+import { parseUpperBoundDays } from '../utils/riskProbability';
 import type { RiskLevel } from '../types/dossier';
 import './PreventDelayPage.css';
 
@@ -77,10 +77,10 @@ export function PreventDelayPage() {
 
   const remainingMissing = plan ? Math.max(0, plan.missingDocuments.length - engine.documentsRecovered) : 0;
   const completedCount = engine.tasks.filter((task) => engine.statuses[task.id] === 'completed').length;
-  const liveRisk = engine.live?.risk ?? plan?.updatedRisk;
+  const liveRisk = engine.projectedRisk ?? engine.live?.risk ?? plan?.updatedRisk;
 
-  const beforePercent = engine.baseline ? RISK_PROBABILITY[engine.baseline.risk] : null;
-  const afterPercent = engine.live ? RISK_PROBABILITY[engine.live.risk] : null;
+  const beforePercent = engine.baselineRiskPercent;
+  const afterPercent = engine.projectedRiskPercent;
   const riskReducedPoints = beforePercent !== null && afterPercent !== null ? Math.max(0, beforePercent - afterPercent) : 0;
   const daysSaved =
     engine.baseline && engine.live
@@ -172,6 +172,9 @@ export function PreventDelayPage() {
             <RiskReductionSimulator
               baseline={engine.baseline}
               live={engine.live}
+              baselineRiskPercent={engine.baselineRiskPercent}
+              projectedRiskPercent={engine.projectedRiskPercent}
+              projectedRisk={engine.projectedRisk}
               tasks={engine.tasks}
               statuses={engine.statuses}
             />

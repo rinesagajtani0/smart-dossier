@@ -2,18 +2,31 @@ import { DelayRiskGauge } from './DelayRiskGauge';
 import { RISK_PROBABILITY, parseUpperBoundDays } from '../utils/riskProbability';
 import type { DelayPrediction } from '../services/dossierService';
 import type { PreventionTask, PreventionTaskStatus } from '../hooks/usePreventionEngine';
+import type { RiskLevel } from '../types/dossier';
 import './RiskReductionSimulator.css';
 
 interface RiskReductionSimulatorProps {
   baseline: DelayPrediction;
   live: DelayPrediction;
+  baselineRiskPercent: number | null;
+  projectedRiskPercent: number | null;
+  projectedRisk: RiskLevel | null;
   tasks: PreventionTask[];
   statuses: Record<string, PreventionTaskStatus>;
 }
 
-export function RiskReductionSimulator({ baseline, live, tasks, statuses }: RiskReductionSimulatorProps) {
-  const beforePercent = RISK_PROBABILITY[baseline.risk];
-  const afterPercent = RISK_PROBABILITY[live.risk];
+export function RiskReductionSimulator({
+  baseline,
+  live,
+  baselineRiskPercent,
+  projectedRiskPercent,
+  projectedRisk,
+  tasks,
+  statuses,
+}: RiskReductionSimulatorProps) {
+  const beforePercent = baselineRiskPercent ?? RISK_PROBABILITY[baseline.risk];
+  const afterPercent = projectedRiskPercent ?? RISK_PROBABILITY[live.risk];
+  const afterRisk = projectedRisk ?? live.risk;
   const reduced = beforePercent - afterPercent;
 
   const beforeDays = parseUpperBoundDays(baseline.predictedDelay) ?? 0;
@@ -38,7 +51,7 @@ export function RiskReductionSimulator({ baseline, live, tasks, statuses }: Risk
 
         <div className="risk-reduction-simulator__gauge-block">
           <span className="risk-reduction-simulator__gauge-label">Predicted Risk After Actions</span>
-          <DelayRiskGauge percent={afterPercent} riskLevel={live.risk} />
+          <DelayRiskGauge percent={afterPercent} riskLevel={afterRisk} />
         </div>
       </div>
 

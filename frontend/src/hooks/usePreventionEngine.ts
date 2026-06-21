@@ -3,6 +3,8 @@ import { predictDossierDelay, updateDossier } from '../services/dossierService';
 import type { DelayPrediction } from '../services/dossierService';
 import type { PreventDelayPlan } from './usePreventDelay';
 import { usePersistentState } from '../state/usePersistentState';
+import { RISK_PROBABILITY, riskLevelFromProbability } from '../utils/riskProbability';
+import type { RiskLevel } from '../types/dossier';
 
 export type PreventionTaskStatus = 'pending' | 'in-progress' | 'completed';
 export type PreventionTaskKind = 'missing-document' | 'verification' | 'notification';
@@ -27,11 +29,9 @@ export interface PreventionTask {
 }
 
 // Every checklist line from usePreventDelay is one of three shapes
-// ("Request X" / "Verify X" / "Notify applicant") — this turns each into a
-// task with a real lever: completing a "missing-document" task actually
-// removes that document from the dossier's missingFields and re-runs the
-// backend's real delay prediction, so the risk score that comes back is
-// genuinely recalculated, not a fabricated animation target.
+// ("Request X" / "Verify X" / "Notify applicant"). Missing-document tasks
+// also clear dossier fields server-side; all completed tasks contribute their
+// prevention impact to the projected risk shown in the simulator.
 function buildTasks(plan: PreventDelayPlan): PreventionTask[] {
   return plan.checklist.map((item) => {
     if (item.startsWith('Request ')) {
@@ -92,6 +92,9 @@ interface UsePreventionEngineResult {
   statuses: Record<string, PreventionTaskStatus>;
   baseline: DelayPrediction | null;
   live: DelayPrediction | null;
+  baselineRiskPercent: number | null;
+  projectedRiskPercent: number | null;
+  projectedRisk: RiskLevel | null;
   resolveTask: (taskId: string) => void;
   resolvingTaskId: string | null;
   engineError: string | null;
@@ -116,6 +119,24 @@ export function usePreventionEngine(dossierId: string, plan: PreventDelayPlan | 
   const [live, setLive] = usePersistentState<DelayPrediction | null>(`prevent-delay:live:${dossierId}`, null);
   const [resolvingTaskId, setResolvingTaskId] = useState<string | null>(null);
   const [engineError, setEngineError] = useState<string | null>(null);
+
+  const completedRiskImpact = useMemo(
+    () =>
+      tasks.reduce(
+        (total, task) => (statuses[task.id] === 'completed' ? total + task.riskImpactPercent : total),
+        0,
+      ),
+    [statuses, tasks],
+  );
+  const baselineRiskPercent = baseline ? RISK_PROBABILITY[baseline.risk] : null;
+  const projectedRiskPercent =
+    baseline && live
+      ? Math.max(
+          0,
+          Math.min(RISK_PROBABILITY[live.risk], RISK_PROBABILITY[baseline.risk] - completedRiskImpact),
+        )
+      : null;
+  const projectedRisk = projectedRiskPercent !== null ? riskLevelFromProbability(projectedRiskPercent) : null;
 
   useEffect(() => {
     if (!plan || baseline) return;
@@ -149,8 +170,8 @@ export function usePreventionEngine(dossierId: string, plan: PreventDelayPlan | 
     (async () => {
       await wait(RESOLVE_DELAY_MS);
 
-      // Non-document tasks (notify/verify) have no dossier field to clear,
-      // so there's nothing real to recompute against — they just complete.
+      // Non-document tasks have no dossier field to clear. Marking them
+      // completed updates the projected risk through completedRiskImpact.
       if (task.kind !== 'missing-document' || !task.documentName) {
         setStatuses((prev) => ({ ...prev, [taskId]: 'completed' }));
         setResolvingTaskId(null);
@@ -194,6 +215,9 @@ export function usePreventionEngine(dossierId: string, plan: PreventDelayPlan | 
     statuses,
     baseline,
     live,
+    baselineRiskPercent,
+    projectedRiskPercent,
+    projectedRisk,
     resolveTask,
     resolvingTaskId,
     engineError,

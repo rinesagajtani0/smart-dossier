@@ -11,6 +11,12 @@ export const RISK_PROBABILITY: Record<RiskLevel, number> = {
   high: 82,
 };
 
+export function riskLevelFromProbability(percent: number): RiskLevel {
+  if (percent >= 70) return 'high';
+  if (percent >= 40) return 'medium';
+  return 'low';
+}
+
 export const RISK_BADGE_LABEL: Record<RiskLevel, string> = {
   low: '🟢 Low Risk',
   medium: '🟡 Medium Risk',
