@@ -1,3 +1,4 @@
+import { useAnimatedCounter } from '../hooks/useAnimatedCounter';
 import './StatCard.css';
 
 interface StatCardProps {
@@ -6,6 +7,7 @@ interface StatCardProps {
   tone?: 'default' | 'danger' | 'warning' | 'legal';
   icon?: string;
   trend?: 'up' | 'down' | 'neutral';
+  delay?: number;
 }
 
 const TREND_ARROW: Record<'up' | 'down' | 'neutral', string> = {
@@ -14,9 +16,14 @@ const TREND_ARROW: Record<'up' | 'down' | 'neutral', string> = {
   neutral: '–',
 };
 
-export function StatCard({ label, value, tone = 'default', icon, trend }: StatCardProps) {
+export function StatCard({ label, value, tone = 'default', icon, trend, delay = 0 }: StatCardProps) {
+  const animatedValue = useAnimatedCounter(value);
+
   return (
-    <div className={`stat-card stat-card--${tone}`}>
+    <div
+      className={`stat-card stat-card--${tone}`}
+      style={{ '--entrance-delay': `${delay}ms` } as React.CSSProperties}
+    >
       {(icon || trend) && (
         <div className="stat-card__top">
           {icon && (
@@ -29,7 +36,7 @@ export function StatCard({ label, value, tone = 'default', icon, trend }: StatCa
           )}
         </div>
       )}
-      <span className="stat-card__value">{value}</span>
+      <span className="stat-card__value">{animatedValue}</span>
       <span className="stat-card__label">{label}</span>
     </div>
   );

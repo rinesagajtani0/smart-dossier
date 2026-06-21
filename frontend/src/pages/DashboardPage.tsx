@@ -4,6 +4,8 @@ import { useDashboardKanban } from '../hooks/useDashboardKanban';
 import { useManagerDashboard } from '../hooks/useManagerDashboard';
 import { StatCard } from '../components/StatCard';
 import { KanbanBoard } from '../components/KanbanBoard';
+import { DashboardSkeleton } from '../components/DashboardSkeleton';
+import { RiskLevelBadge } from '../components/RiskLevelBadge';
 import { Can } from '../auth/Can';
 import { BOTTLENECK_LABELS } from '../utils/phase';
 import './DashboardPage.css';
@@ -38,27 +40,32 @@ export function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="dashboard-page__header">
+      <header className="dashboard-page__hero">
+        <span className="dashboard-page__live-badge">
+          <span className="dashboard-page__live-dot" aria-hidden="true" />
+          Live
+        </span>
         <h1>Operations Dashboard</h1>
         <p>Real-time overview of dossier processing across all phases.</p>
       </header>
 
-      {loading && <p className="dashboard-page__status">Loading dashboard…</p>}
+      {loading && <DashboardSkeleton />}
       {error && <p className="dashboard-page__status dashboard-page__status--error">{error}</p>}
 
       {!loading && !error && stats && (
         <div className="dashboard-page__stats">
-          <StatCard label="Total Dossiers" value={stats.totalDossiers} />
-          <StatCard label="Active Dossiers" value={activeDossiers} />
-          <StatCard label="High Risk Dossiers" value={stats.highRisk} tone="danger" />
-          <StatCard label="Delayed Dossiers" value={stats.delayed} tone="danger" />
-          <StatCard label="Deadlines This Week" value={stats.deadlinesThisWeek} tone="warning" />
+          <StatCard label="Total Dossiers" value={stats.totalDossiers} delay={0} />
+          <StatCard label="Active Dossiers" value={activeDossiers} delay={60} />
+          <StatCard label="High Risk Dossiers" value={stats.highRisk} tone="danger" delay={120} />
+          <StatCard label="Delayed Dossiers" value={stats.delayed} tone="danger" delay={180} />
+          <StatCard label="Deadlines This Week" value={stats.deadlinesThisWeek} tone="warning" delay={240} />
           <StatCard
             label="Legally Impacted Dossiers"
             value={stats.legalImpacted}
             tone="legal"
             icon="⚖"
             trend="up"
+            delay={300}
           />
         </div>
       )}
@@ -69,8 +76,14 @@ export function DashboardPage() {
       <Can permission="view-manager-reports">
         {!loading && !error && stats && (
           <section className="dashboard-page__decision-support">
-            <div className="dashboard-page__panel">
-              <h2>Bottlenecks</h2>
+            <p className="dashboard-page__section-eyebrow">Decision Support</p>
+            <div className="dashboard-page__panel" style={{ '--entrance-delay': '0ms' } as React.CSSProperties}>
+              <h2>
+                <span className="dashboard-page__panel-icon" aria-hidden="true">
+                  ⛔
+                </span>
+                Bottlenecks
+              </h2>
               <div className="dashboard-page__bottleneck-list">
                 {bottlenecks.map((item) => (
                   <div className="dashboard-page__bottleneck-row" key={item.label}>
@@ -88,17 +101,23 @@ export function DashboardPage() {
             </div>
 
             <div className="dashboard-page__split">
-              <div className="dashboard-page__panel">
-                <h2>Risk Monitoring</h2>
+              <div className="dashboard-page__panel" style={{ '--entrance-delay': '80ms' } as React.CSSProperties}>
+                <h2>
+                  <span className="dashboard-page__panel-icon" aria-hidden="true">
+                    🛡
+                  </span>
+                  Risk Monitoring
+                </h2>
                 <p className="dashboard-page__panel-label">Highest-Risk Dossiers</p>
                 <div className="dashboard-page__list">
                   {!managerLoading &&
                     managerDashboard?.highRiskDossiers.slice(0, 6).map((dossier) => (
                       <Link to={`/dossiers/${dossier.id}`} className="dashboard-page__row" key={dossier.id}>
-                        <span>
+                        <span className="dashboard-page__row-title">
                           <strong>{dossier.trackingCode}</strong> {dossier.title}
                         </span>
-                        <span>
+                        <span className="dashboard-page__row-meta">
+                          <RiskLevelBadge riskLevel={dossier.riskLevel} compact />
                           {dossier.daysUntilDeadline != null
                             ? `${dossier.daysUntilDeadline}d to deadline`
                             : 'no deadline'}
@@ -132,8 +151,13 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              <div className="dashboard-page__panel">
-                <h2>Recommended Focus</h2>
+              <div className="dashboard-page__panel" style={{ '--entrance-delay': '160ms' } as React.CSSProperties}>
+                <h2>
+                  <span className="dashboard-page__panel-icon" aria-hidden="true">
+                    🎯
+                  </span>
+                  Recommended Focus
+                </h2>
                 {!managerLoading && managerDashboard?.recommendedFocus ? (
                   <div className="dashboard-page__focus">
                     <strong>{managerDashboard.recommendedFocus.trackingCode}</strong>
@@ -154,6 +178,7 @@ export function DashboardPage() {
 
       {!loading && !error && columns && (
         <section className="dashboard-page__board">
+          <p className="dashboard-page__section-eyebrow">Workflow</p>
           <h2>Phase Overview</h2>
           <KanbanBoard columns={columns} />
         </section>

@@ -16,6 +16,17 @@
   border-radius: 50%;
 }
 
+.risk-level-badge--compact {
+  padding: 3px 10px;
+  font-size: 11px;
+  gap: 5px;
+}
+
+.risk-level-badge--compact .risk-level-badge__dot {
+  width: 6px;
+  height: 6px;
+}
+
 .risk-level-badge--high {
   background: rgba(239, 68, 68, 0.14);
   color: #b91c1c;

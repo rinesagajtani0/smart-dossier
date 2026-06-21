@@ -3,6 +3,7 @@ import './RiskLevelBadge.css';
 
 interface RiskLevelBadgeProps {
   riskLevel: RiskLevel;
+  compact?: boolean;
 }
 
 const RISK_LABELS: Record<RiskLevel, string> = {
@@ -11,11 +12,13 @@ const RISK_LABELS: Record<RiskLevel, string> = {
   low: 'Low',
 };
 
-export function RiskLevelBadge({ riskLevel }: RiskLevelBadgeProps) {
+export function RiskLevelBadge({ riskLevel, compact = false }: RiskLevelBadgeProps) {
   return (
-    <span className={`risk-level-badge risk-level-badge--${riskLevel}`}>
+    <span
+      className={`risk-level-badge risk-level-badge--${riskLevel}${compact ? ' risk-level-badge--compact' : ''}`}
+    >
       <span className="risk-level-badge__dot" aria-hidden="true" />
-      {RISK_LABELS[riskLevel]} Risk
+      {RISK_LABELS[riskLevel]}{!compact && ' Risk'}
     </span>
   );
 }

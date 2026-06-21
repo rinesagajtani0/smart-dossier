@@ -9,12 +9,30 @@
   text-decoration: none;
   color: inherit;
   transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  animation: kanban-card-in 0.3s ease both;
 }
 
 .kanban-card:hover {
   border-color: var(--accent-border);
   box-shadow: var(--shadow);
   transform: translateY(-2px);
+}
+
+@keyframes kanban-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kanban-card {
+    animation: none;
+  }
 }
 
 .kanban-card__header {
