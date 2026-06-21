@@ -184,9 +184,9 @@ export function usePreventionEngine(dossierId: string, plan: PreventDelayPlan | 
         const updated = await updateDossier(dossierId, { missingFields: stillMissing });
 
         // Trust what the server actually stored, not the optimistic patch —
-        // the existing legal-adaptation engine can re-add a document right
-        // back (e.g. one an active regulatory update still requires), and
-        // this must not claim success when that happens.
+        // Trust what the server actually stored for recovered documents.
+        // If a legal-adaptation engine re-adds the same document, the staff
+        // action is still recorded, but documentsRecovered stays accurate.
         const actuallyResolved = plan.missingDocuments.filter((doc) => !updated.missingFields.includes(doc));
         setResolvedDocs(actuallyResolved);
 
@@ -195,9 +195,9 @@ export function usePreventionEngine(dossierId: string, plan: PreventDelayPlan | 
 
         if (updated.missingFields.includes(task.documentName)) {
           setEngineError(
-            `${task.documentName} is still required by an active legal/regulatory update and could not be cleared automatically — escalate to a manager.`,
+            `${task.documentName} is still required by an active legal/regulatory update and could not be cleared automatically. The prevention action was recorded; keep this document on the citizen request list and escalate to a manager if needed.`,
           );
-          setStatuses((prev) => ({ ...prev, [taskId]: 'pending' }));
+          setStatuses((prev) => ({ ...prev, [taskId]: 'completed' }));
         } else {
           setStatuses((prev) => ({ ...prev, [taskId]: 'completed' }));
         }
